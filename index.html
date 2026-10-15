@@ -1,0 +1,2728 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrivoWeb - Mi Garaje</title>
+
+    <script src="./r2db.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Archivo de configuración de Firebase -->
+    <script src="./firebase-db.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Cropper.js for image cropping -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+    <!-- JSZip for Export/Import database -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- Google Sans Font (via fallback/outfit) -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banqueta': '#F5C000',
+                        'dark-bg': '#0A0A0A',
+                        'dark-panel': '#141414',
+                        'dark-border': '#222222',
+                        'dark-hover': '#1A1A1A'
+                    },
+                    fontFamily: {
+                        sans: ['"Google Sans"', '"Product Sans"', 'Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Google Sans'), local('Product Sans'), url('https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2') format('woff2');
+        }
+
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Google Sans Bold'), local('Product Sans Bold'), url('https://fonts.gstatic.com/s/productsans/v5/IG2fpL4420p1wZp5A2cR-QzEAh0-TIFl9rVz0zC3aM8.woff2') format('woff2');
+        }
+
+        body {
+            background-color: #0A0A0A;
+            color: #F3F4F6;
+            margin: 0;
+            overflow-x: hidden;
+            font-family: 'Google Sans', 'Product Sans', 'Outfit', sans-serif;
+        }
+
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #F5C000;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        /* EFECTO FADE PARA IMAGENES LAZY LOAD */
+        .fade-image {
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        .fade-image.loaded {
+            opacity: 1;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass-panel {
+            background: #141414;
+            border: 1px solid #222;
+        }
+
+        .input-style {
+            background-color: #0A0A0A;
+            border: 1px solid #333;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .input-style:focus {
+            outline: none;
+            border-color: #F5C000;
+            box-shadow: 0 0 0 1px rgba(245, 192, 0, 0.5);
+        }
+
+        .btn-primary {
+            background-color: #F5C000;
+            color: black;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #DDAA00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(245, 192, 0, 0.3);
+        }
+
+        .section-view {
+            display: none;
+        }
+
+        .section-view.active {
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .uniform-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .glow-hover {
+            transition: all 0.3s ease;
+            border: 1px solid #222;
+        }
+
+        .glow-hover:hover {
+            border-color: rgba(245, 192, 0, 0.5);
+            box-shadow: 0 0 15px rgba(245, 192, 0, 0.25);
+            transform: translateY(-4px);
+        }
+
+        .bg-watermark {
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            filter: blur(8px) grayscale(50%);
+            transform: scale(1.2);
+            transition: all 0.5s ease;
+        }
+
+        .group:hover .bg-watermark {
+            opacity: 0.3;
+            filter: blur(4px) grayscale(0%);
+            transform: scale(1.1);
+        }
+
+        .hidden-file-input {
+            display: none;
+        }
+
+        .upload-area {
+            border: 2px dashed #333;
+            background: #0A0A0A;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            border-color: #F5C000;
+            background: #111;
+        }
+
+        .upload-area img.preview {
+            width: auto;
+            height: auto;
+            max-width: calc(100% - 12px);
+            max-height: calc(100% - 12px);
+            object-fit: contain;
+            object-position: center;
+            border-radius: 8px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 10;
+        }
+
+        .upload-area.has-image>i,
+        .upload-area.has-image>span {
+            visibility: hidden;
+        }
+
+        .catalog-logo {
+            width: auto;
+            height: auto;
+            max-width: min(100%, 140px);
+            max-height: 100px;
+            border-radius: 8px;
+        }
+
+        .profile-avatar {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            border-radius: 9999px;
+            border: 1px solid #333;
+            background: #222;
+            color: #F5C000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 9999px;
+        }
+
+        .profile-avatar [hidden] {
+            display: none;
+        }
+
+        .upload-area.has-image {
+            border-style: solid;
+            border-color: #222;
+        }
+
+        .upload-area.has-image:hover {
+            border-color: #F5C000;
+        }
+
+        .upload-area.has-image img.preview {
+            display: block;
+        }
+
+        .custom-select-wrapper {
+            position: relative;
+            z-index: 10;
+        }
+
+        .custom-select-wrapper.open {
+            z-index: 60;
+        }
+
+        .custom-select-trigger {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .custom-select-options {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background-color: #18181b;
+            border: 1px solid #3f3f46;
+            border-radius: 0.75rem;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 99999;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .custom-select-wrapper.active .custom-select-options,
+        .custom-select-wrapper.open .custom-select-options {
+            display: block;
+        }
+
+        .custom-select-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: block;
+            width: 100%;
+            text-align: left;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .custom-select-option:hover,
+        .custom-select-option:focus-visible {
+            background: rgba(245, 192, 0, 0.1);
+            color: #F5C000;
+        }
+
+        .custom-select-empty {
+            padding: 0.75rem 1rem;
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        .color-swatch {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .color-swatch.selected {
+            border-color: white;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .rating-star {
+            color: #444;
+            transition: all 0.2s;
+        }
+
+        .rating-star.hover {
+            color: rgba(245, 192, 0, 0.6);
+            transform: scale(1.1);
+        }
+
+        .rating-star.active {
+            color: #F5C000;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen selection:bg-banqueta selection:text-black antialiased no-select bg-dark-bg">
+
+    <!-- FLOATING NAVBAR (NATIVO MÓVIL) O ASIDE (ESCRITORIO) -->
+    <aside
+        class="fixed bottom-4 left-4 right-4 h-16 md:bottom-auto md:left-auto md:right-auto md:h-screen md:relative w-[calc(100%-2rem)] md:w-64 glass-panel rounded-2xl md:rounded-none border md:border-t-0 md:border-r border-dark-border flex flex-row md:flex-col z-50 md:z-40 transition-all duration-300 bg-[#1A1A1A]/95 md:bg-[#141414] backdrop-blur-xl shadow-2xl md:shadow-none">
+        <div class="hidden md:flex p-6 items-center justify-start border-b border-dark-border h-[89px]">
+            <img src="assets/logotipe.png" alt="DrivoWeb" class="w-auto h-10 max-w-full object-contain shrink-0">
+        </div>
+
+        <nav
+            class="flex-1 w-full flex flex-row justify-around md:justify-start md:flex-col gap-1 md:gap-2 px-2 md:px-4 py-2 md:py-6 overflow-hidden md:overflow-y-auto custom-scroll items-center md:items-stretch">
+
+            <button onclick="switchTab('home')" id="nav-home"
+                class="nav-btn flex items-center justify-center md:justify-start gap-0 md:gap-4 w-12 h-12 md:w-full md:h-auto md:px-4 md:py-3.5 rounded-xl transition-all duration-300 text-banqueta bg-[#303030] font-semibold md:shadow-[0_0_15px_rgba(245,192,0,0.15)] group">
+                <i class="ph-fill ph-house text-2xl md:group-hover:scale-110 transition-transform"></i> <span
+                    class="hidden md:block text-sm leading-none">Inicio</span>
+            </button>
+            <button onclick="switchTab('cars', event)" id="nav-cars"
+                class="nav-btn flex items-center justify-center md:justify-start gap-0 md:gap-4 w-12 h-12 md:w-full md:h-auto md:px-4 md:py-3.5 rounded-xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
+                <i class="ph-fill ph-car text-2xl md:group-hover:scale-110 transition-transform"></i> <span
+                    class="hidden md:block text-sm leading-none">Autos</span>
+            </button>
+            <button onclick="switchTab('favorites')" id="nav-favorites"
+                class="nav-btn flex items-center justify-center md:justify-start gap-0 md:gap-4 w-12 h-12 md:w-full md:h-auto md:px-4 md:py-3.5 rounded-xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
+                <i class="ph-fill ph-heart text-2xl md:group-hover:scale-110 transition-transform"></i> <span
+                    class="hidden md:block text-sm leading-none">Favoritos</span>
+            </button>
+            <button onclick="switchTab('wishlist', event)" id="nav-wishlist"
+                class="nav-btn flex items-center justify-center md:justify-start gap-0 md:gap-4 w-12 h-12 md:w-full md:h-auto md:px-4 md:py-3.5 rounded-xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
+                <i class="ph-fill ph-star text-2xl md:group-hover:scale-110 transition-transform"></i> <span
+                    class="hidden md:block text-sm leading-none">Deseados</span>
+            </button>
+
+            <!-- Menú Más (Solo Móvil) -->
+            <button onclick="openModal('mobile-more-modal')" id="nav-more"
+                class="nav-btn md:hidden flex items-center justify-center gap-0 w-12 h-12 rounded-xl transition-all duration-300 text-gray-400 bg-transparent group">
+                <i class="ph-fill ph-squares-four text-2xl"></i>
+            </button>
+
+            <!-- Elementos visibles solo en Desktop -->
+            <div class="hidden md:block h-px bg-dark-border my-2"></div>
+            <button onclick="switchTab('brands')" id="nav-brands"
+                class="nav-btn hidden md:flex items-center justify-start gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
+                <i class="ph-fill ph-tag text-2xl group-hover:scale-110 transition-transform"></i> <span
+                    class="block text-sm leading-none">Marcas</span>
+            </button>
+            <button onclick="switchTab('manufacturers')" id="nav-manufacturers"
+                class="nav-btn hidden md:flex items-center justify-start gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
+                <i class="ph-fill ph-factory text-2xl group-hover:scale-110 transition-transform"></i> <span
+                    class="block text-sm leading-none">Fabricantes</span>
+            </button>
+            <button onclick="switchTab('collections')" id="nav-collections"
+                class="nav-btn hidden md:flex items-center justify-start gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
+                <i class="ph-fill ph-books text-2xl group-hover:scale-110 transition-transform"></i> <span
+                    class="block text-sm leading-none">Colecciones</span>
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Main App Container -->
+    <main class="flex-1 min-w-0 flex flex-col h-full bg-dark-bg relative pb-24 md:pb-0">
+        <!-- HEADER -->
+        <header
+            class="p-4 md:p-6 border-b border-dark-border bg-dark-bg/90 backdrop-blur z-30 sticky top-0 flex flex-col gap-4 md:flex-row md:items-center">
+            <!-- Perfil a la izquierda en móvil, Search a la derecha o abajo -->
+            <div class="flex items-center justify-between w-full md:w-auto md:ml-auto md:order-2">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="profile-avatar" aria-hidden="true">
+                        <span id="navbar-user-initials">U</span>
+                        <img id="navbar-user-avatar" alt="" hidden class="rounded-full object-cover">
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-xs text-gray-500">Mi perfil</span>
+                        <span id="navbar-user-name"
+                            class="block max-w-[110px] lg:max-w-[180px] truncate text-sm font-semibold text-white">Usuario</span>
+                    </div>
+                </div>
+                <button type="button" onclick="openSettings()" id="settings-button"
+                    aria-label="Abrir ajustes de usuario" title="Ajustes"
+                    class="w-11 h-11 shrink-0 rounded-xl border border-dark-border bg-dark-panel text-gray-400 hover:text-banqueta hover:border-banqueta transition-colors flex items-center justify-center ml-2">
+                    <i class="ph-bold ph-gear-six text-2xl" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="relative flex-1 min-w-0 w-full max-w-2xl order-2 md:order-1">
+                <i
+                    class="ph-bold ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl"></i>
+                <input type="text" id="global-search" placeholder="Buscar en la vista actual..."
+                    onkeyup="renderActiveView()" class="w-full input-style rounded-2xl py-3 pl-12 pr-4 shadow-sm">
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="flex-1 overflow-y-auto custom-scroll px-4 py-4 md:px-10 md:py-8">
+            <!-- Inicio Rediseñado -->
+            <section id="section-home" class="section-view active fade-in space-y-6 md:space-y-10">
+                <!-- Welcome Card Premium -->
+                <div
+                    class="glass-panel p-6 sm:p-10 rounded-[2rem] relative overflow-hidden group border-dark-border/50 shadow-2xl bg-[#0d0d0d]">
+                    <!-- Elementos decorativos de fondo -->
+                    <div
+                        class="absolute -right-20 -top-20 w-96 h-96 bg-banqueta/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-banqueta/20 transition-all duration-700">
+                    </div>
+                    <div
+                        class="absolute right-10 top-1/2 -translate-y-1/2 opacity-5 pointer-events-none hidden md:block group-hover:scale-110 group-hover:opacity-10 transition-all duration-700">
+                        <i class="ph-fill ph-garage text-[250px] text-banqueta"></i>
+                    </div>
+
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                            <div
+                                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 text-xs font-semibold mb-4">
+                                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Sistema en línea
+                            </div>
+                            <h1 class="text-4xl sm:text-5xl font-black mb-3 text-white tracking-tight">Bienvenido, <span
+                                    id="home-greeting-name" class="text-banqueta">Usuario</span></h1>
+                            <p class="text-gray-400 max-w-xl text-sm sm:text-lg mb-8 leading-relaxed">Tu garaje digital
+                                definitivo. Administra tus autos, analiza tus colecciones y mantén todo organizado con
+                                velocidad y estilo.</p>
+
+                            <!-- Accesos rápidos mejorados -->
+                            <div class="flex gap-3 flex-wrap">
+                                <button onclick="openCarModal(false)"
+                                    class="btn-primary text-black font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 transition shadow-lg shadow-banqueta/20 text-sm sm:text-base hover:scale-105">
+                                    <i class="ph-bold ph-plus text-lg"></i> Añadir Auto
+                                </button>
+                                <button onclick="switchTab('collections')"
+                                    class="bg-[#1A1A1A] border border-dark-border text-white font-semibold px-6 py-3.5 rounded-xl flex items-center gap-2 hover:bg-[#222] transition text-sm sm:text-base shadow-lg hover:scale-105">
+                                    <i class="ph-fill ph-books text-gray-400 text-lg"></i> Ver Colecciones
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de Estadísticas -->
+                <div>
+                    <h3 class="text-xl font-bold text-white mb-5 flex items-center gap-2"><i
+                            class="ph-bold ph-chart-bar text-banqueta"></i> Resumen del Garaje</h3>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6" id="home-stats"></div>
+                </div>
+            </section>
+
+            <!-- Mis Autos -->
+            <section id="section-cars" class="section-view fade-in space-y-4 md:space-y-6">
+                <!-- Envolvemos el filtro y el título en un solo div para evitar el gap de space-y -->
+                <div>
+                    <div id="cars-filter-header" class="hidden"></div>
+                    <div class="flex justify-between items-center gap-2 sm:gap-4">
+                        <h2 class="text-2xl sm:text-3xl font-bold">Mis Autos</h2>
+                        <button onclick="openCarModal(false)"
+                            class="fixed md:static bottom-24 right-4 md:bottom-auto md:right-auto z-40 w-14 h-14 md:w-auto md:h-auto md:px-5 md:py-2.5 rounded-full md:rounded-xl btn-primary flex items-center justify-center gap-2 shadow-2xl md:shadow-lg shrink-0">
+                            <i class="ph-bold ph-plus text-2xl md:text-base"></i> <span
+                                class="hidden md:inline font-bold">Añadir Auto</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-5 md:gap-6 auto-rows-fr"
+                    id="cars-grid"></div>
+            </section>
+
+            <!-- Favoritos -->
+            <section id="section-favorites" class="section-view fade-in space-y-4 md:space-y-6">
+                <h2 class="text-2xl sm:text-3xl font-bold">Favoritos</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-5 md:gap-6 auto-rows-fr"
+                    id="favorites-grid"></div>
+            </section>
+
+            <!-- Deseados -->
+            <section id="section-wishlist" class="section-view fade-in space-y-4 md:space-y-6">
+                <!-- Envolvemos el filtro y el título en un solo div -->
+                <div>
+                    <div id="wishlist-filter-header" class="hidden"></div>
+                    <div class="flex justify-between items-center gap-2 sm:gap-4">
+                        <h2 class="text-2xl sm:text-3xl font-bold">Wishlist</h2>
+                        <button onclick="openCarModal(true)"
+                            class="fixed md:static bottom-24 right-4 md:bottom-auto md:right-auto z-40 w-14 h-14 md:w-auto md:h-auto md:px-5 md:py-2.5 rounded-full md:rounded-xl bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center gap-2 shadow-2xl md:shadow-lg transition-colors shrink-0">
+                            <i class="ph-bold ph-plus text-2xl md:text-base"></i> <span
+                                class="hidden md:inline font-bold">Desear Auto</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-5 md:gap-6 auto-rows-fr"
+                    id="wishlist-grid"></div>
+            </section>
+
+            <!-- Marcas -->
+            <section id="section-brands" class="section-view fade-in space-y-4 md:space-y-6">
+                <div class="flex justify-between items-center gap-2 sm:gap-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold">Marcas</h2>
+                    <button onclick="openModal('brand-modal'); document.getElementById('brand-id').value='';"
+                        class="fixed md:static bottom-24 right-4 md:bottom-auto md:right-auto z-40 w-14 h-14 md:w-auto md:h-auto md:px-5 md:py-2.5 rounded-full md:rounded-xl btn-primary flex items-center justify-center gap-2 shadow-2xl md:shadow-lg shrink-0">
+                        <i class="ph-bold ph-plus text-2xl md:text-base"></i> <span
+                            class="hidden md:inline font-bold">Nueva Marca</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 auto-rows-fr"
+                    id="brands-grid"></div>
+            </section>
+
+            <!-- Fabricantes -->
+            <section id="section-manufacturers" class="section-view fade-in space-y-4 md:space-y-6">
+                <div class="flex justify-between items-center gap-2 sm:gap-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold">Fabricantes</h2>
+                    <button onclick="openModal('manufacturer-modal'); document.getElementById('mfg-id').value='';"
+                        class="fixed md:static bottom-24 right-4 md:bottom-auto md:right-auto z-40 w-14 h-14 md:w-auto md:h-auto md:px-5 md:py-2.5 rounded-full md:rounded-xl btn-primary flex items-center justify-center gap-2 shadow-2xl md:shadow-lg shrink-0">
+                        <i class="ph-bold ph-plus text-2xl md:text-base"></i> <span
+                            class="hidden md:inline font-bold">Nuevo Fabricante</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 auto-rows-fr"
+                    id="manufacturers-grid"></div>
+            </section>
+
+            <!-- Colecciones -->
+            <section id="section-collections" class="section-view fade-in space-y-4 md:space-y-6">
+                <div class="flex justify-between items-center gap-2 sm:gap-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold">Colecciones</h2>
+                    <button onclick="openModal('collection-modal'); document.getElementById('col-id').value='';"
+                        class="fixed md:static bottom-24 right-4 md:bottom-auto md:right-auto z-40 w-14 h-14 md:w-auto md:h-auto md:px-5 md:py-2.5 rounded-full md:rounded-xl btn-primary flex items-center justify-center gap-2 shadow-2xl md:shadow-lg shrink-0">
+                        <i class="ph-bold ph-plus text-2xl md:text-base"></i> <span
+                            class="hidden md:inline font-bold">Nueva Colección</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr" id="collections-grid">
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal Menú Más (Solo Móvil) -->
+    <div id="mobile-more-modal"
+        class="modal fixed inset-0 z-50 items-end justify-center p-4 bg-black/60 backdrop-blur-sm md:hidden">
+        <div
+            class="bg-[#141414] border border-dark-border rounded-3xl w-full max-w-sm slide-up shadow-2xl overflow-hidden pb-8">
+            <div class="p-4 flex justify-center border-b border-dark-border/50">
+                <div class="w-12 h-1.5 bg-gray-600 rounded-full"></div>
+            </div>
+            <div class="grid grid-cols-1 gap-3 p-5">
+                <button onclick="switchTab('brands'); closeModal('mobile-more-modal')"
+                    class="bg-dark-bg border border-dark-border rounded-2xl p-4 flex items-center gap-4 text-white hover:border-banqueta transition-colors">
+                    <div class="w-10 h-10 rounded-xl bg-banqueta/10 text-banqueta flex items-center justify-center"><i
+                            class="ph-fill ph-tag text-2xl"></i></div>
+                    <span class="font-bold text-lg">Marcas</span>
+                    <i class="ph-bold ph-caret-right ml-auto text-gray-500"></i>
+                </button>
+                <button onclick="switchTab('manufacturers'); closeModal('mobile-more-modal')"
+                    class="bg-dark-bg border border-dark-border rounded-2xl p-4 flex items-center gap-4 text-white hover:border-banqueta transition-colors">
+                    <div class="w-10 h-10 rounded-xl bg-banqueta/10 text-banqueta flex items-center justify-center"><i
+                            class="ph-fill ph-factory text-2xl"></i></div>
+                    <span class="font-bold text-lg">Fabricantes</span>
+                    <i class="ph-bold ph-caret-right ml-auto text-gray-500"></i>
+                </button>
+                <button onclick="switchTab('collections'); closeModal('mobile-more-modal')"
+                    class="bg-dark-bg border border-dark-border rounded-2xl p-4 flex items-center gap-4 text-white hover:border-banqueta transition-colors">
+                    <div class="w-10 h-10 rounded-xl bg-banqueta/10 text-banqueta flex items-center justify-center"><i
+                            class="ph-fill ph-books text-2xl"></i></div>
+                    <span class="font-bold text-lg">Colecciones</span>
+                    <i class="ph-bold ph-caret-right ml-auto text-gray-500"></i>
+                </button>
+            </div>
+            <button onclick="closeModal('mobile-more-modal')"
+                class="w-[calc(100%-2.5rem)] mx-5 py-3 rounded-xl bg-white/10 text-white font-bold mb-4">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- Modal: Ajustes del perfil -->
+    <div id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title"
+        class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div
+            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-md max-h-[95vh] overflow-y-auto custom-scroll slide-up shadow-2xl">
+            <div class="flex justify-between items-center p-5 border-b border-dark-border">
+                <h3 id="settings-title" class="text-xl font-bold">Ajustes de usuario</h3>
+                <button type="button" onclick="closeModal('settings-modal')" aria-label="Cerrar ajustes"
+                    class="text-gray-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
+            </div>
+            <form id="settings-form" onsubmit="saveProfile(event)" class="p-5 space-y-4">
+                <div>
+                    <label for="profile-name" class="block text-sm text-gray-400 mb-1">Nombre de usuario</label>
+                    <input type="text" id="profile-name" required maxlength="60" autocomplete="nickname"
+                        class="w-full input-style rounded-xl px-4 py-3" placeholder="Tu nombre">
+                </div>
+                <div class="flex flex-col items-center">
+                    <label class="block text-sm text-gray-400 mb-2 w-full text-left" for="profile-avatar">Avatar de
+                        Perfil</label>
+                    <input type="file" id="profile-avatar" accept="image/*" class="hidden-file-input"
+                        onchange="triggerCrop(this, 'profile', 'preview-profile-avatar')">
+                    <input type="hidden" id="profile-avatar-base64">
+                    <label for="profile-avatar" id="preview-profile-avatar"
+                        class="upload-area w-32 h-32 rounded-full overflow-hidden">
+                        <i class="ph-bold ph-user-circle text-4xl text-gray-500 mb-1"></i>
+                        <span class="text-[10px] text-gray-500">1:1 Imagen</span>
+                        <img src="" alt="Vista previa" class="preview rounded-full w-full h-full object-cover">
+                    </label>
+                </div>
+
+                <!-- Toggle de Compresión -->
+                <div class="border-t border-dark-border pt-4 space-y-3">
+                    <h4 class="font-semibold text-white">Optimización y Datos</h4>
+                    <label class="flex items-start gap-3 cursor-pointer group">
+                        <div class="pt-0.5">
+                            <input type="checkbox" id="setting-compress"
+                                class="w-5 h-5 accent-banqueta bg-dark-panel border-dark-border rounded cursor-pointer">
+                        </div>
+                        <div>
+                            <span class="block text-sm text-white group-hover:text-banqueta transition-colors">Alta
+                                compresión de imágenes</span>
+                            <span class="block text-xs text-gray-500 leading-tight mt-1">Reduce drásticamente el peso
+                                (hasta 60% menos) para ahorrar datos y memoria. Ideal en móviles.</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="border-t border-dark-border pt-4 space-y-3">
+                    <h4 class="font-semibold text-white">Respaldo de Base de Datos</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="exportDatabaseZip()"
+                            class="px-4 py-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/30 hover:bg-blue-500/20 transition-colors text-sm font-semibold flex items-center gap-2">
+                            <i class="ph-bold ph-download-simple"></i> Exportar ZIP
+                        </button>
+                        <input type="file" id="import-zip-input" accept=".zip" class="hidden-file-input"
+                            onchange="importDatabaseZip(event)">
+                        <button type="button" onclick="document.getElementById('import-zip-input').click()"
+                            class="px-4 py-2 rounded-xl border border-dark-border text-sm hover:bg-white/5 transition-colors font-semibold flex items-center gap-2">
+                            <i class="ph-bold ph-upload-simple"></i> Importar ZIP
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border-t border-dark-border pt-4 space-y-3">
+                    <h4 class="font-semibold text-white">Imágenes en la nube</h4>
+                    <p id="r2-status" class="text-xs text-gray-400" aria-live="polite">R2 directo: comprueba la
+                        conexión.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="connectR2()"
+                            class="px-4 py-2 rounded-xl bg-banqueta/10 text-banqueta border border-banqueta/30 text-sm">Probar
+                            conexión R2</button>
+                        <button type="button" onclick="migrateImagesToR2()"
+                            class="px-4 py-2 rounded-xl border border-dark-border text-sm hover:bg-white/5">Migrar
+                            imágenes</button>
+                    </div>
+                    <p id="r2-error" class="text-sm text-red-400" role="alert"></p>
+                </div>
+                <p id="profile-error" class="text-sm text-red-400" role="alert"></p>
+                <div class="flex justify-end gap-3 pt-4 border-t border-dark-border">
+                    <button type="button" onclick="closeModal('settings-modal')"
+                        class="px-5 py-2.5 rounded-xl hover:bg-white/10 transition-colors">Cancelar</button>
+                    <button type="submit" id="profile-save-btn"
+                        class="btn-primary px-5 py-2.5 rounded-xl font-bold">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Marca -->
+    <div id="brand-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-md slide-up shadow-2xl">
+            <div class="flex justify-between items-center p-5 border-b border-dark-border">
+                <h3 class="text-xl font-bold">Marca Automotriz</h3>
+                <button onclick="closeModal('brand-modal')" class="text-gray-400 hover:text-white"><i
+                        class="ph-bold ph-x text-xl"></i></button>
+            </div>
+            <form id="brand-form" onsubmit="saveBrand(event)" class="p-5 space-y-4">
+                <input type="hidden" id="brand-id">
+                <input type="hidden" id="brand-logo-old">
+                <input type="hidden" id="brand-banner-old">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Nombre</label>
+                    <input type="text" id="brand-name" required class="w-full input-style rounded-xl px-4 py-3"
+                        placeholder="Ej. Nissan">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Logo PNG</label>
+                        <input type="file" id="brand-logo" accept="image/*" class="hidden-file-input"
+                            onchange="previewUI(this, 'preview-brand-logo')">
+                        <label for="brand-logo" class="upload-area h-24 rounded-xl relative" id="preview-brand-logo">
+                            <i class="ph-bold ph-image text-2xl text-gray-500 mb-1"></i><span
+                                class="text-xs text-gray-500">Subir Logo</span>
+                            <img src="" class="preview rounded-xl">
+                        </label>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Banner (Opcional)</label>
+                        <input type="file" id="brand-banner" accept="image/*" class="hidden-file-input"
+                            onchange="triggerCrop(this, 'brand', 'preview-brand-banner')">
+                        <input type="hidden" id="brand-banner-base64">
+                        <label for="brand-banner" class="upload-area h-24 rounded-xl relative"
+                            id="preview-brand-banner">
+                            <i class="ph-bold ph-images text-2xl text-gray-500 mb-1"></i><span
+                                class="text-xs text-gray-500">4:3 Banner</span>
+                            <img src="" class="preview rounded-xl">
+                        </label>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-dark-border mt-4">
+                    <button type="button" onclick="closeModal('brand-modal')"
+                        class="px-5 py-2.5 rounded-xl hover:bg-white/10 transition-colors">Cancelar</button>
+                    <button type="submit" class="btn-primary px-5 py-2.5 rounded-xl font-bold">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Fabricante -->
+    <div id="manufacturer-modal"
+        class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-md slide-up shadow-2xl">
+            <div class="flex justify-between items-center p-5 border-b border-dark-border">
+                <h3 class="text-xl font-bold">Fabricante</h3>
+                <button onclick="closeModal('manufacturer-modal')" class="text-gray-400 hover:text-white"><i
+                        class="ph-bold ph-x text-xl"></i></button>
+            </div>
+            <form id="manufacturer-form" onsubmit="saveManufacturer(event)" class="p-5 space-y-4">
+                <input type="hidden" id="mfg-id">
+                <input type="hidden" id="mfg-logo-old">
+                <input type="hidden" id="mfg-banner-old">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Nombre</label>
+                    <input type="text" id="mfg-name" required class="w-full input-style rounded-xl px-4 py-3"
+                        placeholder="Ej. Hot Wheels">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Logo PNG</label>
+                        <input type="file" id="mfg-logo" accept="image/*" class="hidden-file-input"
+                            onchange="previewUI(this, 'preview-mfg-logo')">
+                        <label for="mfg-logo" class="upload-area h-24 rounded-xl relative" id="preview-mfg-logo">
+                            <i class="ph-bold ph-image text-2xl text-gray-500 mb-1"></i><span
+                                class="text-xs text-gray-500">Subir Logo</span>
+                            <img src="" class="preview rounded-xl">
+                        </label>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Banner (Opcional)</label>
+                        <input type="file" id="mfg-banner" accept="image/*" class="hidden-file-input"
+                            onchange="triggerCrop(this, 'mfg', 'preview-mfg-banner')">
+                        <input type="hidden" id="mfg-banner-base64">
+                        <label for="mfg-banner" class="upload-area h-24 rounded-xl relative" id="preview-mfg-banner">
+                            <i class="ph-bold ph-images text-2xl text-gray-500 mb-1"></i><span
+                                class="text-xs text-gray-500">4:3 Banner</span>
+                            <img src="" class="preview rounded-xl">
+                        </label>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-dark-border mt-4">
+                    <button type="button" onclick="closeModal('manufacturer-modal')"
+                        class="px-5 py-2.5 rounded-xl hover:bg-white/10 transition-colors">Cancelar</button>
+                    <button type="submit" class="btn-primary px-5 py-2.5 rounded-xl font-bold">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Colección -->
+    <div id="collection-modal"
+        class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-md slide-up shadow-2xl">
+            <div class="flex justify-between items-center p-5 border-b border-dark-border">
+                <h3 class="text-xl font-bold">Colección</h3>
+                <button onclick="closeModal('collection-modal')" class="text-gray-400 hover:text-white"><i
+                        class="ph-bold ph-x text-xl"></i></button>
+            </div>
+            <form id="collection-form" onsubmit="saveCollection(event)" class="p-5 space-y-4">
+                <input type="hidden" id="col-id">
+                <input type="hidden" id="col-logo-old">
+                <input type="hidden" id="col-banner-old">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Nombre</label>
+                    <input type="text" id="col-name" required class="w-full input-style rounded-xl px-4 py-3"
+                        placeholder="Ej. JDM Legends">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Descripción</label>
+                    <textarea id="col-desc" rows="2" class="w-full input-style rounded-xl px-4 py-2"
+                        placeholder="Descripción breve..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Logo PNG (Opcional)</label>
+                        <input type="file" id="col-logo" accept="image/*" class="hidden-file-input"
+                            onchange="previewUI(this, 'preview-col-logo')">
+                        <label for="col-logo" class="upload-area h-20 rounded-xl relative" id="preview-col-logo">
+                            <i class="ph-bold ph-image text-xl text-gray-500 mb-1"></i><span
+                                class="text-xs text-gray-500">Subir Logo</span>
+                            <img src="" class="preview rounded-xl">
+                        </label>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Banner (Opcional)</label>
+                        <input type="file" id="col-banner" accept="image/*" class="hidden-file-input"
+                            onchange="triggerCrop(this, 'collection', 'preview-col-banner')">
+                        <input type="hidden" id="col-banner-base64">
+                        <label for="col-banner" class="upload-area h-20 rounded-xl relative" id="preview-col-banner">
+                            <i class="ph-bold ph-images text-xl text-gray-500 mb-1"></i><span
+                                class="text-xs text-gray-500">4:3 Banner</span>
+                            <img src="" class="preview rounded-xl">
+                        </label>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" onclick="closeModal('collection-modal')"
+                        class="px-5 py-2.5 rounded-xl hover:bg-white/10 transition-colors">Cancelar</button>
+                    <button type="submit" class="btn-primary px-5 py-2.5 rounded-xl font-bold">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Auto Form -->
+    <div id="car-modal"
+        class="modal fixed inset-0 z-50 items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm">
+        <div
+            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-3xl slide-up shadow-2xl max-h-[95vh] flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b border-dark-border shrink-0">
+                <h3 class="text-xl font-bold" id="car-modal-title">Añadir Auto</h3>
+                <button onclick="closeModal('car-modal')" class="text-gray-400 hover:text-white"><i
+                        class="ph-bold ph-x text-xl"></i></button>
+            </div>
+
+            <div class="overflow-y-auto p-4 flex-1 custom-scroll pb-32">
+                <form id="car-form" onsubmit="saveCar(event)" class="space-y-4">
+                    <input type="hidden" id="car-id">
+                    <input type="hidden" id="car-is-wishlist" value="false">
+                    <input type="hidden" id="car-cover-old">
+                    <input type="hidden" id="car-ext1-old">
+                    <input type="hidden" id="car-ext2-old">
+                    <input type="hidden" id="car-ext3-old">
+                    <input type="hidden" id="car-ext4-old">
+
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Modelo del Auto</label>
+                        <input type="text" id="car-model" required
+                            class="w-full input-style rounded-xl px-4 py-2.5 text-lg font-bold"
+                            placeholder="Ej. Skyline GT-R R34">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">Marca</label>
+                            <div class="custom-select-wrapper" id="wrap-car-brand">
+                                <input type="hidden" id="car-brand" required>
+                                <button type="button"
+                                    class="custom-select-trigger input-style w-full text-left rounded-xl px-4 py-2.5"
+                                    aria-expanded="false" aria-controls="opts-car-brand"
+                                    onclick="toggleSelect('wrap-car-brand')">
+                                    <span class="selected-text text-gray-400 truncate">Selecciona marca...</span>
+                                    <i class="ph-bold ph-caret-down text-gray-500"></i>
+                                </button>
+                                <div class="custom-select-options custom-scroll" id="opts-car-brand"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">Fabricante</label>
+                            <div class="custom-select-wrapper" id="wrap-car-manufacturer">
+                                <input type="hidden" id="car-manufacturer" required>
+                                <button type="button"
+                                    class="custom-select-trigger input-style w-full text-left rounded-xl px-4 py-2.5"
+                                    aria-expanded="false" aria-controls="opts-car-manufacturer"
+                                    onclick="toggleSelect('wrap-car-manufacturer')">
+                                    <span class="selected-text text-gray-400 truncate">Selecciona fabricante...</span>
+                                    <i class="ph-bold ph-caret-down text-gray-500"></i>
+                                </button>
+                                <div class="custom-select-options custom-scroll" id="opts-car-manufacturer"></div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <div class="flex justify-between mb-1">
+                                <label class="block text-sm text-gray-400">Color</label>
+                                <button type="button" onclick="openModal('custom-color-modal')"
+                                    class="text-xs text-banqueta hover:underline">Añadir personalizado</button>
+                            </div>
+                            <input type="hidden" id="car-color-hex" required>
+                            <input type="hidden" id="car-color-name" required>
+                            <div class="bg-[#0A0A0A] border border-[#333] p-3 rounded-xl">
+                                <div class="flex flex-wrap gap-2" id="color-grid"></div>
+                                <p class="text-sm text-gray-300 mt-2 text-center" id="selected-color-label">Ningún color
+                                    seleccionado</p>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-sm text-gray-400 mb-1">Colección (Opcional)</label>
+                            <div class="custom-select-wrapper" id="wrap-car-collection">
+                                <input type="hidden" id="car-collection">
+                                <button type="button"
+                                    class="custom-select-trigger input-style w-full text-left rounded-xl px-4 py-2.5"
+                                    aria-expanded="false" aria-controls="opts-car-collection"
+                                    onclick="toggleSelect('wrap-car-collection')">
+                                    <span class="selected-text text-gray-400">Ninguna</span>
+                                    <i class="ph-bold ph-caret-down text-gray-500"></i>
+                                </button>
+                                <div class="custom-select-options custom-scroll" id="opts-car-collection"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-dark-border pt-4 mt-4">
+                        <h4 class="text-white font-bold mb-3 flex items-center gap-2"><i
+                                class="ph-bold ph-list-dashes"></i> Detalles Opcionales</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Serie</label>
+                                <input type="text" id="car-serie"
+                                    class="w-full input-style rounded-lg px-3 py-2 text-sm"
+                                    placeholder="Ej. HW J-Imports">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Línea</label>
+                                <select id="car-linea"
+                                    class="w-full input-style rounded-lg px-3 py-2 text-sm appearance-none bg-dark-panel">
+                                    <option value="">Selecciona...</option>
+                                    <option value="Main">Main</option>
+                                    <option value="Premium">Premium</option>
+                                    <option value="Custom">Custom</option>
+                                    <option value="Exotic">Exotic</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Costo ($)</label>
+                                <input type="number" step="0.01" id="car-costo"
+                                    class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="0.00">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">No. Modelo</label>
+                                <input type="text" id="car-nomodelo"
+                                    class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. HNK45">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Año de Fabricación</label>
+                                <input type="number" id="car-anio"
+                                    class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. 2023">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">No. Serie</label>
+                                <input type="text" id="car-noserie"
+                                    class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. 1/5">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Tipo</label>
+                                <input type="text" id="car-tipo" class="w-full input-style rounded-lg px-3 py-2 text-sm"
+                                    placeholder="Ej. JDM, Muscle">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Escala</label>
+                                <input type="text" id="car-escala" value="1:64"
+                                    class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. 1:64">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex items-center gap-3">
+                            <label class="block text-sm text-gray-400">Puntuación:</label>
+                            <input type="hidden" id="car-rating" value="0">
+                            <div class="flex text-2xl gap-1" id="star-rating-container">
+                                <i class="ph-star rating-star cursor-pointer" data-value="1"></i>
+                                <i class="ph-star rating-star cursor-pointer" data-value="2"></i>
+                                <i class="ph-star rating-star cursor-pointer" data-value="3"></i>
+                                <i class="ph-star rating-star cursor-pointer" data-value="4"></i>
+                                <i class="ph-star rating-star cursor-pointer" data-value="5"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-dark-border pt-4 mt-4">
+                        <label class="block text-base font-semibold mb-2">Galería de Imágenes</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 h-[408px] md:h-[200px]">
+                            <div class="md:col-span-2 h-full">
+                                <input type="file" id="car-cover" accept="image/*" class="hidden-file-input"
+                                    onchange="previewUI(this, 'preview-car-cover')">
+                                <label for="car-cover" class="upload-area w-full h-full rounded-xl relative group"
+                                    id="preview-car-cover">
+                                    <i
+                                        class="ph-fill ph-camera-plus text-3xl text-banqueta mb-1 group-hover:scale-110 transition-transform"></i>
+                                    <span class="text-sm font-bold text-white">Portada</span>
+                                    <img src="" class="preview rounded-xl">
+                                </label>
+                            </div>
+                            <div class="grid grid-cols-2 grid-rows-2 gap-2 h-full">
+                                <div class="relative h-full w-full">
+                                    <input type="file" id="car-ext1" accept="image/*" class="hidden-file-input"
+                                        onchange="previewUI(this, 'prev-ext1')">
+                                    <label for="car-ext1" class="upload-area w-full h-full rounded-lg relative"
+                                        id="prev-ext1"><i class="ph-bold ph-plus text-gray-500"></i><img src=""
+                                            class="preview rounded-lg"></label>
+                                </div>
+                                <div class="relative h-full w-full">
+                                    <input type="file" id="car-ext2" accept="image/*" class="hidden-file-input"
+                                        onchange="previewUI(this, 'prev-ext2')">
+                                    <label for="car-ext2" class="upload-area w-full h-full rounded-lg relative"
+                                        id="prev-ext2"><i class="ph-bold ph-plus text-gray-500"></i><img src=""
+                                            class="preview rounded-lg"></label>
+                                </div>
+                                <div class="relative h-full w-full">
+                                    <input type="file" id="car-ext3" accept="image/*" class="hidden-file-input"
+                                        onchange="previewUI(this, 'prev-ext3')">
+                                    <label for="car-ext3" class="upload-area w-full h-full rounded-lg relative"
+                                        id="prev-ext3"><i class="ph-bold ph-plus text-gray-500"></i><img src=""
+                                            class="preview rounded-lg"></label>
+                                </div>
+                                <div class="relative h-full w-full">
+                                    <input type="file" id="car-ext4" accept="image/*" class="hidden-file-input"
+                                        onchange="previewUI(this, 'prev-ext4')">
+                                    <label for="car-ext4" class="upload-area w-full h-full rounded-lg relative"
+                                        id="prev-ext4"><i class="ph-bold ph-plus text-gray-500"></i><img src=""
+                                            class="preview rounded-lg"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="flex justify-end gap-3 p-4 border-t border-dark-border bg-dark-panel shrink-0">
+                <button type="button" onclick="closeModal('car-modal')"
+                    class="px-5 py-2 rounded-xl hover:bg-white/10 transition-colors">Cancelar</button>
+                <button type="button" id="car-save-visible-btn"
+                    onclick="document.getElementById('car-submit-btn').click()"
+                    class="btn-primary px-6 py-2 rounded-xl font-bold flex items-center gap-2">
+                    <i class="ph-bold ph-floppy-disk"></i> Guardar
+                </button>
+                <button type="submit" form="car-form" id="car-submit-btn" class="hidden"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: View Car Full Info -->
+    <div id="car-view-modal"
+        class="modal fixed inset-0 z-[60] items-center justify-center p-2 sm:p-4 bg-black/90 backdrop-blur-md">
+        <div
+            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto custom-scroll flex flex-col md:flex-row slide-up shadow-2xl relative">
+            <button onclick="closeModal('car-view-modal')"
+                class="absolute top-4 right-4 z-10 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-all border border-white/10"><i
+                    class="ph-bold ph-x"></i></button>
+
+            <!-- Izquierda: Galería -->
+            <div class="w-full md:w-1/2 p-4 md:p-6 bg-[#0A0A0A] border-r border-dark-border flex flex-col gap-3">
+                <div
+                    class="aspect-square rounded-xl overflow-hidden bg-[#111] border border-dark-border relative flex items-center justify-center">
+                    <img id="view-car-main-img" class="w-full h-full object-contain fade-image loaded">
+                </div>
+                <div id="view-car-thumbnails" class="grid grid-cols-5 gap-2"></div>
+            </div>
+
+            <!-- Derecha: Detalles -->
+            <div class="w-full md:w-1/2 p-6 flex flex-col">
+                <div class="mb-4">
+                    <h2 id="view-car-model" class="text-3xl font-bold text-white mb-2">Modelo</h2>
+                    <p id="view-car-brand" class="text-banqueta font-semibold flex items-center gap-4"></p>
+                </div>
+                <div id="view-car-tags" class="flex flex-wrap gap-2 mb-8"></div>
+
+                <div class="grid grid-cols-2 gap-x-4 gap-y-6 mb-6 flex-grow content-start" id="view-car-stats"></div>
+
+                <div class="pt-5 border-t border-dark-border mt-auto flex justify-end gap-3">
+                    <button id="btn-delete-car"
+                        class="px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 text-gray-400 hover:text-white hover:bg-red-600 transition-colors border border-dark-border hover:border-red-600">
+                        <i class="ph-bold ph-trash"></i> Eliminar
+                    </button>
+                    <button id="btn-edit-car"
+                        class="btn-primary px-6 py-2.5 rounded-xl font-bold flex items-center gap-2">
+                        <i class="ph-bold ph-pencil-simple"></i> Editar Auto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Nuevo Color Custom -->
+    <div id="custom-color-modal"
+        class="modal fixed inset-0 z-[70] items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-sm slide-up p-5">
+            <h3 class="text-xl font-bold mb-4">Añadir Color Personalizado</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Código de Color</label>
+                    <input type="color" id="new-color-hex"
+                        class="w-full h-12 rounded cursor-pointer border-none bg-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">Nombre del Color</label>
+                    <input type="text" id="new-color-name" class="w-full input-style rounded-xl px-4 py-2"
+                        placeholder="Ej. Bayside Blue">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('custom-color-modal')"
+                        class="px-4 py-2 rounded-xl hover:bg-white/10">Cancelar</button>
+                    <button type="button" onclick="addCustomColor()"
+                        class="btn-primary px-4 py-2 rounded-xl font-bold">Añadir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Cropper -->
+    <div id="cropper-modal"
+        class="modal fixed inset-0 z-[80] items-center justify-center p-4 bg-black/95 backdrop-blur-md">
+        <div
+            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-3xl flex flex-col shadow-2xl h-[80vh]">
+            <div class="p-4 border-b border-dark-border flex justify-between items-center shrink-0">
+                <h3 class="text-lg font-bold text-white"><i class="ph-fill ph-crop mr-2"></i>Ajustar Imagen</h3>
+                <button type="button" onclick="cancelCrop()" class="text-gray-400 hover:text-white"><i
+                        class="ph-bold ph-x text-xl"></i></button>
+            </div>
+            <div class="flex-1 bg-black overflow-hidden p-4 relative flex items-center justify-center">
+                <img id="cropper-image" src="" style="max-width: 100%; max-height: 100%; display: block;">
+            </div>
+            <div class="p-4 border-t border-dark-border flex justify-end gap-3 shrink-0">
+                <button type="button" onclick="cancelCrop()"
+                    class="px-5 py-2.5 rounded-xl hover:bg-white/10 transition">Cancelar</button>
+                <button type="button" onclick="applyCrop()"
+                    class="btn-primary px-5 py-2.5 rounded-xl font-bold flex items-center gap-2">
+                    <i class="ph-bold ph-check"></i> Aplicar Recorte
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let db = { cars: [], brands: [], manufacturers: [], collections: [], colors: [], lastUpdated: 0 };
+        let appSettings = { compress: true }; // Ajustes de App locales
+
+        let activeTabId = 'home';
+        let currentFilter = null;
+        let cropperInstance = null;
+        let currentCropTarget = null;
+        let currentCropPreview = null;
+        let isSyncing = false;
+
+        const baseColors = [
+            { hex: '#FF0000', name: 'Rojo' }, { hex: '#0000FF', name: 'Azul' }, { hex: '#008000', name: 'Verde' },
+            { hex: '#FFFF00', name: 'Amarillo' }, { hex: '#FFA500', name: 'Naranja' }, { hex: '#800080', name: 'Morado' },
+            { hex: '#FFC0CB', name: 'Rosa' }, { hex: '#000000', name: 'Negro' }, { hex: '#FFFFFF', name: 'Blanco' },
+            { hex: '#808080', name: 'Gris' }, { hex: '#C0C0C0', name: 'Plata' }, { hex: '#FFD700', name: 'Oro' },
+            { hex: '#A52A2A', name: 'Marrón' }, { hex: '#00FFFF', name: 'Cian' }, { hex: '#FF00FF', name: 'Magenta' },
+            { hex: '#00FF00', name: 'Lima' }, { hex: '#808000', name: 'Oliva' }, { hex: '#800000', name: 'Granate' },
+            { hex: '#000080', name: 'Marino' }, { hex: '#008080', name: 'Verde Azulado' }
+        ];
+
+        /* LAZY LOAD Y CACHE OFFLINE (Limitador y Optimizador) */
+        async function loadCachedImage(img, url) {
+            if (!url) return;
+            if (url.startsWith('data:')) {
+                img.src = url;
+                img.onload = () => img.classList.add('loaded');
+                return;
+            }
+            try {
+                // Almacenamiento nativo del navegador (CacheStorage) para modo offline
+                const cache = await caches.open('drivoweb-imgs');
+                let res = await cache.match(url);
+                if (!res && navigator.onLine) {
+                    res = await fetch(url, { mode: 'cors', cache: 'default' });
+                    if (res.ok) cache.put(url, res.clone());
+                }
+                if (res) {
+                    const blob = await res.blob();
+                    img.src = URL.createObjectURL(blob);
+                } else {
+                    img.src = url;
+                }
+            } catch (e) {
+                img.src = url; // Fallback si el fetch falla por CORS o sin red previa
+            }
+            img.onload = () => img.classList.add('loaded');
+        }
+
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    const src = img.getAttribute('data-src');
+                    if (src) {
+                        loadCachedImage(img, src);
+                        img.removeAttribute('data-src');
+                    }
+                    observer.unobserve(img);
+                }
+            });
+        }, { rootMargin: '200px' });
+
+        function applyLazyLoading() {
+            document.querySelectorAll('.lazy-image').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+        /* FIN LAZY LOAD */
+
+        function initData() {
+            const saved = localStorage.getItem('drivowebDB');
+            if (saved) {
+                try { db = JSON.parse(saved); } catch (e) { console.error(e); }
+            }
+            if (!db.cars) db.cars = [];
+            if (!db.brands) db.brands = [];
+            if (!db.manufacturers) db.manufacturers = [];
+            if (!db.collections) db.collections = [];
+            if (!Array.isArray(db._r2PendingDeletes)) db._r2PendingDeletes = [];
+            if (!db.colors || db.colors.length === 0) db.colors = [...baseColors];
+            if (!db.lastUpdated) db.lastUpdated = 0;
+
+            const savedSettings = localStorage.getItem('drivowebSettings');
+            if (savedSettings) {
+                try { appSettings = JSON.parse(savedSettings); } catch (e) { }
+            }
+            document.getElementById('setting-compress').checked = appSettings.compress;
+
+            updateCustomSelects();
+            renderColorGrid();
+            initRating();
+            renderAll();
+
+            syncFromFirebase();
+        }
+
+        async function syncFromFirebase() {
+            if (!navigator.onLine || typeof firestoreDB === 'undefined') return;
+            try {
+                const doc = await firestoreDB.collection('drivoweb').doc('miGarajeColeccion').get();
+                if (doc.exists) {
+                    const remoteData = doc.data();
+                    const localTimestamp = db.lastUpdated || 0;
+                    const remoteTimestamp = remoteData.lastUpdated || 0;
+
+                    if (remoteTimestamp > localTimestamp) {
+                        db = remoteData;
+                        localStorage.setItem('drivowebDB', JSON.stringify(db));
+                        updateCustomSelects();
+                        renderColorGrid();
+                        renderAll();
+                        console.log("Datos actualizados desde Firebase.");
+                    } else if (localTimestamp > remoteTimestamp) {
+                        syncToFirebase(db);
+                    }
+                } else {
+                    if (db.cars.length > 0 || db.brands.length > 0) {
+                        syncToFirebase(db);
+                    }
+                }
+            } catch (error) {
+                console.error("Error sincronizando con Firebase:", error);
+            }
+        }
+
+        async function syncToFirebase(dataToSync) {
+            if (!navigator.onLine || typeof firestoreDB === 'undefined' || isSyncing) return;
+            isSyncing = true;
+            try {
+                await firestoreDB.collection('drivoweb').doc('miGarajeColeccion').set(dataToSync);
+                console.log("Sincronización a Firebase completada.");
+            } catch (error) {
+                console.error("Error guardando en Firebase:", error);
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        window.addEventListener('online', () => {
+            console.log("Conexión restaurada. Analizando cambios...");
+            syncFromFirebase();
+        });
+
+        function saveData() {
+            try { persistDatabase(db); return true; }
+            catch (error) { alert(error.message); return false; }
+        }
+
+        function switchTab(tabId, event = null) {
+            if (event || tabId !== 'cars') {
+                currentFilter = null;
+            }
+
+            activeTabId = tabId;
+            document.querySelectorAll('.section-view').forEach(s => s.classList.remove('active'));
+            const section = document.getElementById('section-' + tabId);
+            if (section) section.classList.add('active');
+
+            // Definimos SOLO las clases que controlan los colores para no romper la estructura móvil/desktop
+            const activeClasses = ['text-banqueta', 'bg-[#303030]', 'font-semibold', 'md:shadow-[0_0_15px_rgba(245,192,0,0.15)]'];
+            const inactiveClasses = ['text-gray-400', 'hover:bg-dark-hover', 'hover:text-white', 'bg-transparent'];
+
+            // Limpiamos los colores de todos los botones
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove(...activeClasses);
+                btn.classList.add(...inactiveClasses);
+            });
+
+            // Resaltar el botón principal actual
+            const navBtn = document.getElementById('nav-' + tabId);
+            if (navBtn) {
+                navBtn.classList.remove(...inactiveClasses);
+                navBtn.classList.add(...activeClasses);
+            }
+
+            // Resaltar botón "Más" (móvil) si estamos en vistas secundarias
+            const moreBtn = document.getElementById('nav-more');
+            if (moreBtn) {
+                if (['brands', 'manufacturers', 'collections'].includes(tabId)) {
+                    moreBtn.classList.remove(...inactiveClasses);
+                    moreBtn.classList.add(...activeClasses);
+                } else {
+                    moreBtn.classList.remove(...activeClasses);
+                    moreBtn.classList.add(...inactiveClasses);
+                }
+            }
+
+            document.getElementById('global-search').value = '';
+            renderActiveView();
+        }
+
+        function viewCategory(type, id, name) {
+            currentFilter = { type, id, name };
+            switchTab('cars');
+        }
+
+        function renderActiveView() {
+            if (activeTabId === 'home') renderHome();
+            if (activeTabId === 'cars') renderCars(false);
+            if (activeTabId === 'favorites') renderFavorites();
+            if (activeTabId === 'wishlist') renderCars(true);
+            if (activeTabId === 'brands') renderBrands();
+            if (activeTabId === 'manufacturers') renderManufacturers();
+            if (activeTabId === 'collections') renderCollections();
+
+            applyLazyLoading();
+        }
+
+        function getSearchQuery() {
+            return document.getElementById('global-search').value.toLowerCase();
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            const savingForm = document.getElementById(id.replace('-modal', '-form'));
+            if (savingForm && savingForm.dataset.saving === 'true') return;
+            if (id === 'car-modal') closeCustomSelects();
+            document.getElementById(id).classList.remove('active');
+            if (id.endsWith('-modal') && id !== 'cropper-modal' && id !== 'custom-color-modal' && id !== 'car-view-modal' && id !== 'mobile-more-modal') {
+                const form = document.getElementById(id.replace('-modal', '-form'));
+                if (form) {
+                    form.reset();
+                    form.querySelectorAll('input[type="hidden"]').forEach(input => {
+                        if (input.id !== 'car-rating' && input.id !== 'car-is-wishlist') input.value = '';
+                    });
+                    form.querySelectorAll('.upload-area').forEach(area => {
+                        area.classList.remove('has-image');
+                        const img = area.querySelector('img.preview');
+                        if (img) img.src = '';
+                    });
+                }
+            }
+        }
+
+        function resetCarForm() {
+            closeCustomSelects();
+            updateCustomSelects();
+            document.getElementById('car-form').reset();
+            document.getElementById('car-id').value = '';
+            for (let i = 1; i <= 4; i++) document.getElementById(`car-ext${i}-old`).value = '';
+            document.getElementById('car-cover-old').value = '';
+            document.getElementById('car-escala').value = '1:64';
+
+            ['wrap-car-brand', 'wrap-car-manufacturer', 'wrap-car-collection'].forEach(id => {
+                const w = document.getElementById(id);
+                if (w) {
+                    const input = w.querySelector('input');
+                    if (input) input.value = '';
+                    const span = w.querySelector('.selected-text');
+                    if (span) {
+                        span.classList.add('text-gray-400');
+                        span.classList.remove('text-white');
+                        if (id.includes('brand')) span.textContent = 'Selecciona una marca...';
+                        if (id.includes('manufacturer')) span.textContent = 'Selecciona un fabricante...';
+                        if (id.includes('collection')) span.textContent = 'Ninguna';
+                    }
+                }
+            });
+            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+            document.getElementById('car-color-hex').value = '';
+            document.getElementById('car-color-name').value = '';
+            document.getElementById('selected-color-label').innerText = 'Ningún color seleccionado';
+
+            document.getElementById('car-rating').value = 0;
+            document.querySelectorAll('.rating-star').forEach(s => {
+                s.classList.remove('ph-fill', 'active', 'hover');
+                s.classList.add('ph-star');
+            });
+        }
+
+        function openCarModal(isWishlist) {
+            resetCarForm();
+            document.getElementById('car-is-wishlist').value = isWishlist ? "true" : "false";
+            document.getElementById('car-modal-title').innerText = isWishlist ? "Añadir a Wishlist" : "Añadir Auto";
+            openModal('car-modal');
+        }
+
+        function editCar(id) {
+            closeModal('car-view-modal');
+            resetCarForm();
+            const c = db.cars.find(x => x.id === id);
+            if (!c) return;
+
+            document.getElementById('car-id').value = c.id;
+            document.getElementById('car-is-wishlist').value = c.isWishlist ? "true" : "false";
+            document.getElementById('car-modal-title').innerText = "Editar Auto";
+
+            document.getElementById('car-model').value = c.model;
+            selectOption('car-brand', 'wrap-car-brand', c.brandId, getBrandName(c.brandId));
+            selectOption('car-manufacturer', 'wrap-car-manufacturer', c.manufacturerId, getMfgName(c.manufacturerId));
+            if (c.collectionId) selectOption('car-collection', 'wrap-car-collection', c.collectionId, db.collections.find(x => x.id === c.collectionId)?.name || 'Ninguna');
+
+            selectColor(c.colorHex, c.colorName);
+
+            document.getElementById('car-serie').value = c.serie || '';
+            document.getElementById('car-linea').value = c.linea || '';
+            document.getElementById('car-costo').value = c.costo || '';
+            document.getElementById('car-nomodelo').value = c.nomodelo || '';
+            document.getElementById('car-anio').value = c.anio || '';
+            document.getElementById('car-noserie').value = c.noserie || '';
+            document.getElementById('car-tipo').value = c.tipo || '';
+            document.getElementById('car-escala').value = c.escala || '1:64';
+
+            const ratingInput = document.getElementById('car-rating');
+            ratingInput.value = c.rating || 0;
+            document.querySelectorAll('.rating-star').forEach(s => {
+                if (s.dataset.value <= (c.rating || 0)) {
+                    s.classList.remove('ph-star');
+                    s.classList.add('ph-fill', 'ph-star', 'active');
+                }
+            });
+
+            document.getElementById('car-cover-old').value = c.cover;
+            const covPreview = document.getElementById('preview-car-cover');
+            covPreview.classList.add('has-image');
+            covPreview.querySelector('img.preview').src = c.cover;
+
+            for (let i = 1; i <= 4; i++) {
+                const oldUrl = c.extras && c.extras[i - 1] ? c.extras[i - 1] : '';
+                document.getElementById(`car-ext${i}-old`).value = oldUrl;
+                const extPreview = document.getElementById(`prev-ext${i}`);
+                if (oldUrl) {
+                    extPreview.classList.add('has-image');
+                    extPreview.querySelector('img.preview').src = oldUrl;
+                }
+            }
+
+            openModal('car-modal');
+        }
+
+        // --- COMPRESOR DE IMÁGENES INTEGRADO ---
+        function processImageFile(file, defaultMaxWidth = 1000) {
+            if (!file) return Promise.resolve(null);
+            return new Promise((resolve, reject) => {
+                if (file.size > 25 * 1024 * 1024) return reject(new Error('La imagen original supera 25 MB. Selecciona una más pequeña.'));
+                const objectUrl = URL.createObjectURL(file);
+                const image = new Image();
+                image.onerror = () => {
+                    URL.revokeObjectURL(objectUrl);
+                    reject(new Error('No se pudo abrir la imagen. Usa un archivo compatible.'));
+                };
+                image.onload = () => {
+                    URL.revokeObjectURL(objectUrl);
+                    try {
+                        const targetWidth = appSettings.compress ? 800 : defaultMaxWidth;
+                        const quality = appSettings.compress ? 0.6 : 0.85;
+
+                        const ratio = Math.min(1, targetWidth / image.naturalWidth, targetWidth / image.naturalHeight);
+                        const canvas = document.createElement('canvas');
+                        canvas.width = Math.max(1, Math.round(image.naturalWidth * ratio));
+                        canvas.height = Math.max(1, Math.round(image.naturalHeight * ratio));
+                        canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('No se pudo preparar la imagen.')), 'image/webp', quality);
+                    } catch (error) { reject(new Error('No se pudo procesar la imagen.')); }
+                };
+                image.src = objectUrl;
+            });
+        }
+        // ----------------------------------------
+
+        function previewUI(input, previewId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const area = document.getElementById(previewId);
+                    area.classList.add('has-image');
+                    area.querySelector('img.preview').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function triggerCrop(input, targetType, previewId) {
+            if (!input.files || !input.files[0]) return;
+            currentCropTarget = targetType;
+            currentCropPreview = previewId;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.getElementById('cropper-image');
+                img.src = e.target.result;
+                document.getElementById('cropper-modal').classList.add('active');
+
+                if (cropperInstance) cropperInstance.destroy();
+                let aspect = 4 / 3;
+                if (targetType === 'profile') aspect = 1;
+                cropperInstance = new Cropper(img, { aspectRatio: aspect, viewMode: 1, background: false });
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        function applyCrop() {
+            if (!cropperInstance) return;
+
+            const cropMax = appSettings.compress ? 600 : 800;
+            const cropQuality = appSettings.compress ? 0.6 : 0.8;
+
+            const canvas = cropperInstance.getCroppedCanvas({ maxWidth: cropMax });
+            const base64 = canvas.toDataURL('image/webp', cropQuality);
+
+            if (currentCropTarget === 'brand') document.getElementById('brand-banner-base64').value = base64;
+            if (currentCropTarget === 'mfg') document.getElementById('mfg-banner-base64').value = base64;
+            if (currentCropTarget === 'collection') document.getElementById('col-banner-base64').value = base64;
+            if (currentCropTarget === 'profile') document.getElementById('profile-avatar-base64').value = base64;
+
+            const area = document.getElementById(currentCropPreview);
+            area.classList.add('has-image');
+            area.querySelector('img.preview').src = base64;
+
+            closeModal('cropper-modal');
+            cropperInstance.destroy(); cropperInstance = null;
+        }
+
+        function cancelCrop() {
+            closeModal('cropper-modal');
+            if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+        }
+
+        function closeCustomSelects(exceptId = null) {
+            document.querySelectorAll('.custom-select-wrapper').forEach(wrapper => {
+                if (wrapper.id === exceptId) return;
+                wrapper.classList.remove('open');
+                wrapper.querySelector('.custom-select-trigger').setAttribute('aria-expanded', 'false');
+            });
+        }
+
+        function toggleSelect(wrapperId) {
+            closeCustomSelects(wrapperId);
+            const wrapper = document.getElementById(wrapperId);
+            const isOpen = wrapper.classList.toggle('open');
+            wrapper.querySelector('.custom-select-trigger').setAttribute('aria-expanded', String(isOpen));
+        }
+
+        function selectOption(hiddenId, wrapperId, value, text) {
+            const hiddenInput = document.getElementById(hiddenId);
+            if (hiddenInput) hiddenInput.value = value;
+
+            const wrapper = document.getElementById(wrapperId);
+            if (wrapper) {
+                const span = wrapper.querySelector('.selected-text');
+                if (span) {
+                    span.textContent = text;
+                    span.classList.remove('text-gray-400');
+                    span.classList.add('text-white');
+                }
+                wrapper.classList.remove('open');
+                const trigger = wrapper.querySelector('.custom-select-trigger');
+                trigger.setAttribute('aria-expanded', 'false');
+                trigger.focus({ preventScroll: true });
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.custom-select-wrapper')) {
+                closeCustomSelects();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            const openSelect = document.querySelector('.custom-select-wrapper.open');
+            if (openSelect) {
+                closeCustomSelects();
+                openSelect.querySelector('.custom-select-trigger').focus({ preventScroll: true });
+            }
+        });
+
+        function updateCustomSelects() {
+            const renderOpts = (arr, hiddenId, wrapId, defaultText, emptyText) => {
+                const wrapper = document.getElementById(wrapId);
+                const cont = wrapper ? wrapper.querySelector('.custom-select-options') : null;
+                if (!cont) return;
+                cont.replaceChildren();
+
+                const addOption = (value, label, isDefault = false) => {
+                    const option = document.createElement('button');
+                    option.type = 'button';
+                    option.className = 'custom-select-option' + (isDefault ? ' text-gray-500' : '');
+                    option.textContent = label;
+                    option.addEventListener('click', () => selectOption(hiddenId, wrapId, value, label));
+                    cont.appendChild(option);
+                };
+
+                addOption('', defaultText, true);
+                arr.forEach(item => addOption(item.id, item.name));
+                if (arr.length === 0) {
+                    const message = document.createElement('p');
+                    message.className = 'custom-select-empty';
+                    message.textContent = emptyText;
+                    cont.appendChild(message);
+                }
+            };
+
+            renderOpts(db.brands, 'car-brand', 'wrap-car-brand', 'Selecciona una marca...', 'No hay marcas registradas. Agrega una desde Marcas.');
+            renderOpts(db.manufacturers, 'car-manufacturer', 'wrap-car-manufacturer', 'Selecciona un fabricante...', 'No hay fabricantes registrados. Agrega uno desde Fabricantes.');
+            renderOpts(db.collections, 'car-collection', 'wrap-car-collection', 'Ninguna', 'No hay colecciones registradas. Puedes agregarlas desde Colecciones.');
+        }
+
+        function renderColorGrid() {
+            const grid = document.getElementById('color-grid');
+            if (!grid) return;
+            grid.innerHTML = db.colors.map(c =>
+                `<div onclick="selectColor('${c.hex}', '${c.name}', this)" class="color-swatch" style="background-color: ${c.hex};" title="${c.name}"></div>`
+            ).join('');
+        }
+
+        function selectColor(hex, name, el) {
+            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+            if (el) el.classList.add('selected');
+            else {
+                const match = Array.from(document.querySelectorAll('.color-swatch')).find(s => s.style.backgroundColor.replace(/\s/g, '').toLowerCase() === hex.toLowerCase() || s.style.backgroundColor === hex);
+                if (match) match.classList.add('selected');
+            }
+            document.getElementById('car-color-hex').value = hex;
+            document.getElementById('car-color-name').value = name;
+            document.getElementById('selected-color-label').innerHTML = `Seleccionado: <span class="font-bold text-white">${name}</span>`;
+        }
+
+        function addCustomColor() {
+            const hex = document.getElementById('new-color-hex').value;
+            const name = document.getElementById('new-color-name').value.trim();
+            if (!name) return;
+            db.colors.push({ hex, name });
+            saveData();
+            renderColorGrid();
+            closeModal('custom-color-modal');
+        }
+
+        function initRating() {
+            const stars = document.querySelectorAll('.rating-star');
+            const ratingInput = document.getElementById('car-rating');
+
+            stars.forEach(star => {
+                star.addEventListener('mouseover', function () {
+                    let val = this.dataset.value;
+                    stars.forEach(s => {
+                        if (s.dataset.value <= val) s.classList.add('hover');
+                        else s.classList.remove('hover');
+                    });
+                });
+
+                star.addEventListener('mouseout', function () {
+                    stars.forEach(s => s.classList.remove('hover'));
+                });
+
+                star.addEventListener('click', function () {
+                    let val = this.dataset.value;
+                    ratingInput.value = val;
+                    stars.forEach(s => {
+                        if (s.dataset.value <= val) {
+                            s.classList.remove('ph-star');
+                            s.classList.add('ph-fill', 'ph-star', 'active');
+                        } else {
+                            s.classList.remove('ph-fill', 'active');
+                            s.classList.add('ph-star');
+                        }
+                    });
+                });
+            });
+        }
+
+        const r2State = { config: null, configPromise: null, token: '', connected: false, busy: false };
+        const imagePathPattern = /^(cars\/[a-zA-Z0-9_-]{1,80}\/(cover|extra[1-4])|(brands|manufacturers|collections)\/[a-zA-Z0-9_-]{1,80}\/(logo|banner)|profile\/current\/avatar)$/;
+
+        async function loadR2Config() {
+            if (!window.DrivoR2) throw new Error('No se pudo cargar r2db.js. Colócalo junto a index.html.');
+            r2State.config = window.DrivoR2.getConfig();
+            r2State.token = true;
+            return r2State.config;
+        }
+
+        function readR2Token() {
+            if (!r2State.config) throw new Error('Configura las credenciales de R2 en r2db.js.');
+            return true;
+        }
+
+        async function r2Request(path, options = {}) {
+            await loadR2Config();
+            try {
+                const result = await window.DrivoR2.request(path, options);
+                r2State.connected = true;
+                return result;
+            } catch (error) {
+                r2State.connected = false;
+                throw error;
+            }
+        }
+
+        async function dataImageToBlob(source) {
+            const match = /^data:(image\/[a-zA-Z0-9.+-]+);base64,([\s\S]+)$/.exec(source);
+            if (!match) throw new Error('La imagen guardada no tiene un formato compatible.');
+            const binary = atob(match[2]);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return new Blob([bytes], { type: match[1] });
+        }
+
+        async function uploadR2Image(source, path, attempted = []) {
+            if (!source) return null;
+            if (!imagePathPattern.test(path)) throw new Error('La ruta de la imagen no es válida.');
+            const config = await loadR2Config();
+            readR2Token();
+            const blob = typeof source === 'string' ? await dataImageToBlob(source) : source;
+            if (!blob || !blob.size) throw new Error('La imagen está vacía.');
+            if (blob.size > 5242880) throw new Error('La imagen supera 5 MB. Selecciona una imagen más pequeña.');
+            attempted.push({ storageScope: config.storageScope, path });
+            const result = await r2Request('/api/images/' + path, { method: 'PUT', headers: { 'Content-Type': blob.type }, body: blob });
+            const url = new URL(result.url);
+            const expected = new URL(window.DrivoR2.publicImageUrl(config, path));
+            if (url.origin !== expected.origin || url.pathname !== expected.pathname) throw new Error('La dirección de la imagen no coincide con la configuración R2.');
+            return url.href;
+        }
+
+        function persistDatabase(next) {
+            try {
+                next.lastUpdated = Date.now();
+                localStorage.setItem('drivowebDB', JSON.stringify(next));
+                db = next;
+                syncToFirebase(next);
+            } catch (error) {
+                throw new Error('No se pudieron guardar los datos. Migra las imágenes o revisa tu almacenamiento.');
+            }
+        }
+
+        function persistProfile(next) {
+            try { localStorage.setItem('drivowebProfile', JSON.stringify(next)); }
+            catch (error) { throw new Error('No se pudo guardar el perfil en este navegador.'); }
+            userProfile = next;
+            renderProfile();
+        }
+
+        function managedImageReference(source) {
+            return window.DrivoR2 ? window.DrivoR2.reference(source) : null;
+        }
+
+        function mergePendingDeletes(items) {
+            const pending = [...(Array.isArray(db._r2PendingDeletes) ? db._r2PendingDeletes : []), ...items];
+            return Array.from(new Map(pending.map(item => [item.storageScope + '/' + item.path, item])).values());
+        }
+
+        async function flushPendingDeletes() {
+            const config = await loadR2Config();
+            const pending = [...(db._r2PendingDeletes || [])];
+            for (const item of pending) {
+                if (item.storageScope !== config.storageScope || !imagePathPattern.test(item.path)) continue;
+                await r2Request('/api/images/' + item.path, { method: 'DELETE' });
+                persistDatabase({ ...db, _r2PendingDeletes: (db._r2PendingDeletes || []).filter(entry => !(entry.storageScope === item.storageScope && entry.path === item.path)) });
+            }
+        }
+
+        async function cleanupFailedUploads(attempted) {
+            if (!attempted.length) return;
+            try {
+                persistDatabase({ ...db, _r2PendingDeletes: mergePendingDeletes(attempted) });
+                await flushPendingDeletes();
+            } catch (error) {
+                console.warn('La limpieza de imágenes necesita reintentarse.', error.message);
+                const unqueued = attempted.filter(item => !(db._r2PendingDeletes || []).some(entry => entry.path === item.path && entry.storageScope === item.storageScope));
+                for (const item of unqueued) {
+                    try { await r2Request('/api/images/' + item.path, { method: 'DELETE' }); } catch (_) { }
+                }
+            }
+        }
+
+        function localImageJobs() {
+            const jobs = [];
+            for (const kind of ['cars', 'brands', 'manufacturers', 'collections']) {
+                for (const record of db[kind]) {
+                    const fields = kind === 'cars' ? ['cover'] : ['logo', 'banner'];
+                    for (const field of fields) {
+                        if (typeof record[field] === 'string' && record[field].startsWith('data:image/')) jobs.push({ kind, id: record.id, field, source: record[field], path: `${kind}/${record.id}/${field}` });
+                    }
+                    if (kind === 'cars') (record.extras || []).forEach((source, index) => {
+                        if (typeof source === 'string' && source.startsWith('data:image/')) jobs.push({ kind, id: record.id, field: 'extras', index, source, path: `cars/${record.id}/extra${index + 1}` });
+                    });
+                }
+            }
+            if (userProfile.avatar && userProfile.avatar.startsWith('data:image/')) jobs.push({ kind: 'profile', source: userProfile.avatar, path: 'profile/current/avatar' });
+            return jobs;
+        }
+
+        function updateR2Summary(message = '') {
+            const label = document.getElementById('r2-status');
+            if (!label) return;
+            const remaining = localImageJobs().length;
+            const cleanup = (db._r2PendingDeletes || []).length;
+            label.textContent = message || `${r2State.connected ? 'R2 conectado.' : 'R2 comprueba la conexión.'} ${remaining} locales por migrar. ${cleanup} eliminaciones pendientes.`;
+        }
+
+        async function runImageAction(operation, formId = null, errorTarget = null) {
+            if (r2State.busy) {
+                const message = 'Espera a que termine la operación de imágenes actual.';
+                if (errorTarget) document.getElementById(errorTarget).textContent = message;
+                else alert(message);
+                return false;
+            }
+            r2State.busy = true;
+            const form = formId ? document.getElementById(formId) : null;
+            const button = formId === 'car-form' ? document.getElementById('car-save-visible-btn') : form?.querySelector('button[type="submit"]');
+            const text = button?.innerHTML;
+            if (form) form.dataset.saving = 'true';
+            if (button) { button.disabled = true; button.textContent = 'Guardando...'; }
+            if (errorTarget) document.getElementById(errorTarget).textContent = '';
+            let success = false;
+            try { await operation(); success = true; }
+            catch (error) {
+                if (errorTarget) document.getElementById(errorTarget).textContent = error.message;
+                else alert(error.message);
+            } finally {
+                r2State.busy = false;
+                if (form) delete form.dataset.saving;
+                if (button) { button.disabled = false; button.innerHTML = text; }
+                updateR2Summary();
+            }
+            return success;
+        }
+
+        async function connectR2() {
+            const ok = await runImageAction(async () => {
+                await r2Request('/api/check');
+                await flushPendingDeletes();
+            }, null, 'r2-error');
+            if (ok) updateR2Summary();
+        }
+
+        async function retryR2Cleanup() {
+            await runImageAction(() => flushPendingDeletes(), null, 'r2-error');
+        }
+
+        async function migrateImagesToR2() {
+            await runImageAction(async () => {
+                await r2Request('/api/check');
+                const jobs = localImageJobs();
+                let done = 0;
+                for (const job of jobs) {
+                    updateR2Summary(`Migrando imágenes: ${done + 1} de ${jobs.length}...`);
+                    const url = await uploadR2Image(job.source, job.path);
+                    if (job.kind === 'profile') persistProfile({ ...userProfile, avatar: url });
+                    else {
+                        const records = db[job.kind].map(record => {
+                            if (record.id !== job.id) return record;
+                            if (job.field !== 'extras') return { ...record, [job.field]: url };
+                            const extras = [...record.extras]; extras[job.index] = url;
+                            return { ...record, extras };
+                        });
+                        persistDatabase({ ...db, [job.kind]: records });
+                    }
+                    done++;
+                }
+            }, null, 'r2-error');
+            renderActiveView();
+            const preview = document.getElementById('preview-profile-avatar');
+            if (!document.getElementById('profile-avatar').files[0]) {
+                preview.classList.toggle('has-image', !!userProfile.avatar);
+                preview.querySelector('img.preview').src = userProfile.avatar || '';
+            }
+        }
+
+        async function exportDatabaseZip() {
+            if (typeof JSZip === 'undefined') {
+                alert("La librería JSZip no está cargada correctamente.");
+                return;
+            }
+            try {
+                const zip = new JSZip();
+                const exportData = {
+                    db: db,
+                    profile: userProfile
+                };
+
+                zip.file("drivoweb_backup.json", JSON.stringify(exportData, null, 2));
+
+                const content = await zip.generateAsync({ type: "blob" });
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `drivoweb_backup_${new Date().toISOString().split('T')[0]}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                alert("Error al exportar la base de datos: " + e.message);
+            }
+        }
+
+        async function importDatabaseZip(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (typeof JSZip === 'undefined') {
+                alert("La librería JSZip no está cargada correctamente.");
+                return;
+            }
+
+            try {
+                const zip = await JSZip.loadAsync(file);
+                const backupFile = zip.file("drivoweb_backup.json");
+
+                if (!backupFile) {
+                    alert("El archivo ZIP no contiene un respaldo válido (falta drivoweb_backup.json).");
+                    event.target.value = '';
+                    return;
+                }
+
+                const jsonStr = await backupFile.async("string");
+                const importedData = JSON.parse(jsonStr);
+
+                if (!importedData.db || !importedData.db.cars) {
+                    alert("El archivo de respaldo está corrupto o no tiene el formato correcto.");
+                    event.target.value = '';
+                    return;
+                }
+
+                const importedDB = importedData.db;
+                const importedProfile = importedData.profile || { name: 'Usuario', avatar: '' };
+
+                const currentCarsCount = db.cars ? db.cars.length : 0;
+                const importedCarsCount = importedDB.cars ? importedDB.cars.length : 0;
+
+                if (currentCarsCount > 0) {
+                    const currentIds = new Set(db.cars.map(c => c.id));
+                    const overlapCount = importedDB.cars.filter(c => currentIds.has(c.id)).length;
+
+                    let msg = "";
+                    if (overlapCount > 0) {
+                        msg = `Se detectaron ${overlapCount} autos en el respaldo que ya existen en tu garaje actual.\n\n¿Deseas reemplazar completamente tu base de datos actual con este respaldo (Se borrarán los locales y se importarán los del ZIP)?`;
+                    } else {
+                        msg = `Tu garaje actual tiene ${currentCarsCount} autos.\n\n¿Deseas reemplazar completamente tu garaje actual con los ${importedCarsCount} autos del respaldo?`;
+                    }
+
+                    if (!confirm(msg)) {
+                        event.target.value = '';
+                        return;
+                    }
+                }
+
+                persistDatabase(importedDB);
+                persistProfile(importedProfile);
+
+                initData();
+                document.getElementById('profile-name').value = userProfile.name;
+                const area = document.getElementById('preview-profile-avatar');
+                area.classList.toggle('has-image', !!userProfile.avatar);
+                if (userProfile.avatar) area.querySelector('img.preview').src = userProfile.avatar;
+
+                alert("Base de datos importada correctamente.");
+                closeModal('settings-modal');
+
+            } catch (e) {
+                alert("Error al importar la base de datos: " + e.message);
+            }
+            event.target.value = '';
+        }
+
+        function fillEntityForm(kind, id, prefix) {
+            const record = db[kind].find(x => x.id === id);
+            if (!record) return;
+            document.getElementById(prefix + '-id').value = record.id;
+            document.getElementById(prefix + '-name').value = record.name;
+            document.getElementById(prefix + '-logo-old').value = record.logo;
+            document.getElementById(prefix + '-banner-old').value = record.banner || '';
+
+            if (kind === 'collections') document.getElementById('col-desc').value = record.desc || '';
+
+            const logoPreview = document.getElementById(`preview-${prefix}-logo`);
+            if (record.logo) {
+                logoPreview.classList.add('has-image');
+                logoPreview.querySelector('img.preview').src = record.logo;
+            }
+
+            const bannerPreview = document.getElementById(`preview-${prefix}-banner`);
+            if (record.banner) {
+                bannerPreview.classList.add('has-image');
+                bannerPreview.querySelector('img.preview').src = record.banner;
+            } else {
+                bannerPreview.classList.remove('has-image');
+                bannerPreview.querySelector('img.preview').src = '';
+            }
+        }
+
+        function editBrand(id, event) { if (event) event.stopPropagation(); openModal('brand-modal'); fillEntityForm('brands', id, 'brand'); }
+        function editManufacturer(id, event) { if (event) event.stopPropagation(); openModal('manufacturer-modal'); fillEntityForm('manufacturers', id, 'mfg'); }
+        function editCollection(id, event) { if (event) event.stopPropagation(); openModal('collection-modal'); fillEntityForm('collections', id, 'col'); }
+
+        async function saveCatalogItem(event, kind, prefix, modalId) {
+            event.preventDefault();
+            const formId = modalId.replace('-modal', '-form');
+            const existingId = document.getElementById(prefix + '-id').value;
+            const id = existingId || genId();
+            const name = document.getElementById(prefix + '-name').value.trim();
+            const desc = kind === 'collections' ? document.getElementById('col-desc').value : undefined;
+            const logoFile = document.getElementById(prefix + '-logo').files[0];
+            const oldLogo = document.getElementById(prefix + '-logo-old').value;
+            const bannerData = document.getElementById(prefix + '-banner-base64').value;
+            const bannerFile = document.getElementById(prefix + '-banner').files[0];
+            const oldBanner = document.getElementById(prefix + '-banner-old').value;
+
+            const ok = await runImageAction(async () => {
+                if (!name) throw new Error('Escribe el nombre.');
+                if (kind !== 'collections' && !logoFile && !oldLogo) throw new Error('Selecciona un logo.');
+                if (bannerFile && !bannerData) throw new Error('Aplica el recorte del banner antes de guardar.');
+
+                const attempted = [];
+                try {
+                    let logoUrl = oldLogo;
+                    if (logoFile) {
+                        logoUrl = await uploadR2Image(await processImageFile(logoFile, 600), `${kind}/${id}/logo`, attempted);
+                        if (oldLogo && managedImageReference(oldLogo)) db._r2PendingDeletes = mergePendingDeletes([...(db._r2PendingDeletes || []), managedImageReference(oldLogo)]);
+                    }
+                    let bannerUrl = oldBanner;
+                    if (bannerData) {
+                        bannerUrl = await uploadR2Image(bannerData, `${kind}/${id}/banner`, attempted);
+                        if (oldBanner && managedImageReference(oldBanner)) db._r2PendingDeletes = mergePendingDeletes([...(db._r2PendingDeletes || []), managedImageReference(oldBanner)]);
+                    }
+
+                    const record = { id, name, logo: logoUrl, banner: bannerUrl, createdAt: existingId ? db[kind].find(x => x.id === id).createdAt : Date.now() };
+                    if (desc !== undefined) record.desc = desc;
+
+                    if (existingId) persistDatabase({ ...db, [kind]: db[kind].map(x => x.id === id ? record : x) });
+                    else persistDatabase({ ...db, [kind]: [...db[kind], record] });
+                } catch (error) { await cleanupFailedUploads(attempted); throw error; }
+                updateCustomSelects(); renderActiveView();
+            }, formId);
+            if (ok) closeModal(modalId);
+        }
+
+        async function deleteCloudRecord(kind, id, event) {
+            if (event) event.stopPropagation();
+            if (!confirm(`¿Eliminar de ${kind}?`)) return;
+            await runImageAction(async () => {
+                const record = db[kind].find(item => item.id === id);
+                if (!record) return;
+                const images = kind === 'cars' ? [record.cover, ...(record.extras || [])] : [record.logo, record.banner];
+                const pending = images.map(managedImageReference).filter(Boolean);
+                const next = { ...db, [kind]: db[kind].filter(item => item.id !== id), _r2PendingDeletes: mergePendingDeletes(pending) };
+                if (kind === 'collections') next.cars = db.cars.map(car => car.collectionId === id ? { ...car, collectionId: '' } : car);
+                persistDatabase(next);
+                updateCustomSelects(); renderActiveView();
+                if (pending.length) {
+                    try { await flushPendingDeletes(); }
+                    catch (error) { console.warn('Registro eliminado. Sus imágenes quedan pendientes de borrado.'); }
+                }
+            });
+        }
+
+        async function saveBrand(event) { return saveCatalogItem(event, 'brands', 'brand', 'brand-modal'); }
+        async function deleteBrand(id, event) { return deleteCloudRecord('brands', id, event); }
+        async function saveManufacturer(event) { return saveCatalogItem(event, 'manufacturers', 'mfg', 'manufacturer-modal'); }
+        async function deleteManufacturer(id, event) { return deleteCloudRecord('manufacturers', id, event); }
+        async function saveCollection(event) { return saveCatalogItem(event, 'collections', 'col', 'collection-modal'); }
+        async function deleteCollection(id, event) { return deleteCloudRecord('collections', id, event); }
+
+        async function saveCar(event) {
+            event.preventDefault();
+            const value = id => document.getElementById(id).value;
+            const existingId = value('car-id');
+            const id = existingId || genId();
+
+            const record = {
+                id, model: value('car-model'), colorHex: value('car-color-hex'), colorName: value('car-color-name'),
+                brandId: value('car-brand'), manufacturerId: value('car-manufacturer'), collectionId: value('car-collection'),
+                isWishlist: value('car-is-wishlist') === 'true', isFavorite: existingId ? db.cars.find(c => c.id === id).isFavorite : false,
+                serie: value('car-serie'), linea: value('car-linea'), costo: value('car-costo'),
+                nomodelo: value('car-nomodelo'), anio: value('car-anio'), noserie: value('car-noserie'),
+                tipo: value('car-tipo'), escala: value('car-escala') || '1:64', rating: value('car-rating'),
+                dateAdded: existingId ? db.cars.find(c => c.id === id).dateAdded : new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
+                createdAt: existingId ? db.cars.find(c => c.id === id).createdAt : Date.now()
+            };
+
+            const files = ['car-cover', 'car-ext1', 'car-ext2', 'car-ext3', 'car-ext4'].map(id => document.getElementById(id).files[0]);
+            const oldCover = value('car-cover-old');
+
+            const ok = await runImageAction(async () => {
+                if (!record.brandId || !record.manufacturerId || !record.colorHex) throw new Error('Faltan campos obligatorios: Marca, Fabricante o Color.');
+                if (!record.model.trim()) throw new Error('Escribe el modelo del auto.');
+
+                await loadR2Config(); readR2Token();
+                const attempted = [];
+                try {
+                    if (files[0]) {
+                        record.cover = await uploadR2Image(await processImageFile(files[0], 1000), `cars/${record.id}/cover`, attempted);
+                        if (oldCover && managedImageReference(oldCover)) db._r2PendingDeletes = mergePendingDeletes([...(db._r2PendingDeletes || []), managedImageReference(oldCover)]);
+                    } else if (oldCover) {
+                        record.cover = oldCover;
+                    } else throw new Error('La imagen de portada es obligatoria.');
+
+                    record.extras = [];
+                    for (let i = 1; i < files.length; i++) {
+                        const file = files[i];
+                        const oldExt = document.getElementById(`car-ext${i}-old`).value;
+                        let extUrl = oldExt;
+                        if (file) {
+                            extUrl = await uploadR2Image(await processImageFile(file, 800), `cars/${record.id}/extra${record.extras.length + 1}`, attempted);
+                            if (oldExt && managedImageReference(oldExt)) db._r2PendingDeletes = mergePendingDeletes([...(db._r2PendingDeletes || []), managedImageReference(oldExt)]);
+                        }
+                        if (extUrl) record.extras.push(extUrl);
+                    }
+
+                    if (existingId) persistDatabase({ ...db, cars: db.cars.map(c => c.id === id ? record : c) });
+                    else persistDatabase({ ...db, cars: [...db.cars, record] });
+
+                } catch (error) { await cleanupFailedUploads(attempted); throw error; }
+                renderActiveView();
+            }, 'car-form');
+            if (ok) closeModal('car-modal');
+        }
+
+        async function deleteCar(id, event) {
+            if (event) event.stopPropagation();
+            if (confirm('¿Eliminar auto?')) return deleteCloudRecord('cars', id);
+        }
+
+        function toggleFavorite(id, event) {
+            if (event) event.stopPropagation();
+            const car = db.cars.find(c => c.id === id);
+            if (car) {
+                car.isFavorite = !car.isFavorite;
+                saveData();
+                renderActiveView();
+            }
+        }
+
+        const genId = () => typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 11);
+        const getBrandName = (id) => { const b = db.brands.find(x => x.id === id); return b ? b.name : 'Desconocida'; }
+        const getMfgName = (id) => { const m = db.manufacturers.find(x => x.id === id); return m ? m.name : 'Desconocido'; }
+
+        function renderHome() {
+            const normalCars = db.cars.filter(c => !c.isWishlist);
+
+            document.getElementById('home-stats').innerHTML = `
+                <!-- Autos -->
+                <div class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111]">
+                    <div class="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity duration-500">
+                        <i class="ph-fill ph-car text-8xl"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
+                            <i class="ph-fill ph-car text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="relative z-10 mt-auto">
+                        <p class="text-4xl sm:text-5xl font-black text-white mb-1 tracking-tight">${normalCars.length}</p>
+                        <p class="text-gray-500 text-xs sm:text-sm font-bold uppercase tracking-wider">Autos en Garaje</p>
+                    </div>
+                </div>
+
+                <!-- Marcas -->
+                <div class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111]">
+                    <div class="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity duration-500">
+                        <i class="ph-fill ph-tag text-8xl"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div class="w-12 h-12 rounded-xl bg-banqueta/10 text-banqueta flex items-center justify-center border border-banqueta/20">
+                            <i class="ph-fill ph-tag text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="relative z-10 mt-auto">
+                        <p class="text-4xl sm:text-5xl font-black text-white mb-1 tracking-tight">${db.brands.length}</p>
+                        <p class="text-gray-500 text-xs sm:text-sm font-bold uppercase tracking-wider">Marcas</p>
+                    </div>
+                </div>
+
+                <!-- Fabricantes -->
+                <div class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111]">
+                    <div class="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity duration-500">
+                        <i class="ph-fill ph-factory text-8xl"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div class="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center border border-green-500/20">
+                            <i class="ph-fill ph-factory text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="relative z-10 mt-auto">
+                        <p class="text-4xl sm:text-5xl font-black text-white mb-1 tracking-tight">${db.manufacturers.length}</p>
+                        <p class="text-gray-500 text-xs sm:text-sm font-bold uppercase tracking-wider">Fabricantes</p>
+                    </div>
+                </div>
+
+                <!-- Favoritos -->
+                <div class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111]">
+                    <div class="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity duration-500">
+                        <i class="ph-fill ph-heart text-8xl"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div class="w-12 h-12 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center border border-red-500/20">
+                            <i class="ph-fill ph-heart text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="relative z-10 mt-auto">
+                        <p class="text-4xl sm:text-5xl font-black text-white mb-1 tracking-tight">${db.cars.filter(c => c.isFavorite).length}</p>
+                        <p class="text-gray-500 text-xs sm:text-sm font-bold uppercase tracking-wider">Favoritos</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBrands() {
+            const grid = document.getElementById('brands-grid');
+            const q = getSearchQuery();
+            let filtered = db.brands;
+            if (q) filtered = filtered.filter(b => b.name.toLowerCase().includes(q));
+
+            if (filtered.length === 0) { grid.innerHTML = '<p class="text-gray-500 col-span-full">No se encontraron marcas.</p>'; return; }
+
+            grid.innerHTML = filtered.map(b => {
+                const count = db.cars.filter(c => c.brandId === b.id && !c.isWishlist).length;
+                const bgImage = b.banner || b.logo;
+                return `
+                <div class="uniform-card cursor-pointer" onclick="viewCategory('brand', '${b.id}', '${b.name}')">
+                    <div class="relative overflow-hidden glass-panel rounded-2xl flex flex-col group h-full glow-hover">
+                        <div class="relative flex-grow flex items-center justify-center p-6 min-h-[140px] sm:min-h-[160px] overflow-hidden bg-black">
+                            <div class="absolute inset-0 z-0 bg-watermark" style="background-image: url('${bgImage}')"></div>
+                            <img data-src="${b.logo}" class="lazy-image fade-image relative z-20 catalog-logo object-contain drop-shadow-[0_0_15px_rgba(0,0,0,0.8)] group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <div class="relative z-20 p-3 sm:p-4 bg-dark-panel border-t border-dark-border flex justify-between items-center shrink-0">
+                            <div class="truncate pr-2">
+                                <h3 class="font-bold text-sm sm:text-lg text-white truncate">${b.name}</h3>
+                                <p class="text-[10px] sm:text-xs text-banqueta font-semibold">${count} Autos</p>
+                            </div>
+                            <div class="flex gap-1 sm:gap-2">
+                                <button onclick="editBrand('${b.id}', event)" class="p-1.5 sm:p-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 text-gray-400 hover:text-banqueta transition-all shrink-0"><i class="ph-bold ph-pencil-simple text-base sm:text-lg"></i></button>
+                                <button onclick="deleteBrand('${b.id}', event)" class="p-1.5 sm:p-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 text-gray-500 hover:text-red-500 transition-all shrink-0"><i class="ph-bold ph-trash text-base sm:text-lg"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`}).join('');
+        }
+
+        function renderManufacturers() {
+            const grid = document.getElementById('manufacturers-grid');
+            const q = getSearchQuery();
+            let filtered = db.manufacturers;
+            if (q) filtered = filtered.filter(m => m.name.toLowerCase().includes(q));
+
+            if (filtered.length === 0) { grid.innerHTML = '<p class="text-gray-500 col-span-full">No se encontraron fabricantes.</p>'; return; }
+
+            grid.innerHTML = filtered.map(m => {
+                const count = db.cars.filter(c => c.manufacturerId === m.id && !c.isWishlist).length;
+                return `
+                <div class="uniform-card cursor-pointer" onclick="viewCategory('manufacturer', '${m.id}', '${m.name}')">
+                    <div class="relative overflow-hidden glass-panel rounded-2xl flex flex-col group h-full glow-hover bg-black">
+                        <div class="relative flex-grow flex items-center justify-center p-6 min-h-[140px] sm:min-h-[160px] overflow-hidden">
+                            ${m.banner ? `<div class="absolute inset-0 z-0 bg-cover bg-center opacity-40 group-hover:opacity-60 transition-opacity" style="background-image: url('${m.banner}')"></div>` : `<div class="absolute inset-0 z-0 bg-watermark" style="background-image: url('${m.logo}')"></div>`}
+                            <img data-src="${m.logo}" class="lazy-image fade-image relative z-20 catalog-logo object-contain drop-shadow-[0_0_10px_rgba(0,0,0,0.9)] group-hover:scale-110 transition-transform duration-300">
+                        </div>
+                        <div class="w-full p-3 sm:p-4 bg-dark-panel border-t border-dark-border z-20 flex justify-between items-center shrink-0">
+                            <div class="truncate pr-2">
+                                <h3 class="font-bold text-[13px] sm:text-base text-white truncate">${m.name}</h3>
+                                <p class="text-[10px] sm:text-xs text-gray-400">${count} Modelos</p>
+                            </div>
+                            <div class="flex gap-1 sm:gap-2">
+                                <button onclick="editManufacturer('${m.id}', event)" class="p-1.5 sm:p-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 text-gray-400 hover:text-banqueta transition-all shrink-0"><i class="ph-bold ph-pencil-simple text-base sm:text-lg"></i></button>
+                                <button onclick="deleteManufacturer('${m.id}', event)" class="p-1.5 sm:p-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 text-gray-500 hover:text-red-500 transition-all shrink-0"><i class="ph-bold ph-trash text-base sm:text-lg"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`}).join('');
+        }
+
+        function renderCollections() {
+            const grid = document.getElementById('collections-grid');
+            const q = getSearchQuery();
+            let filtered = db.collections;
+            if (q) filtered = filtered.filter(c => c.name.toLowerCase().includes(q));
+
+            if (filtered.length === 0) { grid.innerHTML = '<p class="text-gray-500 col-span-full">No se encontraron colecciones.</p>'; return; }
+
+            grid.innerHTML = filtered.map(c => {
+                const cCars = db.cars.filter(car => car.collectionId === c.id && !car.isWishlist);
+                const bgImage = c.banner || c.logo || '';
+                return `
+                <div class="uniform-card cursor-pointer" onclick="viewCategory('collection', '${c.id}', '${c.name}')">
+                    <div class="glass-panel rounded-2xl flex flex-col h-full relative overflow-hidden group glow-hover bg-black">
+                        ${bgImage ? `<div class="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity bg-cover bg-center" style="background-image: url('${bgImage}')"></div>` : `<div class="absolute -right-10 -top-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-banqueta/10 transition-colors"></div>`}
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-panel via-dark-panel/90 to-transparent"></div>
+                        <div class="p-5 sm:p-6 relative z-10 flex flex-col h-full">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex items-center gap-3 truncate">
+                                    ${c.logo ? `<span class="w-8 h-8 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center"><img data-src="${c.logo}" class="lazy-image fade-image w-auto h-auto max-w-full max-h-full object-contain rounded-lg drop-shadow"></span>` : ''}
+                                    <h3 class="font-bold text-lg sm:text-xl text-white truncate pr-4">${c.name}</h3>
+                                </div>
+                                <div class="flex gap-1 sm:gap-2">
+                                    <button onclick="editCollection('${c.id}', event)" class="text-gray-400 hover:text-banqueta transition-colors"><i class="ph-bold ph-pencil-simple text-base sm:text-lg"></i></button>
+                                    <button onclick="deleteCollection('${c.id}', event)" class="text-gray-500 hover:text-red-400 transition-colors"><i class="ph-bold ph-trash text-base sm:text-lg"></i></button>
+                                </div>
+                            </div>
+                            <p class="text-gray-400 text-xs sm:text-sm mb-6 flex-grow line-clamp-2">${c.desc || ''}</p>
+                            
+                            <div class="flex items-center justify-between border-t border-dark-border/50 pt-4 mt-auto">
+                                <div class="flex -space-x-2 sm:-space-x-3">
+                                    ${cCars.slice(0, 4).map(car => `<span class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg border-2 border-dark-panel bg-dark-bg shadow-sm shrink-0 flex items-center justify-center p-0.5"><img data-src="${car.cover}" class="lazy-image fade-image w-full h-full object-cover rounded"></span>`).join('')}
+                                    ${cCars.length > 4 ? `<div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-dark-panel bg-[#222] flex items-center justify-center text-[9px] sm:text-[10px] font-bold text-white shadow-sm">+${cCars.length - 4}</div>` : ''}
+                                </div>
+                                <span class="text-banqueta font-bold text-xs sm:text-sm bg-banqueta/10 px-2 py-1 sm:px-3 sm:py-1 rounded border border-banqueta/20">${cCars.length} Autos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`}).join('');
+        }
+
+        function viewCar(id) {
+            const c = db.cars.find(x => x.id === id);
+            if (!c) return;
+
+            document.getElementById('view-car-model').textContent = c.model;
+            document.getElementById('view-car-brand').innerHTML = `<i class="ph-fill ph-tag text-lg"></i> ${getBrandName(c.brandId)} &nbsp;&nbsp;|&nbsp;&nbsp; <i class="ph-fill ph-factory text-lg text-gray-400"></i> <span class="text-gray-300">${getMfgName(c.manufacturerId)}</span>`;
+
+            let tags = '';
+            if (c.isFavorite) tags += `<span class="bg-red-500/20 text-red-500 border border-red-500/30 px-2 py-1 rounded text-xs font-bold flex items-center gap-1"><i class="ph-fill ph-heart"></i> Favorito</span>`;
+            if (c.colorName) tags += `<span class="bg-dark-bg border border-dark-border px-2 py-1 rounded text-xs flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background-color:${c.colorHex}"></span>${c.colorName}</span>`;
+            if (c.escala) tags += `<span class="bg-dark-bg border border-dark-border px-2 py-1 rounded text-xs text-gray-400 flex items-center gap-1"><i class="ph-bold ph-arrows-out-line-horizontal"></i> ${c.escala}</span>`;
+            if (c.linea) {
+                let lnClass = 'bg-white/10 text-white';
+                if (c.linea === 'Main') lnClass = 'bg-gray-600 text-white border-gray-500';
+                if (c.linea === 'Premium') lnClass = 'bg-gradient-to-r from-[#ffd700] to-[#c5a000] text-black shadow-sm';
+                if (c.linea === 'Custom') lnClass = 'bg-[#dc2626] text-white';
+                if (c.linea === 'Exotic') lnClass = 'bg-[#9333ea] text-white';
+                tags += `<span class="${lnClass} px-2 py-1 rounded text-xs uppercase font-extrabold border border-white/20">${c.linea}</span>`;
+            }
+            document.getElementById('view-car-tags').innerHTML = tags;
+
+            const st = document.getElementById('view-car-stats');
+            st.className = "grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6 flex-grow content-start";
+            st.innerHTML = '';
+
+            const getIconForStat = (lbl) => {
+                const icons = {
+                    'Colección': 'ph-books',
+                    'Serie': 'ph-hash',
+                    'Costo': 'ph-currency-dollar',
+                    'No. Modelo': 'ph-barcode',
+                    'Año': 'ph-calendar-blank',
+                    'No. Serie': 'ph-list-numbers',
+                    'Tipo': 'ph-car-profile',
+                    'Puntuación': 'ph-star'
+                };
+                return icons[lbl] || 'ph-info';
+            };
+
+            const addStat = (lbl, val) => {
+                if (val) {
+                    st.innerHTML += `
+                    <div class="bg-[#111] border border-dark-border rounded-xl p-3 flex flex-col justify-center relative overflow-hidden group hover:border-white/10 transition-colors shadow-sm">
+                        <div class="absolute -right-2 -bottom-3 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+                            <i class="ph-fill ${getIconForStat(lbl)} text-[60px]"></i>
+                        </div>
+                        <div class="flex items-center gap-1.5 mb-1 z-10">
+                            <i class="ph-bold ${getIconForStat(lbl)} text-gray-500 text-[10px]"></i>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">${lbl}</p>
+                        </div>
+                        <p class="text-sm text-white font-bold z-10 truncate" title="${val.replace ? val.replace(/"/g, '&quot;') : val}">${val}</p>
+                    </div>`;
+                }
+            };
+
+            addStat('Colección', db.collections.find(x => x.id === c.collectionId)?.name);
+            addStat('Serie', c.serie);
+            addStat('Costo', c.costo ? `$${c.costo}` : '');
+            addStat('No. Modelo', c.nomodelo);
+            addStat('Año', c.anio);
+            addStat('No. Serie', c.noserie);
+            addStat('Tipo', c.tipo);
+            if (c.rating > 0) {
+                let s = ''; for (let i = 0; i < c.rating; i++) s += '<i class="ph-fill ph-star"></i>';
+                addStat('Puntuación', `<span class="text-banqueta flex gap-0.5 text-base mt-0.5 drop-shadow">${s}</span>`);
+            }
+
+            const mainImg = document.getElementById('view-car-main-img');
+            // Quitamos el src y le asignamos el loadCachedImage
+            mainImg.src = '';
+            mainImg.classList.remove('loaded');
+            loadCachedImage(mainImg, c.cover);
+
+            let thumbs = `<div onclick="loadCachedImage(document.getElementById('view-car-main-img'), '${c.cover}')" class="aspect-square bg-dark-bg border border-dark-border rounded cursor-pointer hover:border-banqueta overflow-hidden opacity-90 hover:opacity-100 transition-all"><img data-src="${c.cover}" class="lazy-image fade-image w-full h-full object-cover"></div>`;
+            if (c.extras) {
+                c.extras.forEach(ext => {
+                    thumbs += `<div onclick="loadCachedImage(document.getElementById('view-car-main-img'), '${ext}')" class="aspect-square bg-dark-bg border border-dark-border rounded cursor-pointer hover:border-banqueta overflow-hidden opacity-90 hover:opacity-100 transition-all"><img data-src="${ext}" class="lazy-image fade-image w-full h-full object-cover"></div>`;
+                });
+            }
+            document.getElementById('view-car-thumbnails').innerHTML = thumbs;
+            document.getElementById('btn-edit-car').onclick = () => editCar(c.id);
+            document.getElementById('btn-delete-car').onclick = () => {
+                closeModal('car-view-modal');
+                deleteCar(c.id);
+            };
+
+            openModal('car-view-modal');
+            applyLazyLoading(); // Para los thumbnails
+        }
+
+        function createCarCard(c) {
+            let starsHtml = '';
+            if (c.rating && c.rating > 0) {
+                starsHtml = `<div class="flex items-center gap-0.5 text-[#F5C000] text-[9px] sm:text-[10px] bg-black/60 px-1.5 py-0.5 rounded shadow border border-white/10">`;
+                for (let i = 0; i < c.rating; i++) starsHtml += `<i class="ph-fill ph-star"></i>`;
+                starsHtml += `</div>`;
+            }
+
+            let lineClass = '';
+            if (c.linea === 'Main') lineClass = 'bg-gray-600/95 text-white border border-gray-500';
+            else if (c.linea === 'Premium') lineClass = 'bg-gradient-to-br from-[#ffd700] to-[#c5a000]/80 text-black border border-[#e6c200] shadow-[0_0_10px_rgba(255,215,0,0.4)]';
+            else if (c.linea === 'Custom') lineClass = 'bg-[#dc2626]/90 text-white border border-[#b91c1c]';
+            else if (c.linea === 'Exotic') lineClass = 'bg-[#9333ea]/90 text-white border border-[#7e22ce] shadow-[0_0_10px_rgba(147,51,234,0.4)]';
+
+            const lineaHtml = c.linea ? `<div class="absolute bottom-2 right-2 text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded uppercase backdrop-blur-sm z-20 ${lineClass}">${c.linea}</div>` : '';
+
+            return `
+                <div class="uniform-card glow-hover rounded-2xl relative cursor-pointer" onclick="viewCar('${c.id}')">
+                    <div class="group glass-panel rounded-2xl overflow-hidden flex flex-col h-full bg-[#0d0d0d]">
+                        <div class="aspect-square w-full relative bg-[#0d0d0d] shrink-0 p-[2px]">
+                            <div class="w-full h-full relative overflow-hidden rounded-xl bg-black">
+                                <img data-src="${c.cover}" class="lazy-image fade-image w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-110">
+
+                                <div class="absolute top-2 left-2 z-20 bg-black/70 backdrop-blur-sm text-white text-[9px] sm:text-[11px] font-bold px-1.5 py-1 sm:px-2 rounded shadow flex items-center gap-1 border border-white/10">
+                                    <i class="ph-fill ph-factory text-gray-300"></i> <span class="truncate max-w-[60px] sm:max-w-[100px]">${getMfgName(c.manufacturerId)}</span>
+                                </div>
+
+                                <button onclick="toggleFavorite('${c.id}', event)" class="absolute top-2 right-2 z-20 w-6 h-6 sm:w-7 sm:h-7 bg-black/50 hover:bg-black/80 rounded-full flex items-center justify-center backdrop-blur transition-all border border-white/10">
+                                    <i class="${c.isFavorite ? 'ph-fill text-red-500' : 'ph-bold text-white'} ph-heart text-xs sm:text-sm drop-shadow"></i>
+                                </button>
+
+                                <div class="absolute bottom-2 left-2 flex flex-col gap-1 sm:gap-1.5 items-start z-20">
+                                    <div class="bg-black/70 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded border border-white/10 flex items-center gap-1 shadow">
+                                        <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full border border-white/30 block" style="background-color: ${c.colorHex || '#555'}"></span>
+                                        <span class="truncate max-w-[50px] sm:max-w-[80px]">${c.colorName || 'Color'}</span>
+                                    </div>
+                                    ${starsHtml}
+                                </div>
+                                
+                                ${lineaHtml}
+                            </div>
+                        </div>
+                        <div class="p-2 sm:p-3 flex flex-col flex-grow bg-gradient-to-b from-transparent to-[#111]">
+                            <h3 class="font-bold text-[13px] sm:text-[15px] text-white mb-1 sm:mb-2 line-clamp-1">${c.model}</h3>
+                            
+                            <div class="flex justify-between items-center mt-auto">
+                                <p class="text-[10px] sm:text-xs text-banqueta font-semibold truncate pr-1 sm:pr-2">${getBrandName(c.brandId)}</p>
+                                <span class="text-gray-400 text-[9px] sm:text-[11px] font-normal flex items-center gap-1 shrink-0">
+                                    <i class="ph-bold ph-arrows-out-line-horizontal"></i> ${c.escala || '1:64'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function filterCars(isWishlist) {
+            const q = getSearchQuery();
+            let filtered = db.cars.filter(c => !!c.isWishlist === isWishlist).sort((a, b) => b.createdAt - a.createdAt);
+
+            if (currentFilter && !isWishlist) {
+                if (currentFilter.type === 'brand') filtered = filtered.filter(c => c.brandId === currentFilter.id);
+                if (currentFilter.type === 'manufacturer') filtered = filtered.filter(c => c.manufacturerId === currentFilter.id);
+                if (currentFilter.type === 'collection') filtered = filtered.filter(c => c.collectionId === currentFilter.id);
+            }
+
+            if (q) {
+                filtered = filtered.filter(c =>
+                    c.model.toLowerCase().includes(q) ||
+                    (c.colorName && c.colorName.toLowerCase().includes(q)) ||
+                    getMfgName(c.manufacturerId).toLowerCase().includes(q) ||
+                    getBrandName(c.brandId).toLowerCase().includes(q)
+                );
+            }
+            return filtered;
+        }
+
+        function renderCars(isWishlist = false) {
+            const gridId = isWishlist ? 'wishlist-grid' : 'cars-grid';
+            const grid = document.getElementById(gridId);
+            const filtered = filterCars(isWishlist);
+
+            const filterHeader = document.getElementById(isWishlist ? 'wishlist-filter-header' : 'cars-filter-header');
+
+            if (!isWishlist && currentFilter) {
+                let returnTab = currentFilter.type + 's';
+                if (currentFilter.type === 'collection') returnTab = 'collections';
+
+                filterHeader.innerHTML = `
+                    <button onclick="switchTab('${returnTab}')"
+                        class="mb-6 px-4 py-2 bg-dark-panel border border-dark-border rounded-xl text-banqueta hover:text-white hover:bg-dark-hover flex items-center gap-2 text-sm font-bold transition-all shadow-md w-fit">
+                        <i class="ph-bold ph-arrow-left text-lg"></i> Regresar a ${currentFilter.name || (currentFilter.type === 'brand' ? 'Marcas' : currentFilter.type === 'manufacturer' ? 'Fabricantes' : 'Colecciones')}
+                    </button>
+                `;
+                filterHeader.classList.remove('hidden');
+            } else if (filterHeader) {
+                filterHeader.classList.add('hidden');
+                filterHeader.innerHTML = '';
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-16 text-center"><i class="ph-fill ${isWishlist ? 'ph-star' : 'ph-car'} text-5xl text-gray-800 mb-3"></i><p class="text-gray-400">No hay autos aquí.</p></div>`;
+                return;
+            }
+            grid.innerHTML = filtered.map(c => createCarCard(c)).join('');
+        }
+
+        function renderFavorites() {
+            const grid = document.getElementById('favorites-grid');
+            const q = getSearchQuery();
+            let filtered = db.cars.filter(c => c.isFavorite).sort((a, b) => b.createdAt - a.createdAt);
+
+            if (q) {
+                filtered = filtered.filter(c =>
+                    c.model.toLowerCase().includes(q) || getBrandName(c.brandId).toLowerCase().includes(q)
+                );
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-16 text-center"><i class="ph-fill ph-heart-break text-5xl text-gray-800 mb-3"></i><p class="text-gray-400">No tienes autos favoritos.</p></div>`;
+                return;
+            }
+            grid.innerHTML = filtered.map(c => createCarCard(c)).join('');
+        }
+
+        function renderAll() {
+            renderActiveView();
+        }
+
+        let userProfile = { name: 'Usuario', avatar: '' };
+
+        function initProfile() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('drivowebProfile') || 'null');
+                if (saved && typeof saved.name === 'string' && saved.name.trim()) {
+                    userProfile.name = saved.name.trim().slice(0, 60);
+                }
+                if (saved && typeof saved.avatar === 'string' && /^(data:image\/|https?:\/\/)/.test(saved.avatar)) {
+                    userProfile.avatar = saved.avatar;
+                }
+            } catch (error) {
+                console.warn('No se pudo cargar el perfil.', error);
+            }
+            renderProfile();
+        }
+
+        function renderProfile() {
+            const name = document.getElementById('navbar-user-name');
+            const avatar = document.getElementById('navbar-user-avatar');
+            const initials = document.getElementById('navbar-user-initials');
+
+            const homeName = document.getElementById('home-greeting-name');
+            if (homeName) homeName.textContent = userProfile.name.split(' ')[0];
+
+            name.textContent = userProfile.name;
+            name.title = userProfile.name;
+            initials.textContent = userProfile.name.split(/\s+/).slice(0, 2).map(word => Array.from(word)[0]).join('').toUpperCase();
+            avatar.hidden = !userProfile.avatar;
+            initials.hidden = !!userProfile.avatar;
+            if (userProfile.avatar) avatar.src = userProfile.avatar;
+            else avatar.removeAttribute('src');
+        }
+
+        function openSettings() {
+            document.getElementById('settings-form').reset();
+            document.getElementById('profile-name').value = userProfile.name;
+            document.getElementById('setting-compress').checked = appSettings.compress;
+            document.getElementById('profile-error').textContent = '';
+            document.getElementById('r2-error').textContent = '';
+            document.getElementById('profile-avatar-base64').value = '';
+            updateR2Summary();
+            const area = document.getElementById('preview-profile-avatar');
+            area.classList.toggle('has-image', !!userProfile.avatar);
+            if (userProfile.avatar) area.querySelector('img.preview').src = userProfile.avatar;
+            openModal('settings-modal');
+            document.getElementById('profile-name').focus();
+        }
+
+        async function saveProfile(event) {
+            event.preventDefault();
+            const name = document.getElementById('profile-name').value.trim();
+            const base64Avatar = document.getElementById('profile-avatar-base64').value;
+
+            appSettings.compress = document.getElementById('setting-compress').checked;
+            localStorage.setItem('drivowebSettings', JSON.stringify(appSettings));
+
+            const ok = await runImageAction(async () => {
+                if (!name) throw new Error('Escribe un nombre de usuario.');
+                let avatar = userProfile.avatar;
+
+                if (base64Avatar) {
+                    avatar = await uploadR2Image(base64Avatar, 'profile/current/avatar');
+                }
+
+                persistProfile({ ...userProfile, name, avatar });
+            }, 'settings-form', 'profile-error');
+
+            if (ok) {
+                document.getElementById('profile-avatar-base64').value = ''; // Limpiamos caché de imagen
+                closeModal('settings-modal');
+                document.getElementById('settings-button').focus();
+            }
+        }
+
+        window.addEventListener('load', initProfile);
+        window.onload = initData;
+    </script>
+</body>
+
+</html>
