@@ -398,6 +398,16 @@
         .rating-star.active {
             color: #F5C000;
         }
+
+        /* Glassmorphism Nativo para iPhone / iOS */
+        @supports (-webkit-touch-callout: none) {
+            .custom-ios-glass {
+                background-color: rgba(15, 15, 15, 0.6) !important;
+                -webkit-backdrop-filter: blur(25px) saturate(200%) !important;
+                backdrop-filter: blur(25px) saturate(200%) !important;
+                border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+            }
+        }
     </style>
 </head>
 
@@ -405,7 +415,7 @@
 
     <!-- FLOATING NAVBAR (NATIVO MÓVIL) O ASIDE (ESCRITORIO) -->
     <aside
-        class="fixed bottom-4 left-4 right-4 h-16 md:bottom-auto md:left-auto md:right-auto md:h-screen md:relative w-[calc(100%-2rem)] md:w-64 glass-panel rounded-2xl md:rounded-none border md:border-t-0 md:border-r border-dark-border flex flex-row md:flex-col z-50 md:z-40 transition-all duration-300 bg-[#1A1A1A]/95 md:bg-[#141414] backdrop-blur-xl shadow-2xl md:shadow-none">
+        class="fixed bottom-4 left-4 right-4 h-16 md:bottom-auto md:left-auto md:right-auto md:h-screen md:relative w-[calc(100%-2rem)] md:w-64 glass-panel rounded-t-2xl rounded-b-[2.2rem] md:rounded-none border border-white/10 md:border-dark-border md:border-t-0 md:border-r flex flex-row md:flex-col z-50 md:z-40 transition-all duration-300 bg-black/65 md:bg-[#141414] backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.6)] md:shadow-none custom-ios-glass">
         <div class="hidden md:flex p-6 items-center justify-start border-b border-dark-border h-[89px]">
             <img src="assets/logotipe.png" alt="DrivoWeb" class="w-auto h-10 max-w-full object-contain shrink-0">
         </div>
@@ -414,29 +424,29 @@
             class="flex-1 w-full flex flex-row justify-around md:justify-start md:flex-col gap-1 md:gap-2 px-2 md:px-4 py-2 md:py-6 overflow-hidden md:overflow-y-auto custom-scroll items-center md:items-stretch">
 
             <button onclick="switchTab('home')" id="nav-home"
-                class="nav-btn flex items-center justify-center md:justify-start gap-0 md:gap-4 w-12 h-12 md:w-full md:h-auto md:px-4 md:py-3.5 rounded-xl transition-all duration-300 text-banqueta bg-[#303030] font-semibold md:shadow-[0_0_15px_rgba(245,192,0,0.15)] group">
+                class="nav-btn flex items-center justify-center md:justify-start gap-0 md:gap-4 w-12 h-12 md:w-full md:h-auto md:px-4 md:py-3.5 rounded-full md:rounded-2xl transition-all duration-300 text-banqueta bg-[#303030] font-semibold md:shadow-[0_0_15px_rgba(245,192,0,0.15)] group">
                 <i class="ph-fill ph-house text-2xl md:group-hover:scale-110 transition-transform"></i> <span
                     class="hidden md:block text-sm leading-none">Inicio</span>
             </button>
             <button onclick="switchTab('cars', event)" id="nav-cars"
-                class="nav-btn flex items-center justify-center md:justify-start gap-0 md:gap-4 w-12 h-12 md:w-full md:h-auto md:px-4 md:py-3.5 rounded-xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
+                class="nav-btn flex items-center justify-center md:justify-start gap-0 md:gap-4 w-12 h-12 md:w-full md:h-auto md:px-4 md:py-3.5 rounded-full md:rounded-2xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
                 <i class="ph-fill ph-car text-2xl md:group-hover:scale-110 transition-transform"></i> <span
                     class="hidden md:block text-sm leading-none">Autos</span>
             </button>
             <button onclick="switchTab('favorites')" id="nav-favorites"
-                class="nav-btn flex items-center justify-center md:justify-start gap-0 md:gap-4 w-12 h-12 md:w-full md:h-auto md:px-4 md:py-3.5 rounded-xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
+                class="nav-btn flex items-center justify-center md:justify-start gap-0 md:gap-4 w-12 h-12 md:w-full md:h-auto md:px-4 md:py-3.5 rounded-full md:rounded-2xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
                 <i class="ph-fill ph-heart text-2xl md:group-hover:scale-110 transition-transform"></i> <span
                     class="hidden md:block text-sm leading-none">Favoritos</span>
             </button>
             <button onclick="switchTab('wishlist', event)" id="nav-wishlist"
-                class="nav-btn flex items-center justify-center md:justify-start gap-0 md:gap-4 w-12 h-12 md:w-full md:h-auto md:px-4 md:py-3.5 rounded-xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
+                class="nav-btn flex items-center justify-center md:justify-start gap-0 md:gap-4 w-12 h-12 md:w-full md:h-auto md:px-4 md:py-3.5 rounded-full md:rounded-2xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
                 <i class="ph-fill ph-star text-2xl md:group-hover:scale-110 transition-transform"></i> <span
                     class="hidden md:block text-sm leading-none">Deseados</span>
             </button>
 
             <!-- Menú Más (Solo Móvil) -->
             <button onclick="openModal('mobile-more-modal')" id="nav-more"
-                class="nav-btn md:hidden flex items-center justify-center gap-0 w-12 h-12 rounded-xl transition-all duration-300 text-gray-400 bg-transparent group">
+                class="nav-btn md:hidden flex items-center justify-center gap-0 w-12 h-12 rounded-full transition-all duration-300 text-gray-400 bg-transparent group">
                 <i class="ph-fill ph-squares-four text-2xl"></i>
             </button>
 
@@ -485,12 +495,47 @@
                 </button>
             </div>
 
-            <!-- Search Bar -->
-            <div class="relative flex-1 min-w-0 w-full max-w-2xl order-2 md:order-1">
-                <i
-                    class="ph-bold ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl"></i>
-                <input type="text" id="global-search" placeholder="Buscar en la vista actual..."
-                    onkeyup="renderActiveView()" class="w-full input-style rounded-2xl py-3 pl-12 pr-4 shadow-sm">
+            <!-- Search Bar & Sort -->
+            <div class="relative flex-1 min-w-0 w-full max-w-2xl order-2 md:order-1 flex gap-2">
+                <div class="relative flex-1 min-w-0">
+                    <i
+                        class="ph-bold ph-magnifying-glass absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg sm:text-xl"></i>
+                    <input type="text" id="global-search" placeholder="Buscar modelo o marca..."
+                        onkeyup="renderActiveView()"
+                        class="w-full input-style rounded-xl sm:rounded-2xl py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 shadow-sm text-sm sm:text-base">
+                </div>
+
+                <!-- Custom Dropdown Sort -->
+                <div class="relative shrink-0" id="sort-dropdown-wrapper">
+                    <button type="button" onclick="toggleSortMenu()"
+                        class="h-full flex items-center gap-2 px-3 sm:px-4 bg-dark-panel border border-dark-border rounded-xl sm:rounded-2xl text-gray-400 hover:text-banqueta hover:border-banqueta transition-all cursor-pointer">
+                        <i class="ph-bold ph-faders text-lg sm:text-xl pointer-events-none"></i>
+                        <span id="sort-display"
+                            class="hidden sm:inline font-semibold text-sm pointer-events-none">Recientes</span>
+                    </button>
+
+                    <div id="sort-menu"
+                        class="hidden absolute right-0 top-[calc(100%+0.5rem)] w-48 bg-[#18181b] border border-[#3f3f46] rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.5)] z-[60] overflow-hidden py-1">
+                        <button type="button" onclick="selectGlobalSort('newest', 'Recientes')"
+                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors">Más
+                            Recientes</button>
+                        <button type="button" onclick="selectGlobalSort('oldest', 'Antiguos')"
+                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors">Más
+                            Antiguos</button>
+                        <button type="button" onclick="selectGlobalSort('az', 'A - Z')"
+                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors">Modelo:
+                            A - Z</button>
+                        <button type="button" onclick="selectGlobalSort('za', 'Z - A')"
+                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors">Modelo:
+                            Z - A</button>
+                        <button type="button" onclick="selectGlobalSort('brand', 'Marca')"
+                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors">Por
+                            Marca</button>
+                        <button type="button" onclick="selectGlobalSort('mfg', 'Fabricante')"
+                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors">Por
+                            Fabricante</button>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -500,7 +545,7 @@
             <section id="section-home" class="section-view active fade-in space-y-6 md:space-y-10">
                 <!-- Welcome Card Premium -->
                 <div
-                    class="glass-panel p-6 sm:p-10 rounded-[2rem] relative overflow-hidden group border-dark-border/50 shadow-2xl bg-[#0d0d0d]">
+                    class="glass-panel p-4 sm:p-10 rounded-2xl sm:rounded-[2rem] relative overflow-hidden group border-dark-border/50 shadow-2xl bg-[#0d0d0d]">
                     <!-- Elementos decorativos de fondo -->
                     <div
                         class="absolute -right-20 -top-20 w-96 h-96 bg-banqueta/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-banqueta/20 transition-all duration-700">
@@ -510,27 +555,29 @@
                         <i class="ph-fill ph-garage text-[250px] text-banqueta"></i>
                     </div>
 
-                    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
                         <div>
-                            <div
-                                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 text-xs font-semibold mb-4">
-                                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Sistema en línea
+                            <div id="network-badge"
+                                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 text-xs font-semibold mb-2 sm:mb-4 transition-colors duration-300">
+                                <span id="network-dot" class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                <span id="network-text-desktop" class="hidden sm:inline">Sistema en línea</span>
+                                <span id="network-text-mobile" class="sm:hidden">En línea</span>
                             </div>
-                            <h1 class="text-4xl sm:text-5xl font-black mb-3 text-white tracking-tight">Bienvenido, <span
-                                    id="home-greeting-name" class="text-banqueta">Usuario</span></h1>
-                            <p class="text-gray-400 max-w-xl text-sm sm:text-lg mb-8 leading-relaxed">Tu garaje digital
-                                definitivo. Administra tus autos, analiza tus colecciones y mantén todo organizado con
-                                velocidad y estilo.</p>
+                            <h1 class="text-2xl sm:text-5xl font-black mb-1 sm:mb-3 text-white tracking-tight">
+                                Bienvenido, <span id="home-greeting-name" class="text-banqueta">Usuario</span></h1>
+                            <p class="hidden sm:block text-gray-400 max-w-xl text-sm sm:text-lg mb-8 leading-relaxed">Tu
+                                garaje digital definitivo. Administra tus autos, analiza tus colecciones y mantén todo
+                                organizado con velocidad y estilo.</p>
 
                             <!-- Accesos rápidos mejorados -->
-                            <div class="flex gap-3 flex-wrap">
+                            <div class="flex gap-2 sm:gap-3 flex-wrap mt-2 sm:mt-0">
                                 <button onclick="openCarModal(false)"
-                                    class="btn-primary text-black font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 transition shadow-lg shadow-banqueta/20 text-sm sm:text-base hover:scale-105">
-                                    <i class="ph-bold ph-plus text-lg"></i> Añadir Auto
+                                    class="btn-primary text-black font-bold px-4 py-2 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl flex items-center gap-1.5 sm:gap-2 transition shadow-lg shadow-banqueta/20 text-xs sm:text-base hover:scale-105">
+                                    <i class="ph-bold ph-plus text-base sm:text-lg"></i> Añadir Auto
                                 </button>
                                 <button onclick="switchTab('collections')"
-                                    class="bg-[#1A1A1A] border border-dark-border text-white font-semibold px-6 py-3.5 rounded-xl flex items-center gap-2 hover:bg-[#222] transition text-sm sm:text-base shadow-lg hover:scale-105">
-                                    <i class="ph-fill ph-books text-gray-400 text-lg"></i> Ver Colecciones
+                                    class="bg-[#1A1A1A] border border-dark-border text-white font-semibold px-4 py-2 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl flex items-center gap-1.5 sm:gap-2 hover:bg-[#222] transition text-xs sm:text-base shadow-lg hover:scale-105">
+                                    <i class="ph-fill ph-books text-gray-400 text-base sm:text-lg"></i> Ver Colecciones
                                 </button>
                             </div>
                         </div>
@@ -542,6 +589,8 @@
                     <h3 class="text-xl font-bold text-white mb-5 flex items-center gap-2"><i
                             class="ph-bold ph-chart-bar text-banqueta"></i> Resumen del Garaje</h3>
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6" id="home-stats"></div>
+                    <!-- Contenedor dedicado para evitar duplicados -->
+                    <div id="home-value-breakdown"></div>
                 </div>
             </section>
 
@@ -550,6 +599,8 @@
                 <!-- Envolvemos el filtro y el título en un solo div para evitar el gap de space-y -->
                 <div>
                     <div id="cars-filter-header" class="hidden"></div>
+                    <div class="view-color-filter flex gap-2 overflow-x-auto custom-scroll pb-2 mb-3 empty:hidden">
+                    </div>
                     <div class="flex justify-between items-center gap-2 sm:gap-4">
                         <h2 class="text-2xl sm:text-3xl font-bold">Mis Autos</h2>
                         <button onclick="openCarModal(false)"
@@ -565,7 +616,11 @@
 
             <!-- Favoritos -->
             <section id="section-favorites" class="section-view fade-in space-y-4 md:space-y-6">
-                <h2 class="text-2xl sm:text-3xl font-bold">Favoritos</h2>
+                <div>
+                    <div class="view-color-filter flex gap-2 overflow-x-auto custom-scroll pb-2 mb-3 empty:hidden">
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-bold">Favoritos</h2>
+                </div>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-5 md:gap-6 auto-rows-fr"
                     id="favorites-grid"></div>
             </section>
@@ -575,6 +630,8 @@
                 <!-- Envolvemos el filtro y el título en un solo div -->
                 <div>
                     <div id="wishlist-filter-header" class="hidden"></div>
+                    <div class="view-color-filter flex gap-2 overflow-x-auto custom-scroll pb-2 mb-3 empty:hidden">
+                    </div>
                     <div class="flex justify-between items-center gap-2 sm:gap-4">
                         <h2 class="text-2xl sm:text-3xl font-bold">Wishlist</h2>
                         <button onclick="openCarModal(true)"
@@ -668,91 +725,166 @@
         </div>
     </div>
 
-    <!-- Modal: Ajustes del perfil -->
+    <!-- Modal: Ajustes del perfil (REDISEÑO MEJORADO) -->
     <div id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title"
         class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
         <div
-            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-md max-h-[95vh] overflow-y-auto custom-scroll slide-up shadow-2xl">
-            <div class="flex justify-between items-center p-5 border-b border-dark-border">
-                <h3 id="settings-title" class="text-xl font-bold">Ajustes de usuario</h3>
-                <button type="button" onclick="closeModal('settings-modal')" aria-label="Cerrar ajustes"
-                    class="text-gray-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
-            </div>
-            <form id="settings-form" onsubmit="saveProfile(event)" class="p-5 space-y-4">
-                <div>
-                    <label for="profile-name" class="block text-sm text-gray-400 mb-1">Nombre de usuario</label>
-                    <input type="text" id="profile-name" required maxlength="60" autocomplete="nickname"
-                        class="w-full input-style rounded-xl px-4 py-3" placeholder="Tu nombre">
-                </div>
-                <div class="flex flex-col items-center">
-                    <label class="block text-sm text-gray-400 mb-2 w-full text-left" for="profile-avatar">Avatar de
-                        Perfil</label>
-                    <input type="file" id="profile-avatar" accept="image/*" class="hidden-file-input"
-                        onchange="triggerCrop(this, 'profile', 'preview-profile-avatar')">
-                    <input type="hidden" id="profile-avatar-base64">
-                    <label for="profile-avatar" id="preview-profile-avatar"
-                        class="upload-area w-32 h-32 rounded-full overflow-hidden">
-                        <i class="ph-bold ph-user-circle text-4xl text-gray-500 mb-1"></i>
-                        <span class="text-[10px] text-gray-500">1:1 Imagen</span>
-                        <img src="" alt="Vista previa" class="preview rounded-full w-full h-full object-cover">
-                    </label>
-                </div>
+            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col md:flex-row slide-up shadow-2xl overflow-hidden">
 
-                <!-- Toggle de Compresión -->
-                <div class="border-t border-dark-border pt-4 space-y-3">
-                    <h4 class="font-semibold text-white">Optimización y Datos</h4>
-                    <label class="flex items-start gap-3 cursor-pointer group">
-                        <div class="pt-0.5">
-                            <input type="checkbox" id="setting-compress"
-                                class="w-5 h-5 accent-banqueta bg-dark-panel border-dark-border rounded cursor-pointer">
-                        </div>
-                        <div>
-                            <span class="block text-sm text-white group-hover:text-banqueta transition-colors">Alta
-                                compresión de imágenes</span>
-                            <span class="block text-xs text-gray-500 leading-tight mt-1">Reduce drásticamente el peso
-                                (hasta 60% menos) para ahorrar datos y memoria. Ideal en móviles.</span>
-                        </div>
-                    </label>
-                </div>
-
-                <div class="border-t border-dark-border pt-4 space-y-3">
-                    <h4 class="font-semibold text-white">Respaldo de Base de Datos</h4>
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" onclick="exportDatabaseZip()"
-                            class="px-4 py-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/30 hover:bg-blue-500/20 transition-colors text-sm font-semibold flex items-center gap-2">
-                            <i class="ph-bold ph-download-simple"></i> Exportar ZIP
-                        </button>
-                        <input type="file" id="import-zip-input" accept=".zip" class="hidden-file-input"
-                            onchange="importDatabaseZip(event)">
-                        <button type="button" onclick="document.getElementById('import-zip-input').click()"
-                            class="px-4 py-2 rounded-xl border border-dark-border text-sm hover:bg-white/5 transition-colors font-semibold flex items-center gap-2">
-                            <i class="ph-bold ph-upload-simple"></i> Importar ZIP
-                        </button>
-                    </div>
-                </div>
-
-                <div class="border-t border-dark-border pt-4 space-y-3">
-                    <h4 class="font-semibold text-white">Imágenes en la nube</h4>
-                    <p id="r2-status" class="text-xs text-gray-400" aria-live="polite">R2 directo: comprueba la
-                        conexión.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" onclick="connectR2()"
-                            class="px-4 py-2 rounded-xl bg-banqueta/10 text-banqueta border border-banqueta/30 text-sm">Probar
-                            conexión R2</button>
-                        <button type="button" onclick="migrateImagesToR2()"
-                            class="px-4 py-2 rounded-xl border border-dark-border text-sm hover:bg-white/5">Migrar
-                            imágenes</button>
-                    </div>
-                    <p id="r2-error" class="text-sm text-red-400" role="alert"></p>
-                </div>
-                <p id="profile-error" class="text-sm text-red-400" role="alert"></p>
-                <div class="flex justify-end gap-3 pt-4 border-t border-dark-border">
+            <!-- Sidebar de Navegación de Ajustes -->
+            <div
+                class="md:w-1/3 bg-[#0d0d0d] border-b md:border-b-0 md:border-r border-dark-border p-5 flex flex-col gap-4">
+                <div class="flex justify-between items-center md:block">
+                    <h3 id="settings-title" class="text-2xl font-black text-white md:mb-6">Ajustes</h3>
                     <button type="button" onclick="closeModal('settings-modal')"
-                        class="px-5 py-2.5 rounded-xl hover:bg-white/10 transition-colors">Cancelar</button>
-                    <button type="submit" id="profile-save-btn"
-                        class="btn-primary px-5 py-2.5 rounded-xl font-bold">Guardar</button>
+                        class="md:hidden text-gray-400 hover:text-white">
+                        <i class="ph-bold ph-x text-xl"></i>
+                    </button>
                 </div>
-            </form>
+
+                <div class="flex md:flex-col gap-2 overflow-x-auto custom-scroll pb-2 md:pb-0">
+                    <button type="button" onclick="switchSettingsTab('user')" id="btn-sett-user"
+                        class="sett-pill text-left px-4 py-3 rounded-xl text-sm font-bold transition-all border border-banqueta bg-banqueta/10 text-banqueta flex items-center gap-3 shrink-0"><i
+                            class="ph-bold ph-user text-lg"></i> Perfil</button>
+                    <button type="button" onclick="switchSettingsTab('db')" id="btn-sett-db"
+                        class="sett-pill text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all border border-transparent hover:bg-white/5 text-gray-400 hover:text-white flex items-center gap-3 shrink-0"><i
+                            class="ph-bold ph-database text-lg"></i> Base de Datos</button>
+                    <button type="button" onclick="switchSettingsTab('prefs')" id="btn-sett-prefs"
+                        class="sett-pill text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all border border-transparent hover:bg-white/5 text-gray-400 hover:text-white flex items-center gap-3 shrink-0"><i
+                            class="ph-bold ph-sliders-horizontal text-lg"></i> Preferencias</button>
+                    <button type="button" onclick="switchSettingsTab('about')" id="btn-sett-about"
+                        class="sett-pill text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all border border-transparent hover:bg-white/5 text-gray-400 hover:text-white flex items-center gap-3 shrink-0"><i
+                            class="ph-bold ph-info text-lg"></i> Acerca de</button>
+                </div>
+            </div>
+
+            <!-- Área de Contenido -->
+            <div class="md:w-2/3 flex flex-col flex-1 relative bg-[#141414]">
+                <button type="button" onclick="closeModal('settings-modal')"
+                    class="hidden md:flex absolute top-4 right-4 w-8 h-8 items-center justify-center rounded-full bg-black/50 hover:bg-black text-gray-400 hover:text-white transition border border-dark-border z-10">
+                    <i class="ph-bold ph-x text-sm"></i>
+                </button>
+
+                <form id="settings-form" onsubmit="saveProfile(event)"
+                    class="p-6 md:p-8 overflow-y-auto custom-scroll flex-1 flex flex-col">
+
+                    <!-- Tab Usuario -->
+                    <div id="tab-sett-user" class="sett-tab flex-1 flex flex-col gap-6">
+                        <div>
+                            <h4 class="text-lg font-bold text-white mb-1">Información Pública</h4>
+                            <p class="text-xs text-gray-500 mb-6">Actualiza tu foto y nombre para personalizar tu
+                                garaje.</p>
+
+                            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                                <div class="relative group cursor-pointer shrink-0">
+                                    <input type="file" id="profile-avatar" accept="image/*" class="hidden-file-input"
+                                        onchange="triggerCrop(this, 'profile', 'preview-profile-avatar')">
+                                    <input type="hidden" id="profile-avatar-base64">
+                                    <label for="profile-avatar" id="preview-profile-avatar"
+                                        class="upload-area w-28 h-28 rounded-full overflow-hidden border-2 border-dark-border hover:border-banqueta transition shadow-lg bg-black">
+                                        <i class="ph-bold ph-user text-4xl text-gray-600"></i>
+                                        <img src="" alt="" class="preview rounded-full w-full h-full object-cover">
+                                    </label>
+                                    <div
+                                        class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                                        <i class="ph-bold ph-camera text-white text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-1 w-full mt-2 sm:mt-0">
+                                    <label for="profile-name"
+                                        class="block text-sm font-semibold text-gray-300 mb-2">Nombre de usuario</label>
+                                    <input type="text" id="profile-name" required maxlength="60" autocomplete="nickname"
+                                        class="w-full input-style rounded-xl px-4 py-3" placeholder="Ej. Alex">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Base de Datos -->
+                    <div id="tab-sett-db" class="sett-tab flex-1 gap-8 hidden flex-col">
+                        <div>
+                            <h4 class="text-lg font-bold text-white mb-1">Respaldo Local</h4>
+                            <p class="text-sm text-gray-400 mb-4">Exporta o importa tu garaje completo en un archivo
+                                ZIP. Las imágenes ahora se organizan por SKU/Modelo.</p>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <button type="button" onclick="exportDatabaseZip()"
+                                    class="flex-1 py-3 rounded-xl bg-banqueta/10 text-banqueta border border-banqueta/30 hover:bg-banqueta/20 transition-colors text-sm font-bold flex items-center justify-center gap-2">
+                                    <i class="ph-bold ph-download-simple text-lg"></i> Exportar ZIP
+                                </button>
+                                <input type="file" id="import-zip-input" accept=".zip" class="hidden-file-input"
+                                    onchange="importDatabaseZip(event)">
+                                <button type="button" onclick="document.getElementById('import-zip-input').click()"
+                                    class="flex-1 py-3 rounded-xl border border-dark-border text-gray-300 hover:text-white hover:bg-white/5 transition-colors text-sm font-bold flex items-center justify-center gap-2">
+                                    <i class="ph-bold ph-upload-simple text-lg"></i> Importar ZIP
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 border-t border-dark-border">
+                            <h4 class="text-lg font-bold text-white mb-1">Sincronización en la Nube</h4>
+                            <p class="text-sm text-gray-400 mb-4">Configuración de almacenamiento remoto R2.</p>
+                            <div class="bg-[#0A0A0A] border border-dark-border rounded-xl p-5">
+                                <p id="r2-status" class="text-sm text-gray-400 mb-4">Comprobando estado...</p>
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <button type="button" onclick="connectR2()"
+                                        class="px-5 py-2.5 rounded-xl border border-dark-border text-sm text-white hover:bg-white/10 transition">Probar
+                                        conexión</button>
+                                    <button type="button" onclick="migrateImagesToR2()"
+                                        class="px-5 py-2.5 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/30 text-sm hover:bg-blue-500/20 transition font-semibold">Migrar
+                                        imágenes locales</button>
+                                </div>
+                                <p id="r2-error" class="text-sm text-red-400 mt-3"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Preferencias -->
+                    <div id="tab-sett-prefs" class="sett-tab flex-1 flex-col gap-6 hidden">
+                        <div>
+                            <h4 class="text-lg font-bold text-white mb-1">Rendimiento y Almacenamiento</h4>
+                            <p class="text-sm text-gray-400 mb-5">Ajustes para optimizar la velocidad y espacio interno.
+                            </p>
+
+                            <label
+                                class="flex items-start gap-4 p-5 border border-dark-border rounded-xl bg-dark-bg cursor-pointer hover:border-banqueta/50 transition group">
+                                <div class="pt-0.5">
+                                    <input type="checkbox" id="setting-compress"
+                                        class="w-5 h-5 accent-banqueta bg-dark-panel border-dark-border rounded cursor-pointer">
+                                </div>
+                                <div>
+                                    <span
+                                        class="block text-base font-bold text-white group-hover:text-banqueta transition-colors">Alta
+                                        compresión de imágenes</span>
+                                    <span class="block text-sm text-gray-400 leading-relaxed mt-1">Reduce el peso de las
+                                        imágenes (hasta 60% menos) al subirlas. Ideal para ahorrar datos o navegar más
+                                        rápido en el móvil.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Tab Acerca de -->
+                    <div id="tab-sett-about"
+                        class="sett-tab flex-1 flex-col hidden items-center justify-center text-center py-10">
+                        <img src="assets/icon.png" alt="Logo" class="w-24 h-24 mb-6 opacity-80 drop-shadow-xl"
+                            onerror="this.style.display='none'">
+                        <h4 class="font-black text-white text-3xl mb-1">DrivoWeb</h4>
+                        <p class="text-sm text-banqueta font-bold mb-5 tracking-widest uppercase">Versión 1.1</p>
+                        <p class="text-sm text-gray-400 max-w-xs mx-auto leading-relaxed">Tu garaje digital definitivo.
+                            Administra, filtra y exporta toda tu colección automotriz al máximo.</p>
+                    </div>
+
+                    <p id="profile-error" class="text-sm text-red-400 mt-4" role="alert"></p>
+
+                    <div class="flex justify-end gap-3 pt-6 mt-auto border-t border-dark-border">
+                        <button type="button" onclick="closeModal('settings-modal')"
+                            class="px-6 py-3 rounded-xl text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Cancelar</button>
+                        <button type="submit" id="profile-save-btn"
+                            class="btn-primary px-8 py-3 rounded-xl text-sm font-bold shadow-lg shadow-banqueta/20">Guardar
+                            Cambios</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -917,7 +1049,14 @@
         <div
             class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-3xl slide-up shadow-2xl max-h-[95vh] flex flex-col">
             <div class="flex justify-between items-center p-4 border-b border-dark-border shrink-0">
-                <h3 class="text-xl font-bold" id="car-modal-title">Añadir Auto</h3>
+                <div class="flex items-center gap-3">
+                    <h3 class="text-xl font-bold" id="car-modal-title">Añadir Auto</h3>
+                    <button type="button" onclick="importFromGemini()"
+                        class="px-3 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/20 transition-colors text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                        title="Pegar datos de IA">
+                        <i class="ph-bold ph-sparkle text-sm"></i> Autocompletar IA
+                    </button>
+                </div>
                 <button onclick="closeModal('car-modal')" class="text-gray-400 hover:text-white"><i
                         class="ph-bold ph-x text-xl"></i></button>
             </div>
@@ -1157,14 +1296,21 @@
 
                 <div class="grid grid-cols-2 gap-x-4 gap-y-6 mb-6 flex-grow content-start" id="view-car-stats"></div>
 
-                <div class="pt-5 border-t border-dark-border mt-auto flex justify-end gap-3">
+                <div class="pt-5 border-t border-dark-border mt-auto flex justify-end gap-3 flex-wrap">
                     <button id="btn-delete-car"
                         class="px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 text-gray-400 hover:text-white hover:bg-red-600 transition-colors border border-dark-border hover:border-red-600">
                         <i class="ph-bold ph-trash"></i> Eliminar
                     </button>
+
+                    <!-- NUEVO BOTÓN MOVER A GARAJE -->
+                    <button id="btn-move-car"
+                        class="hidden px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 text-white bg-green-600 hover:bg-green-500 transition-colors border border-green-500 shadow-lg">
+                        <i class="ph-bold ph-car-profile"></i> Mover a Garaje
+                    </button>
+
                     <button id="btn-edit-car"
                         class="btn-primary px-6 py-2.5 rounded-xl font-bold flex items-center gap-2">
-                        <i class="ph-bold ph-pencil-simple"></i> Editar Auto
+                        <i class="ph-bold ph-pencil-simple"></i> Editar
                     </button>
                 </div>
             </div>
@@ -1221,12 +1367,36 @@
         </div>
     </div>
 
+    <!-- Modal: Importar IA -->
+    <div id="gemini-import-modal"
+        class="modal fixed inset-0 z-[90] items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-lg slide-up shadow-2xl p-5">
+            <h3 class="text-xl font-bold mb-2 flex items-center gap-2 text-indigo-400"><i
+                    class="ph-bold ph-sparkle"></i> Pegar información IA</h3>
+            <p class="text-sm text-gray-400 mb-4">Pide a la IA que te dé los datos del auto en formato JSON y pégalos
+                aquí. Las imágenes se añaden manualmente.</p>
+            <textarea id="gemini-json-input" rows="8" class="w-full input-style rounded-xl px-4 py-3 font-mono text-xs"
+                placeholder='Ejemplo:\n{\n  "model": "Skyline GT-R R34",\n  "brand": "Nissan",\n  "manufacturer": "Hot Wheels",\n  "colorHex": "#0000FF",\n  "colorName": "Bayside Blue"\n}'></textarea>
+            <p id="gemini-error" class="text-red-400 text-xs mt-2 hidden">Error: El formato no es un JSON válido o tiene
+                errores de sintaxis.</p>
+            <div class="flex justify-end gap-3 pt-4 mt-2">
+                <button type="button" onclick="closeModal('gemini-import-modal')"
+                    class="px-5 py-2.5 rounded-xl hover:bg-white/10 transition-colors text-sm">Cancelar</button>
+                <button type="button" onclick="applyGeminiImport()"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-colors shadow-lg shadow-indigo-900/50">Cargar
+                    Datos</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let db = { cars: [], brands: [], manufacturers: [], collections: [], colors: [], lastUpdated: 0 };
         let appSettings = { compress: true }; // Ajustes de App locales
 
         let activeTabId = 'home';
         let currentFilter = null;
+        let globalColorFilter = '';
+        let currentSort = localStorage.getItem('drivowebSort') || 'newest';
         let cropperInstance = null;
         let currentCropTarget = null;
         let currentCropPreview = null;
@@ -1310,8 +1480,12 @@
             }
             document.getElementById('setting-compress').checked = appSettings.compress;
 
+            // Cargar el nombre correcto del filtro
+            initGlobalSortUI();
+
             updateCustomSelects();
             renderColorGrid();
+            renderGlobalColorFilter();
             initRating();
             renderAll();
 
@@ -1360,10 +1534,34 @@
             }
         }
 
+        function updateNetworkStatus() {
+            const badge = document.getElementById('network-badge');
+            const dot = document.getElementById('network-dot');
+            const textDesktop = document.getElementById('network-text-desktop');
+            const textMobile = document.getElementById('network-text-mobile');
+
+            if (!badge || !dot || !textDesktop || !textMobile) return;
+
+            if (navigator.onLine) {
+                dot.className = 'w-2 h-2 rounded-full bg-green-500 animate-pulse';
+                badge.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 text-xs font-semibold mb-2 sm:mb-4 transition-colors duration-300';
+                textDesktop.textContent = 'Sistema en línea';
+                textMobile.textContent = 'En línea';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-red-500';
+                badge.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold mb-2 sm:mb-4 transition-colors duration-300';
+                textDesktop.textContent = 'Sistema sin conexión';
+                textMobile.textContent = 'Offline';
+            }
+        }
+
         window.addEventListener('online', () => {
+            updateNetworkStatus();
             console.log("Conexión restaurada. Analizando cambios...");
             syncFromFirebase();
         });
+
+        window.addEventListener('offline', updateNetworkStatus);
 
         function saveData() {
             try { persistDatabase(db); return true; }
@@ -1374,6 +1572,9 @@
             if (event || tabId !== 'cars') {
                 currentFilter = null;
             }
+
+            globalColorFilter = ''; // Reiniciar color al cambiar vista
+            if (typeof setGlobalColorFilter === 'function') setGlobalColorFilter('', false);
 
             activeTabId = tabId;
             document.querySelectorAll('.section-view').forEach(s => s.classList.remove('active'));
@@ -1419,6 +1620,8 @@
         }
 
         function renderActiveView() {
+            renderGlobalColorFilter(); // Actualizar colores dinámicamente
+
             if (activeTabId === 'home') renderHome();
             if (activeTabId === 'cars') renderCars(false);
             if (activeTabId === 'favorites') renderFavorites();
@@ -1432,6 +1635,37 @@
 
         function getSearchQuery() {
             return document.getElementById('global-search').value.toLowerCase();
+        }
+
+        function toggleSortMenu() {
+            const menu = document.getElementById('sort-menu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        function selectGlobalSort(value, label) {
+            currentSort = value;
+            localStorage.setItem('drivowebSort', currentSort);
+
+            const display = document.getElementById('sort-display');
+            if (display) display.textContent = label;
+
+            const menu = document.getElementById('sort-menu');
+            if (menu) menu.classList.add('hidden');
+
+            renderActiveView();
+        }
+
+        function initGlobalSortUI() {
+            const labels = {
+                'newest': 'Recientes',
+                'oldest': 'Antiguos',
+                'az': 'A - Z',
+                'za': 'Z - A',
+                'brand': 'Marca',
+                'mfg': 'Fabricante'
+            };
+            const display = document.getElementById('sort-display');
+            if (display) display.textContent = labels[currentSort] || 'Recientes';
         }
 
         function openModal(id) {
@@ -1500,6 +1734,93 @@
             document.getElementById('car-is-wishlist').value = isWishlist ? "true" : "false";
             document.getElementById('car-modal-title').innerText = isWishlist ? "Añadir a Wishlist" : "Añadir Auto";
             openModal('car-modal');
+        }
+
+        function importFromGemini() {
+            document.getElementById('gemini-json-input').value = '';
+            document.getElementById('gemini-error').classList.add('hidden');
+            openModal('gemini-import-modal');
+        }
+
+        function applyGeminiImport() {
+            const jsonText = document.getElementById('gemini-json-input').value.trim();
+            const errorLabel = document.getElementById('gemini-error');
+            if (!jsonText) return;
+
+            let data;
+            try {
+                // Limpiar formato de bloques de código de Markdown por si Gemini lo envuelve
+                let cleanText = jsonText.trim();
+                if (cleanText.startsWith('```json')) cleanText = cleanText.substring(7);
+                else if (cleanText.startsWith('```')) cleanText = cleanText.substring(3);
+                if (cleanText.endsWith('```')) cleanText = cleanText.substring(0, cleanText.length - 3);
+
+                data = JSON.parse(cleanText.trim());
+            } catch (e) {
+                errorLabel.classList.remove('hidden');
+                return;
+            }
+
+            errorLabel.classList.add('hidden');
+
+            // Llenar campos de texto directos si existen en el JSON
+            if (data.model) document.getElementById('car-model').value = data.model;
+            if (data.serie) document.getElementById('car-serie').value = data.serie;
+            if (data.costo) document.getElementById('car-costo').value = data.costo;
+            if (data.nomodelo) document.getElementById('car-nomodelo').value = data.nomodelo;
+            if (data.anio) document.getElementById('car-anio').value = data.anio;
+            if (data.noserie) document.getElementById('car-noserie').value = data.noserie;
+            if (data.tipo) document.getElementById('car-tipo').value = data.tipo;
+            if (data.escala) document.getElementById('car-escala').value = data.escala;
+
+            // Select estático de Línea
+            if (data.linea) {
+                const lineaSelect = document.getElementById('car-linea');
+                const opt = Array.from(lineaSelect.options).find(o => o.value.toLowerCase() === String(data.linea).toLowerCase());
+                if (opt) lineaSelect.value = opt.value;
+            }
+
+            // Validar Custom Selects (Marcas, Fabricantes, Colecciones)
+            const findAndSelect = (arr, val, hiddenId, wrapId) => {
+                if (!val) return;
+                const found = arr.find(item => item.name.toLowerCase() === String(val).toLowerCase());
+                if (found) selectOption(hiddenId, wrapId, found.id, found.name);
+            };
+
+            findAndSelect(db.brands, data.brand, 'car-brand', 'wrap-car-brand');
+            findAndSelect(db.manufacturers, data.manufacturer, 'car-manufacturer', 'wrap-car-manufacturer');
+            findAndSelect(db.collections, data.collection, 'car-collection', 'wrap-car-collection');
+
+            // Autocompletar Color (Si no existe, se guarda automáticamente para ti)
+            if (data.colorHex && data.colorName) {
+                let colorExists = db.colors.find(c => c.hex.toLowerCase() === data.colorHex.toLowerCase());
+                if (!colorExists) {
+                    db.colors.push({ hex: data.colorHex, name: data.colorName });
+                    saveData();
+                    renderColorGrid();
+                    if (typeof renderGlobalColorFilter === 'function') renderGlobalColorFilter();
+                }
+                setTimeout(() => {
+                    selectColor(data.colorHex, data.colorName);
+                }, 50);
+            }
+
+            // Rating de Estrellas
+            if (data.rating) {
+                const ratingInput = document.getElementById('car-rating');
+                ratingInput.value = data.rating;
+                document.querySelectorAll('.rating-star').forEach(s => {
+                    if (s.dataset.value <= data.rating) {
+                        s.classList.remove('ph-star');
+                        s.classList.add('ph-fill', 'ph-star', 'active');
+                    } else {
+                        s.classList.remove('ph-fill', 'active');
+                        s.classList.add('ph-star');
+                    }
+                });
+            }
+
+            closeModal('gemini-import-modal');
         }
 
         function editCar(id) {
@@ -1682,6 +2003,12 @@
             if (!e.target.closest('.custom-select-wrapper')) {
                 closeCustomSelects();
             }
+            if (!e.target.closest('#sort-dropdown-wrapper')) {
+                const sortMenu = document.getElementById('sort-menu');
+                if (sortMenu && !sortMenu.classList.contains('hidden')) {
+                    sortMenu.classList.add('hidden');
+                }
+            }
         });
 
         document.addEventListener('keydown', (e) => {
@@ -1724,6 +2051,62 @@
             renderOpts(db.collections, 'car-collection', 'wrap-car-collection', 'Ninguna', 'No hay colecciones registradas. Puedes agregarlas desde Colecciones.');
         }
 
+        function renderGlobalColorFilter() {
+            const containers = document.querySelectorAll('.view-color-filter');
+            if (!containers.length) return;
+
+            // Extraer solo los colores que están en uso por al menos un auto en el garaje
+            const usedColorsHex = new Set(db.cars.filter(c => c.colorHex).map(c => c.colorHex.toLowerCase()));
+            const usedColors = db.colors.filter(c => usedColorsHex.has(c.hex.toLowerCase()));
+
+            // Si el filtro actual ya no existe (ej. eliminaste el último auto de ese color), resetear a Todos
+            if (globalColorFilter && !usedColorsHex.has(globalColorFilter.toLowerCase())) {
+                globalColorFilter = '';
+            }
+
+            // Si no hay colores en uso, vaciamos el contenedor (la clase CSS empty:hidden lo ocultará completamente)
+            if (usedColors.length === 0) {
+                containers.forEach(container => container.innerHTML = '');
+                return;
+            }
+
+            let html = `<button onclick="setGlobalColorFilter('')" class="global-color-btn shrink-0 px-4 py-1.5 rounded-full text-xs font-bold border border-banqueta bg-banqueta/10 text-banqueta transition-all" data-color="">Todos</button>`;
+
+            usedColors.forEach(c => {
+                html += `
+                    <button onclick="setGlobalColorFilter('${c.hex}')" data-color="${c.hex}" 
+                        class="global-color-btn shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-dark-border bg-dark-panel text-white hover:border-gray-400 transition-all">
+                        <span class="w-3 h-3 rounded-full border border-white/20 block" style="background-color: ${c.hex};"></span>
+                        ${c.name}
+                    </button>
+                `;
+            });
+
+            containers.forEach(container => container.innerHTML = html);
+            setGlobalColorFilter(globalColorFilter, false);
+        }
+
+        function setGlobalColorFilter(hex, reRender = true) {
+            globalColorFilter = hex;
+            document.querySelectorAll('.global-color-btn').forEach(btn => {
+                if (hex === '' && btn.dataset.color === '') {
+                    btn.classList.add('border-banqueta', 'bg-banqueta/10', 'text-banqueta');
+                    btn.classList.remove('border-dark-border', 'bg-dark-panel', 'text-white', 'hover:border-gray-400', 'bg-dark-hover');
+                } else if (btn.dataset.color === hex) {
+                    btn.classList.add('border-banqueta', 'bg-dark-hover');
+                    btn.classList.remove('border-dark-border', 'bg-dark-panel', 'text-white', 'bg-banqueta/10', 'text-banqueta', 'hover:border-gray-400');
+                } else {
+                    btn.classList.remove('border-banqueta', 'bg-banqueta/10', 'text-banqueta', 'bg-dark-hover');
+                    if (btn.dataset.color === '') {
+                        btn.classList.add('border-dark-border', 'bg-dark-panel', 'text-white', 'hover:border-gray-400');
+                    } else {
+                        btn.classList.add('border-dark-border', 'bg-dark-panel', 'text-white', 'hover:border-gray-400');
+                    }
+                }
+            });
+            if (reRender) renderActiveView();
+        }
+
         function renderColorGrid() {
             const grid = document.getElementById('color-grid');
             if (!grid) return;
@@ -1751,6 +2134,7 @@
             db.colors.push({ hex, name });
             saveData();
             renderColorGrid();
+            renderGlobalColorFilter();
             closeModal('custom-color-modal');
         }
 
@@ -1990,14 +2374,108 @@
                 return;
             }
             try {
+                console.log("Iniciando exportación con imágenes, por favor espera...");
+
                 const zip = new JSZip();
                 const exportData = {
                     db: db,
                     profile: userProfile
                 };
 
+                // 1. Guardar JSON
                 zip.file("drivoweb_backup.json", JSON.stringify(exportData, null, 2));
 
+                const getImgData = async (url) => {
+                    if (!url) return null;
+                    if (url.startsWith('data:')) return url.split(',')[1];
+                    const res = await fetch(url);
+                    return await res.blob();
+                };
+
+                // Función auxiliar para nombrar archivos sin caracteres extraños
+                const safeName = (name, id) => {
+                    const cleanName = name ? name.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'item';
+                    return `${cleanName}_${id}`;
+                };
+
+                // 2. Exportar imágenes de AUTOS
+                const imgFolder = zip.folder("imagenes_autos");
+                for (const car of db.cars) {
+                    const folderName = (car.nomodelo && car.nomodelo.trim() !== '') ? car.nomodelo.trim() : car.id;
+                    const carFolder = imgFolder.folder(folderName);
+
+                    if (car.cover) {
+                        try {
+                            const data = await getImgData(car.cover);
+                            carFolder.file(`cover_${folderName}.jpg`, data, { base64: typeof data === 'string' });
+                        } catch (e) { console.warn(`Error en portada auto`, e); }
+                    }
+                    if (car.extras && car.extras.length > 0) {
+                        for (let i = 0; i < car.extras.length; i++) {
+                            if (!car.extras[i]) continue;
+                            try {
+                                const data = await getImgData(car.extras[i]);
+                                carFolder.file(`extra${i + 1}_${folderName}.jpg`, data, { base64: typeof data === 'string' });
+                            } catch (e) { console.warn(`Error en extra auto`, e); }
+                        }
+                    }
+                }
+
+                // 3. Exportar imágenes de MARCAS
+                const brandsFolder = zip.folder("imagenes_marcas");
+                for (const brand of db.brands) {
+                    const fName = safeName(brand.name, brand.id);
+                    if (brand.logo) {
+                        try {
+                            const data = await getImgData(brand.logo);
+                            brandsFolder.file(`logo_${fName}.jpg`, data, { base64: typeof data === 'string' });
+                        } catch (e) { }
+                    }
+                    if (brand.banner) {
+                        try {
+                            const data = await getImgData(brand.banner);
+                            brandsFolder.file(`banner_${fName}.jpg`, data, { base64: typeof data === 'string' });
+                        } catch (e) { }
+                    }
+                }
+
+                // 4. Exportar imágenes de FABRICANTES
+                const mfgFolder = zip.folder("imagenes_fabricantes");
+                for (const mfg of db.manufacturers) {
+                    const fName = safeName(mfg.name, mfg.id);
+                    if (mfg.logo) {
+                        try {
+                            const data = await getImgData(mfg.logo);
+                            mfgFolder.file(`logo_${fName}.jpg`, data, { base64: typeof data === 'string' });
+                        } catch (e) { }
+                    }
+                    if (mfg.banner) {
+                        try {
+                            const data = await getImgData(mfg.banner);
+                            mfgFolder.file(`banner_${fName}.jpg`, data, { base64: typeof data === 'string' });
+                        } catch (e) { }
+                    }
+                }
+
+                // 5. Exportar imágenes de COLECCIONES
+                const colFolder = zip.folder("imagenes_colecciones");
+                for (const col of db.collections) {
+                    const fName = safeName(col.name, col.id);
+                    if (col.logo) {
+                        try {
+                            const data = await getImgData(col.logo);
+                            colFolder.file(`logo_${fName}.jpg`, data, { base64: typeof data === 'string' });
+                        } catch (e) { }
+                    }
+                    if (col.banner) {
+                        try {
+                            const data = await getImgData(col.banner);
+                            colFolder.file(`banner_${fName}.jpg`, data, { base64: typeof data === 'string' });
+                        } catch (e) { }
+                    }
+                }
+
+                // Generar y descargar el ZIP
                 const content = await zip.generateAsync({ type: "blob" });
                 const url = URL.createObjectURL(content);
                 const a = document.createElement('a');
@@ -2007,6 +2485,8 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
+
+                console.log("Exportación completada exitosamente con todas las categorías.");
             } catch (e) {
                 alert("Error al exportar la base de datos: " + e.message);
             }
@@ -2185,12 +2665,23 @@
             const existingId = value('car-id');
             const id = existingId || genId();
 
+            const noModelo = value('car-nomodelo').trim();
+
+            // VALIDACIÓN ESTRICTA DE SKU / NO. MODELO EXISTENTE
+            if (noModelo) {
+                const existe = db.cars.find(c => c.nomodelo && c.nomodelo.toLowerCase() === noModelo.toLowerCase() && c.id !== id);
+                if (existe) {
+                    alert(`¡Advertencia! El No. de Modelo / SKU "${noModelo}" ya está registrado en el auto: ${existe.model}.\nNo se puede guardar hasta que ingreses un código único o lo borres.`);
+                    return;
+                }
+            }
+
             const record = {
                 id, model: value('car-model'), colorHex: value('car-color-hex'), colorName: value('car-color-name'),
                 brandId: value('car-brand'), manufacturerId: value('car-manufacturer'), collectionId: value('car-collection'),
                 isWishlist: value('car-is-wishlist') === 'true', isFavorite: existingId ? db.cars.find(c => c.id === id).isFavorite : false,
                 serie: value('car-serie'), linea: value('car-linea'), costo: value('car-costo'),
-                nomodelo: value('car-nomodelo'), anio: value('car-anio'), noserie: value('car-noserie'),
+                nomodelo: noModelo, anio: value('car-anio'), noserie: value('car-noserie'),
                 tipo: value('car-tipo'), escala: value('car-escala') || '1:64', rating: value('car-rating'),
                 dateAdded: existingId ? db.cars.find(c => c.id === id).dateAdded : new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
                 createdAt: existingId ? db.cars.find(c => c.id === id).createdAt : Date.now()
@@ -2231,6 +2722,7 @@
                 } catch (error) { await cleanupFailedUploads(attempted); throw error; }
                 renderActiveView();
             }, 'car-form');
+
             if (ok) closeModal('car-modal');
         }
 
@@ -2255,10 +2747,11 @@
 
         function renderHome() {
             const normalCars = db.cars.filter(c => !c.isWishlist);
+            const totalValue = db.cars.reduce((sum, car) => sum + (parseFloat(car.costo) || 0), 0);
 
             document.getElementById('home-stats').innerHTML = `
                 <!-- Autos -->
-                <div class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111]">
+                <div onclick="switchTab('cars')" class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111] cursor-pointer">
                     <div class="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity duration-500">
                         <i class="ph-fill ph-car text-8xl"></i>
                     </div>
@@ -2274,7 +2767,7 @@
                 </div>
 
                 <!-- Marcas -->
-                <div class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111]">
+                <div onclick="switchTab('brands')" class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111] cursor-pointer">
                     <div class="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity duration-500">
                         <i class="ph-fill ph-tag text-8xl"></i>
                     </div>
@@ -2290,7 +2783,7 @@
                 </div>
 
                 <!-- Fabricantes -->
-                <div class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111]">
+                <div onclick="switchTab('manufacturers')" class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111] cursor-pointer">
                     <div class="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity duration-500">
                         <i class="ph-fill ph-factory text-8xl"></i>
                     </div>
@@ -2306,7 +2799,7 @@
                 </div>
 
                 <!-- Favoritos -->
-                <div class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111]">
+                <div onclick="switchTab('favorites')" class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111] cursor-pointer">
                     <div class="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity duration-500">
                         <i class="ph-fill ph-heart text-8xl"></i>
                     </div>
@@ -2318,6 +2811,38 @@
                     <div class="relative z-10 mt-auto">
                         <p class="text-4xl sm:text-5xl font-black text-white mb-1 tracking-tight">${db.cars.filter(c => c.isFavorite).length}</p>
                         <p class="text-gray-500 text-xs sm:text-sm font-bold uppercase tracking-wider">Favoritos</p>
+                    </div>
+                </div>
+            `;
+
+            const topBrands = [...db.brands].map(b => {
+                const brandCars = db.cars.filter(c => c.brandId === b.id && !c.isWishlist);
+                const brandValue = brandCars.reduce((sum, c) => sum + (parseFloat(c.costo) || 0), 0);
+                return { name: b.name, value: brandValue };
+            }).filter(b => b.value > 0).sort((a, b) => b.value - a.value).slice(0, 3);
+
+            let brandsBreakdownHtml = '';
+            if (topBrands.length > 0) {
+                brandsBreakdownHtml = topBrands.map(b => `<div class="flex justify-between text-sm border-b border-dark-border py-2"><span class="text-gray-400">${b.name}</span><span class="text-white font-bold">$${b.value.toFixed(2)}</span></div>`).join('');
+            } else {
+                brandsBreakdownHtml = '<p class="text-sm text-gray-500 py-2">No hay costos registrados por marca aún.</p>';
+            }
+
+            document.getElementById('home-value-breakdown').innerHTML = `
+                <div class="mt-6 md:mt-10 glass-panel p-6 sm:p-8 rounded-[2rem] border border-dark-border/50 shadow-2xl bg-[#0d0d0d] flex flex-col md:flex-row gap-6 items-center md:items-start relative overflow-hidden group">
+                    <div class="absolute -right-10 -bottom-10 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-500 pointer-events-none">
+                        <i class="ph-fill ph-currency-dollar text-[200px]"></i>
+                    </div>
+                    <div class="flex-1 relative z-10 w-full text-center md:text-left">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-banqueta/10 border border-banqueta/20 text-banqueta text-xs font-semibold mb-4">
+                            <i class="ph-fill ph-chart-line-up"></i> Valor Estimado
+                        </div>
+                        <h3 class="text-4xl sm:text-5xl font-black text-white mb-2 tracking-tight">$${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                        <p class="text-gray-400 text-sm">Costo total acumulado de tu colección actual en el garaje.</p>
+                    </div>
+                    <div class="flex-1 w-full bg-dark-panel p-5 rounded-2xl border border-dark-border relative z-10">
+                        <h4 class="text-white font-bold mb-3 text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2"><i class="ph-bold ph-medal text-banqueta"></i> Top Marcas por Valor</h4>
+                        ${brandsBreakdownHtml}
                     </div>
                 </div>
             `;
@@ -2513,8 +3038,33 @@
                 deleteCar(c.id);
             };
 
+            // Lógica para mostrar u ocultar el botón de "Mover a Garaje"
+            const moveBtn = document.getElementById('btn-move-car');
+            if (c.isWishlist) {
+                moveBtn.classList.remove('hidden');
+                moveBtn.onclick = () => {
+                    closeModal('car-view-modal');
+                    moveToGarage(c.id);
+                };
+            } else {
+                moveBtn.classList.add('hidden');
+            }
+
             openModal('car-view-modal');
             applyLazyLoading(); // Para los thumbnails
+        }
+
+        // NUEVA FUNCIÓN: Mover de Wishlist a Mis Autos
+        function moveToGarage(id) {
+            const car = db.cars.find(c => c.id === id);
+            if (car) {
+                if (confirm(`¿Estás seguro de mover el "${car.model}" a tu Garaje?`)) {
+                    car.isWishlist = false; // Lo saca de deseados
+                    car.dateAdded = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }); // Actualiza la fecha a hoy
+                    saveData();
+                    renderActiveView(); // Refresca la vista actual
+                }
+            }
         }
 
         function createCarCard(c) {
@@ -2575,7 +3125,7 @@
 
         function filterCars(isWishlist) {
             const q = getSearchQuery();
-            let filtered = db.cars.filter(c => !!c.isWishlist === isWishlist).sort((a, b) => b.createdAt - a.createdAt);
+            let filtered = db.cars.filter(c => !!c.isWishlist === isWishlist);
 
             if (currentFilter && !isWishlist) {
                 if (currentFilter.type === 'brand') filtered = filtered.filter(c => c.brandId === currentFilter.id);
@@ -2587,10 +3137,27 @@
                 filtered = filtered.filter(c =>
                     c.model.toLowerCase().includes(q) ||
                     (c.colorName && c.colorName.toLowerCase().includes(q)) ||
+                    (c.nomodelo && c.nomodelo.toLowerCase().includes(q)) ||
                     getMfgName(c.manufacturerId).toLowerCase().includes(q) ||
                     getBrandName(c.brandId).toLowerCase().includes(q)
                 );
             }
+
+            if (globalColorFilter) {
+                filtered = filtered.filter(c => c.colorHex.toLowerCase() === globalColorFilter.toLowerCase());
+            }
+
+            // Aplicar Ordenamiento Personalizado
+            filtered.sort((a, b) => {
+                if (currentSort === 'newest') return b.createdAt - a.createdAt;
+                if (currentSort === 'oldest') return a.createdAt - b.createdAt;
+                if (currentSort === 'az') return a.model.localeCompare(b.model);
+                if (currentSort === 'za') return b.model.localeCompare(a.model);
+                if (currentSort === 'brand') return getBrandName(a.brandId).localeCompare(getBrandName(b.brandId));
+                if (currentSort === 'mfg') return getMfgName(a.manufacturerId).localeCompare(getMfgName(b.manufacturerId));
+                return 0;
+            });
+
             return filtered;
         }
 
@@ -2627,13 +3194,24 @@
         function renderFavorites() {
             const grid = document.getElementById('favorites-grid');
             const q = getSearchQuery();
-            let filtered = db.cars.filter(c => c.isFavorite).sort((a, b) => b.createdAt - a.createdAt);
+            let filtered = db.cars.filter(c => c.isFavorite);
 
             if (q) {
                 filtered = filtered.filter(c =>
                     c.model.toLowerCase().includes(q) || getBrandName(c.brandId).toLowerCase().includes(q)
                 );
             }
+
+            // Aplicar Ordenamiento Personalizado
+            filtered.sort((a, b) => {
+                if (currentSort === 'newest') return b.createdAt - a.createdAt;
+                if (currentSort === 'oldest') return a.createdAt - b.createdAt;
+                if (currentSort === 'az') return a.model.localeCompare(b.model);
+                if (currentSort === 'za') return b.model.localeCompare(a.model);
+                if (currentSort === 'brand') return getBrandName(a.brandId).localeCompare(getBrandName(b.brandId));
+                if (currentSort === 'mfg') return getMfgName(a.manufacturerId).localeCompare(getMfgName(b.manufacturerId));
+                return 0;
+            });
 
             if (filtered.length === 0) {
                 grid.innerHTML = `<div class="col-span-full py-16 text-center"><i class="ph-fill ph-heart-break text-5xl text-gray-800 mb-3"></i><p class="text-gray-400">No tienes autos favoritos.</p></div>`;
@@ -2680,6 +3258,28 @@
             else avatar.removeAttribute('src');
         }
 
+        function switchSettingsTab(tab) {
+            document.querySelectorAll('.sett-tab').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('flex');
+            });
+
+            const activeTab = document.getElementById('tab-sett-' + tab);
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
+                activeTab.classList.add('flex');
+            }
+
+            document.querySelectorAll('.sett-pill').forEach(btn => {
+                btn.className = 'sett-pill text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all border border-transparent hover:bg-white/5 text-gray-400 hover:text-white flex items-center gap-3 shrink-0';
+            });
+
+            const activeBtn = document.getElementById('btn-sett-' + tab);
+            if (activeBtn) {
+                activeBtn.className = 'sett-pill text-left px-4 py-3 rounded-xl text-sm font-bold transition-all border border-banqueta bg-banqueta/10 text-banqueta flex items-center gap-3 shrink-0';
+            }
+        }
+
         function openSettings() {
             document.getElementById('settings-form').reset();
             document.getElementById('profile-name').value = userProfile.name;
@@ -2691,6 +3291,9 @@
             const area = document.getElementById('preview-profile-avatar');
             area.classList.toggle('has-image', !!userProfile.avatar);
             if (userProfile.avatar) area.querySelector('img.preview').src = userProfile.avatar;
+
+            switchSettingsTab('user'); // Iniciar siempre en la pestaña Usuario
+
             openModal('settings-modal');
             document.getElementById('profile-name').focus();
         }
@@ -2722,7 +3325,10 @@
         }
 
         window.addEventListener('load', initProfile);
-        window.onload = initData;
+        window.onload = () => {
+            initData();
+            updateNetworkStatus();
+        };
     </script>
 </body>
 
