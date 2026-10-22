@@ -28,8 +28,12 @@
     <!-- JSZip for Export/Import database -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-    <!-- Google Sans Font (via fallback/outfit) -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- La tarjeta compartible se dibuja en Canvas nativo, sin html2canvas. -->
+
+    <!-- Google Sans Font, Poppins y Geist Mono -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Geist+Mono:wght@400;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -44,6 +48,8 @@
                     },
                     fontFamily: {
                         sans: ['"Google Sans"', '"Product Sans"', 'Outfit', 'sans-serif'],
+                        geist: ['"Geist Mono"', 'monospace'],
+                        poppins: ['Poppins', 'sans-serif'],
                     }
                 }
             }
@@ -1051,11 +1057,6 @@
             <div class="flex justify-between items-center p-4 border-b border-dark-border shrink-0">
                 <div class="flex items-center gap-3">
                     <h3 class="text-xl font-bold" id="car-modal-title">Añadir Auto</h3>
-                    <button type="button" onclick="importFromGemini()"
-                        class="px-3 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/20 transition-colors text-xs font-bold flex items-center gap-1.5 shadow-sm"
-                        title="Pegar datos de IA">
-                        <i class="ph-bold ph-sparkle text-sm"></i> Autocompletar IA
-                    </button>
                 </div>
                 <button onclick="closeModal('car-modal')" class="text-gray-400 hover:text-white"><i
                         class="ph-bold ph-x text-xl"></i></button>
@@ -1270,7 +1271,7 @@
 
     <!-- Modal: View Car Full Info -->
     <div id="car-view-modal"
-        class="modal fixed inset-0 z-[60] items-center justify-center p-2 sm:p-4 bg-black/90 backdrop-blur-md">
+        class="modal fixed inset-0 z-[60] items-center justify-center p-2 sm:p-4 bg-black/90 backdrop-blur-md font-poppins">
         <div
             class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto custom-scroll flex flex-col md:flex-row slide-up shadow-2xl relative">
             <button onclick="closeModal('car-view-modal')"
@@ -1306,6 +1307,12 @@
                     <button id="btn-move-car"
                         class="hidden px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 text-white bg-green-600 hover:bg-green-500 transition-colors border border-green-500 shadow-lg">
                         <i class="ph-bold ph-car-profile"></i> Mover a Garaje
+                    </button>
+
+                    <!-- NUEVO BOTÓN COMPARTIR -->
+                    <button id="btn-share-car"
+                        class="px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 text-white bg-[#1a73e8] hover:bg-[#1557b0] transition-colors border border-[#1a73e8] shadow-lg">
+                        <i class="ph-bold ph-share-network"></i> Compartir
                     </button>
 
                     <button id="btn-edit-car"
@@ -1385,6 +1392,102 @@
                 <button type="button" onclick="applyGeminiImport()"
                     class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-colors shadow-lg shadow-indigo-900/50">Cargar
                     Datos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Compartir Auto -->
+    <div id="share-modal"
+        class="modal fixed inset-0 z-[100] items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+        <div
+            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-md slide-up shadow-2xl flex flex-col max-h-[95vh]">
+            <div class="flex justify-between items-center p-4 border-b border-dark-border shrink-0">
+                <h3 class="text-xl font-bold flex items-center gap-2"><i
+                        class="ph-bold ph-share-network text-banqueta"></i> Compartir Auto</h3>
+                <button onclick="closeModal('share-modal')" class="text-gray-400 hover:text-white"><i
+                        class="ph-bold ph-x text-xl"></i></button>
+            </div>
+
+            <div class="overflow-y-auto custom-scroll p-4 flex-1 flex flex-col items-center">
+                <!-- Selectores de imagen (Corregidos para no aplastarse) -->
+                <p class="text-xs text-gray-400 w-full mb-2 font-semibold">1. Selecciona la foto que quieres mostrar:
+                </p>
+                <div id="share-thumbnails"
+                    class="flex gap-3 w-full overflow-x-auto custom-scroll pb-3 mb-2 items-center min-h-[75px]"></div>
+
+                <!-- Contenedor del elemento a capturar -->
+                <p class="text-xs text-gray-400 w-full mb-2 font-semibold">2. Vista previa (Esta será la imagen
+                    generada):</p>
+
+                <!-- Plantilla visible durante la preparación del PNG; después se muestra el PNG exacto. -->
+                <div id="share-card-wrapper" class="w-full flex justify-center pb-4">
+                    <!-- La imagen superpuesta ES el mismo PNG que se descarga o comparte. -->
+                    <div class="relative w-[320px] shrink-0">
+                        <div id="share-card-element"
+                            class="w-[320px] bg-[#141414] rounded-xl border border-dark-border overflow-hidden relative shadow-2xl flex flex-col"
+                            style="font-family: 'Outfit', sans-serif;">
+
+                            <!-- CONTENEDOR DE IMAGEN (Fijo 320x320) -->
+                            <div class="w-[320px] h-[320px] relative bg-black shrink-0">
+                                <img id="share-main-img" crossOrigin="anonymous"
+                                    class="w-full h-full object-cover absolute inset-0">
+
+                                <!-- Gradiente de transparencia explícito -->
+                                <div class="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
+                                    style="background: linear-gradient(to top, #141414 0%, rgba(20,20,20,0) 100%);">
+                                </div>
+
+                                <!-- Título del modelo montado sobre la transparencia -->
+                                <div class="absolute bottom-3 left-5 right-5 z-10">
+                                    <!-- El render final del título se dibuja de forma centrada en Canvas. -->
+                                    <h2 id="share-model"
+                                        class="text-2xl font-black text-white leading-tight whitespace-nowrap"
+                                        style="text-shadow: 0 2px 4px rgba(0,0,0,.70);">Modelo
+                                    </h2>
+                                </div>
+                            </div>
+
+                            <!-- CONTENEDOR DE INFORMACIÓN -->
+                            <div class="px-5 pt-2 pb-4 bg-[#141414] flex flex-col relative z-20">
+                                <p id="share-brand-mfg" class="text-[11px] text-banqueta font-bold mb-1"></p>
+
+                                <div id="share-series-info"
+                                    class="text-[10px] text-gray-400 font-semibold mb-3 empty:hidden flex flex-wrap gap-1.5 items-center">
+                                </div>
+
+                                <div id="share-tags" class="flex flex-wrap gap-1.5 mb-4"></div>
+
+                                <div class="flex items-center justify-between border-t border-white/10 pt-3 mt-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <img src="assets/icon.png" class="w-4 h-4 opacity-70"
+                                            onerror="this.style.display='none'">
+                                        <span
+                                            class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">DrivoWeb
+                                            Garage</span>
+                                    </div>
+                                    <span id="share-user"
+                                        class="text-[10px] text-gray-400 bg-white/5 px-2 py-0.5 rounded-md border border-white/10">@Usuario</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- PNG real, a tamaño natural de la tarjeta, sin capas ni estiramiento. -->
+                        <img id="share-rendered-preview" alt="Vista previa del PNG para compartir"
+                            class="w-full h-auto rounded-xl shadow-2xl" style="display:none;">
+                    </div>
+                </div>
+                <p id="share-preview-status" role="status" aria-live="polite"
+                    class="text-xs text-gray-400 text-center hidden"></p>
+            </div>
+
+            <div class="p-4 border-t border-dark-border bg-[#0A0A0A] flex justify-end gap-3 shrink-0 rounded-b-2xl">
+                <button type="button" onclick="downloadShareCard()" id="btn-download-share"
+                    class="px-5 py-2.5 rounded-xl border border-dark-border text-white hover:bg-white/10 transition-colors font-bold text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="ph-bold ph-download-simple"></i> Descargar
+                </button>
+                <button type="button" onclick="shareCardNative()" id="btn-native-share"
+                    class="btn-primary px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 text-sm shadow-lg shadow-banqueta/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="ph-bold ph-paper-plane-tilt"></i> Enviar
+                </button>
             </div>
         </div>
     </div>
@@ -2957,19 +3060,19 @@
             if (!c) return;
 
             document.getElementById('view-car-model').textContent = c.model;
-            document.getElementById('view-car-brand').innerHTML = `<i class="ph-fill ph-tag text-lg"></i> ${getBrandName(c.brandId)} &nbsp;&nbsp;|&nbsp;&nbsp; <i class="ph-fill ph-factory text-lg text-gray-400"></i> <span class="text-gray-300">${getMfgName(c.manufacturerId)}</span>`;
+            document.getElementById('view-car-brand').innerHTML = `<i class="ph-fill ph-tag text-lg"></i> <span class="font-geist">${getBrandName(c.brandId)}</span> &nbsp;&nbsp;|&nbsp;&nbsp; <i class="ph-fill ph-factory text-lg text-gray-400"></i> <span class="text-gray-300 font-geist">${getMfgName(c.manufacturerId)}</span>`;
 
             let tags = '';
             if (c.isFavorite) tags += `<span class="bg-red-500/20 text-red-500 border border-red-500/30 px-2 py-1 rounded text-xs font-bold flex items-center gap-1"><i class="ph-fill ph-heart"></i> Favorito</span>`;
-            if (c.colorName) tags += `<span class="bg-dark-bg border border-dark-border px-2 py-1 rounded text-xs flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background-color:${c.colorHex}"></span>${c.colorName}</span>`;
-            if (c.escala) tags += `<span class="bg-dark-bg border border-dark-border px-2 py-1 rounded text-xs text-gray-400 flex items-center gap-1"><i class="ph-bold ph-arrows-out-line-horizontal"></i> ${c.escala}</span>`;
+            if (c.colorName) tags += `<span class="bg-dark-bg border border-dark-border px-2 py-1 rounded text-xs flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background-color:${c.colorHex}"></span><span class="font-geist">${c.colorName}</span></span>`;
+            if (c.escala) tags += `<span class="bg-dark-bg border border-dark-border px-2 py-1 rounded text-xs text-gray-400 flex items-center gap-1"><i class="ph-bold ph-arrows-out-line-horizontal"></i> <span class="font-geist">${c.escala}</span></span>`;
             if (c.linea) {
                 let lnClass = 'bg-white/10 text-white';
                 if (c.linea === 'Main') lnClass = 'bg-gray-600 text-white border-gray-500';
                 if (c.linea === 'Premium') lnClass = 'bg-gradient-to-r from-[#ffd700] to-[#c5a000] text-black shadow-sm';
                 if (c.linea === 'Custom') lnClass = 'bg-[#dc2626] text-white';
                 if (c.linea === 'Exotic') lnClass = 'bg-[#9333ea] text-white';
-                tags += `<span class="${lnClass} px-2 py-1 rounded text-xs uppercase font-extrabold border border-white/20">${c.linea}</span>`;
+                tags += `<span class="${lnClass} px-2 py-1 rounded text-xs uppercase font-extrabold border border-white/20 font-geist">${c.linea}</span>`;
             }
             document.getElementById('view-car-tags').innerHTML = tags;
 
@@ -3037,6 +3140,9 @@
                 closeModal('car-view-modal');
                 deleteCar(c.id);
             };
+            document.getElementById('btn-share-car').onclick = () => {
+                openShareModal(c.id);
+            };
 
             // Lógica para mostrar u ocultar el botón de "Mover a Garaje"
             const moveBtn = document.getElementById('btn-move-car');
@@ -3081,27 +3187,45 @@
             else if (c.linea === 'Custom') lineClass = 'bg-[#dc2626]/90 text-white border border-[#b91c1c]';
             else if (c.linea === 'Exotic') lineClass = 'bg-[#9333ea]/90 text-white border border-[#7e22ce] shadow-[0_0_10px_rgba(147,51,234,0.4)]';
 
-            const lineaHtml = c.linea ? `<div class="absolute bottom-2 right-2 text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded uppercase backdrop-blur-sm z-20 ${lineClass}">${c.linea}</div>` : '';
+            const lineaHtml = c.linea ? `<div class="absolute bottom-2 right-2 text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded uppercase backdrop-blur-sm z-30 font-geist ${lineClass}">${c.linea}</div>` : '';
+
+            // LÓGICA NUEVA: Conteo de imágenes y preparación de la segunda imagen
+            let totalImages = 1;
+            let secondImageHtml = '';
+
+            if (c.extras && c.extras.length > 0) {
+                totalImages += c.extras.length;
+                // Si existe al menos una imagen extra, la colocamos detrás y la mostramos al hacer hover
+                secondImageHtml = `<img data-src="${c.extras[0]}" class="lazy-image fade-image w-full h-full object-cover absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-90 z-10">`;
+            }
+
+            // Si hay segunda imagen, ocultamos la portada en hover. Además eliminamos el zoom (scale-110).
+            const mainImgClass = c.extras && c.extras.length > 0
+                ? 'opacity-90 transition-opacity duration-300 group-hover:opacity-0'
+                : 'opacity-90 transition-opacity duration-300';
 
             return `
                 <div class="uniform-card glow-hover rounded-2xl relative cursor-pointer" onclick="viewCar('${c.id}')">
                     <div class="group glass-panel rounded-2xl overflow-hidden flex flex-col h-full bg-[#0d0d0d]">
                         <div class="aspect-square w-full relative bg-[#0d0d0d] shrink-0 p-[2px]">
                             <div class="w-full h-full relative overflow-hidden rounded-xl bg-black">
-                                <img data-src="${c.cover}" class="lazy-image fade-image w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-110">
+                                
+                                <!-- IMÁGENES: Portada y Segunda imagen -->
+                                <img data-src="${c.cover}" class="lazy-image fade-image w-full h-full object-cover relative z-20 ${mainImgClass}">
+                                ${secondImageHtml}
 
-                                <div class="absolute top-2 left-2 z-20 bg-black/70 backdrop-blur-sm text-white text-[9px] sm:text-[11px] font-bold px-1.5 py-1 sm:px-2 rounded shadow flex items-center gap-1 border border-white/10">
-                                    <i class="ph-fill ph-factory text-gray-300"></i> <span class="truncate max-w-[60px] sm:max-w-[100px]">${getMfgName(c.manufacturerId)}</span>
+                                <div class="absolute top-2 left-2 z-30 bg-black/70 backdrop-blur-sm text-white text-[9px] sm:text-[11px] font-bold px-1.5 py-1 sm:px-2 rounded shadow flex items-center gap-1 border border-white/10">
+                                    <i class="ph-fill ph-factory text-gray-300"></i> <span class="font-geist truncate max-w-[60px] sm:max-w-[100px]">${getMfgName(c.manufacturerId)}</span>
                                 </div>
 
-                                <button onclick="toggleFavorite('${c.id}', event)" class="absolute top-2 right-2 z-20 w-6 h-6 sm:w-7 sm:h-7 bg-black/50 hover:bg-black/80 rounded-full flex items-center justify-center backdrop-blur transition-all border border-white/10">
+                                <button onclick="toggleFavorite('${c.id}', event)" class="absolute top-2 right-2 z-30 w-6 h-6 sm:w-7 sm:h-7 bg-black/50 hover:bg-black/80 rounded-full flex items-center justify-center backdrop-blur transition-all border border-white/10">
                                     <i class="${c.isFavorite ? 'ph-fill text-red-500' : 'ph-bold text-white'} ph-heart text-xs sm:text-sm drop-shadow"></i>
                                 </button>
 
-                                <div class="absolute bottom-2 left-2 flex flex-col gap-1 sm:gap-1.5 items-start z-20">
+                                <div class="absolute bottom-2 left-2 flex flex-col gap-1 sm:gap-1.5 items-start z-30">
                                     <div class="bg-black/70 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded border border-white/10 flex items-center gap-1 shadow">
                                         <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full border border-white/30 block" style="background-color: ${c.colorHex || '#555'}"></span>
-                                        <span class="truncate max-w-[50px] sm:max-w-[80px]">${c.colorName || 'Color'}</span>
+                                        <span class="font-geist truncate max-w-[50px] sm:max-w-[80px]">${c.colorName || 'Color'}</span>
                                     </div>
                                     ${starsHtml}
                                 </div>
@@ -3113,10 +3237,17 @@
                             <h3 class="font-bold text-[13px] sm:text-[15px] text-white mb-1 sm:mb-2 line-clamp-1">${c.model}</h3>
                             
                             <div class="flex justify-between items-center mt-auto">
-                                <p class="text-[10px] sm:text-xs text-banqueta font-semibold truncate pr-1 sm:pr-2">${getBrandName(c.brandId)}</p>
-                                <span class="text-gray-400 text-[9px] sm:text-[11px] font-normal flex items-center gap-1 shrink-0">
-                                    <i class="ph-bold ph-arrows-out-line-horizontal"></i> ${c.escala || '1:64'}
-                                </span>
+                                <p class="font-geist text-[10px] sm:text-xs text-banqueta font-semibold truncate pr-1 sm:pr-2">${getBrandName(c.brandId)}</p>
+                                
+                                <!-- ICONOS SUTILES: Cantidad de fotos y Escala -->
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <span class="text-gray-400 text-[9px] sm:text-[11px] font-normal flex items-center gap-1" title="Imágenes disponibles">
+                                        <i class="ph-bold ph-camera"></i> <span class="font-geist">${totalImages}</span>
+                                    </span>
+                                    <span class="text-gray-400 text-[9px] sm:text-[11px] font-normal flex items-center gap-1" title="Escala">
+                                        <i class="ph-bold ph-arrows-out-line-horizontal"></i> <span class="font-geist">${c.escala || '1:64'}</span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -3321,6 +3452,478 @@
                 document.getElementById('profile-avatar-base64').value = ''; // Limpiamos caché de imagen
                 closeModal('settings-modal');
                 document.getElementById('settings-button').focus();
+            }
+        }
+
+        // ==========================================
+        // LÓGICA DE COMPARTIR AUTO Y HTML2CANVAS
+        // ==========================================
+        let currentShareCarId = null;
+
+        function openShareModal(id) {
+            const c = db.cars.find(x => x.id === id);
+            if (!c) return;
+            currentShareCarId = id;
+
+            // Reunir todas las imágenes (Portada + Extras)
+            let images = [c.cover];
+            if (c.extras) images = images.concat(c.extras.filter(Boolean));
+
+            // Dibujar las miniaturas para que el usuario elija
+            // Dibujar las miniaturas para que el usuario elija (Forzando dimensiones cuadradas)
+            const thumbsContainer = document.getElementById('share-thumbnails');
+            thumbsContainer.innerHTML = images.map((img, index) =>
+                `<button onclick="setShareMainImg('${img}')" class="shrink-0 rounded-lg border-2 border-transparent focus:border-banqueta hover:border-gray-500 overflow-hidden bg-black transition-all" style="width: 60px; height: 60px; display: block;">
+                    <img src="${img}" class="w-full h-full object-cover">
+                </button>`
+            ).join('');
+
+            // Seleccionar la portada. El render se inicia después de llenar TODOS los datos.
+            document.getElementById('share-main-img').src = images[0] || '';
+
+            // Llenar datos principales
+            document.getElementById('share-model').textContent = c.model;
+            document.getElementById('share-brand-mfg').innerHTML = `${getBrandName(c.brandId)} &bull; <span class="text-gray-400">${getMfgName(c.manufacturerId)}</span>`;
+
+            // Llenar Información de la Serie y No. Serie
+            let seriesHtml = '';
+            if (c.serie) seriesHtml += `<span>${c.serie}</span>`;
+            if (c.serie && c.noserie) seriesHtml += `<span class="text-gray-600">&bull;</span>`;
+            if (c.noserie) seriesHtml += `<span>#${c.noserie}</span>`;
+            document.getElementById('share-series-info').innerHTML = seriesHtml;
+
+            // Usuario
+            const firstName = userProfile.name.split(' ')[0] || 'Usuario';
+            document.getElementById('share-user').textContent = `@${firstName}`;
+
+            // Preparar las mini etiquetas
+            let tagsHtml = '';
+            if (c.escala) tagsHtml += `<span class="bg-dark-panel border border-dark-border px-2 py-0.5 rounded text-[10px] text-gray-300 font-bold"><i class="ph-bold ph-arrows-out-line-horizontal"></i> ${c.escala}</span>`;
+
+            if (c.linea) {
+                let lnClass = 'bg-white/10 text-white';
+                if (c.linea === 'Main') lnClass = 'bg-gray-600 text-white border-gray-500';
+                if (c.linea === 'Premium') lnClass = 'bg-[#F5C000] text-black border border-[#DDAA00] font-black'; // Simplificado para mejor renderizado
+                if (c.linea === 'Custom') lnClass = 'bg-[#dc2626] text-white border border-[#b91c1c]';
+                if (c.linea === 'Exotic') lnClass = 'bg-[#9333ea] text-white';
+                tagsHtml += `<span class="${lnClass} px-2 py-0.5 rounded text-[10px] uppercase font-extrabold border border-white/20 shadow-sm">${c.linea}</span>`;
+            }
+            if (c.colorName) tagsHtml += `<span class="bg-black border border-white/10 px-2 py-0.5 rounded text-[10px] flex items-center gap-1.5 text-gray-300"><span class="w-2.5 h-2.5 rounded-full border border-white/30" style="background-color:${c.colorHex}"></span>${c.colorName}</span>`;
+            if (c.anio) tagsHtml += `<span class="bg-black border border-white/10 px-2 py-0.5 rounded text-[10px] text-gray-300"><i class="ph-bold ph-calendar-blank"></i> ${c.anio}</span>`;
+
+            document.getElementById('share-tags').innerHTML = tagsHtml;
+
+            // Validar botones de compartir
+            const canShare = navigator.canShare && navigator.canShare({ files: [new File([''], 't.png', { type: 'image/png' })] });
+            document.getElementById('btn-native-share').style.display = canShare ? 'flex' : 'none';
+
+            openModal('share-modal');
+            // Comienza DESPUÉS de abrir el modal para poder medir correctamente la tarjeta.
+            refreshSharePreview();
+        }
+
+        // Una sola imagen, un solo archivo: la vista previa y la descarga no pueden diferir.
+        let sharePreviewBlob = null;
+        let sharePreviewUrl = null;
+        let sharePreviewPromise = null;
+        let sharePreviewVersion = 0;
+        let shareRenderQueue = Promise.resolve();
+
+        function setShareMainImg(src) {
+            document.getElementById('share-main-img').src = src;
+            refreshSharePreview();
+        }
+
+        function setSharePreviewStatus(message) {
+            const status = document.getElementById('share-preview-status');
+            status.textContent = message;
+            status.classList.toggle('hidden', !message);
+        }
+
+        function setShareButtonsReady(ready) {
+            document.getElementById('btn-download-share').disabled = !ready;
+            document.getElementById('btn-native-share').disabled = !ready;
+        }
+
+        async function waitForShareImage() {
+            const img = document.getElementById('share-main-img');
+            if (!img.getAttribute('src')) throw new Error('Este auto no tiene una fotografía para compartir.');
+            if (!img.complete) {
+                await new Promise((resolve, reject) => {
+                    img.addEventListener('load', resolve, { once: true });
+                    img.addEventListener('error', () => reject(new Error('No se pudo cargar la foto.')), { once: true });
+                });
+            }
+            if (!img.naturalWidth) throw new Error('No se pudo cargar la foto del auto.');
+            if (img.decode) await img.decode().catch(() => { });
+            if (document.fonts && document.fonts.ready) await document.fonts.ready;
+            // Dos frames permiten terminar estilos, layout y la decodificación de la imagen.
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        }
+
+        // Renderizado directo en Canvas: evita los defectos de html2canvas
+        // (línea visible al comenzar el degradado y baselines verticales desplazados).
+        // El MISMO PNG resultante se usa en la vista previa, Descarga y Enviar.
+        function shareRoundedPath(ctx, x, y, w, h, radius) {
+            const r = Math.min(radius, w / 2, h / 2);
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function shareRect(ctx, x, y, w, h, fill, stroke, radius = 5) {
+            shareRoundedPath(ctx, x, y, w, h, radius);
+            if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 0.7; ctx.stroke(); }
+        }
+
+        function shareText(ctx, value, x, y, size = 10, weight = 700, color = '#FFF', align = 'left') {
+            ctx.save();
+            ctx.font = `${weight} ${size}px Outfit, sans-serif`;
+            ctx.fillStyle = color;
+            ctx.textAlign = align;
+            ctx.textBaseline = 'middle';
+            ctx.fillText(String(value || ''), x, y);
+            ctx.restore();
+        }
+
+        function shareTextWidth(ctx, value, size = 10, weight = 700) {
+            ctx.save();
+            ctx.font = `${weight} ${size}px Outfit, sans-serif`;
+            const width = ctx.measureText(String(value || '')).width;
+            ctx.restore();
+            return width;
+        }
+
+        function shareCalendarIcon(ctx, x, y) {
+            ctx.save();
+            ctx.strokeStyle = '#E5E7EB';
+            ctx.lineWidth = 1.15;
+            ctx.lineCap = 'round';
+            ctx.strokeRect(x, y + 1.8, 9, 8.5);
+            ctx.beginPath();
+            ctx.moveTo(x, y + 4.5); ctx.lineTo(x + 9, y + 4.5);
+            ctx.moveTo(x + 2.4, y); ctx.lineTo(x + 2.4, y + 3.2);
+            ctx.moveTo(x + 6.6, y); ctx.lineTo(x + 6.6, y + 3.2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function shareScaleIcon(ctx, x, y) {
+            ctx.save();
+            ctx.strokeStyle = '#D1D5DB';
+            ctx.lineWidth = 1.15;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x + 1.5, y + 5); ctx.lineTo(x + 10, y + 5);
+            ctx.moveTo(x + 1.5, y + 5); ctx.lineTo(x + 4, y + 2.5);
+            ctx.moveTo(x + 1.5, y + 5); ctx.lineTo(x + 4, y + 7.5);
+            ctx.moveTo(x + 10, y + 5); ctx.lineTo(x + 7.5, y + 2.5);
+            ctx.moveTo(x + 10, y + 5); ctx.lineTo(x + 7.5, y + 7.5);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        async function generateShareImageBlob() {
+            const c = db.cars.find(x => x.id === currentShareCarId);
+            if (!c) throw new Error('No se encontró el auto que quieres compartir.');
+            await waitForShareImage();
+            // El HTML del modal es solo editor visual. No se vuelve a fotografiar el DOM.
+            if (document.fonts && document.fonts.load) {
+                await Promise.all([
+                    document.fonts.load('900 24px Outfit'),
+                    document.fonts.load('700 11px Outfit'),
+                    document.fonts.load('700 10px Outfit')
+                ]);
+            }
+
+            const W = 320, PHOTO = 320, X = 21, R = W - X;
+            const labelParts = [];
+            const tmp = document.createElement('canvas').getContext('2d');
+            if (c.escala) labelParts.push({ type: 'scale', text: String(c.escala), w: Math.max(47, Math.ceil(27 + shareTextWidth(tmp, c.escala, 10, 700))) });
+            if (c.linea) labelParts.push({ type: 'line', text: String(c.linea), w: Math.max(58, Math.ceil(20 + shareTextWidth(tmp, String(c.linea).toUpperCase(), 10, 800))) });
+            if (c.colorName) labelParts.push({ type: 'color', text: String(c.colorName), w: Math.max(60, Math.ceil(27 + shareTextWidth(tmp, c.colorName, 10, 500))) });
+            if (c.anio) labelParts.push({ type: 'year', text: String(c.anio), w: Math.max(53, Math.ceil(27 + shareTextWidth(tmp, c.anio, 10, 500))) });
+
+            const hasSeries = Boolean(c.serie || c.noserie);
+            const tagsTop = hasSeries ? 376 : 355;
+            const tagH = 20, GAP = 6;
+            let row = 0, currentX = X;
+            labelParts.forEach(t => {
+                if (currentX !== X && currentX + t.w > R) { currentX = X; row++; }
+                t.x = currentX; t.y = tagsTop + row * (tagH + GAP);
+                currentX += t.w + GAP;
+            });
+            const tagBottom = labelParts.length ? tagsTop + (row + 1) * tagH + row * GAP : tagsTop;
+            const dividerY = tagBottom + 21;
+            const footerY = dividerY + 13;
+            const H = footerY + 22 + 16;
+            const scale = 2; // PNG 640 px de ancho; tarjeta visual de 320 px.
+            const canvas = document.createElement('canvas');
+            canvas.width = W * scale;
+            canvas.height = H * scale;
+            const ctx = canvas.getContext('2d', { alpha: false });
+            ctx.scale(scale, scale);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+
+            ctx.save();
+            shareRoundedPath(ctx, 0, 0, W, H, 12);
+            ctx.clip();
+            ctx.fillStyle = '#141414';
+            ctx.fillRect(0, 0, W, H);
+
+            // Fotografía idéntica al object-fit:cover de la web.
+            const img = document.getElementById('share-main-img');
+            const nw = img.naturalWidth, nh = img.naturalHeight;
+            const cropSize = Math.min(nw, nh);
+            ctx.drawImage(img, (nw - cropSize) / 2, (nh - cropSize) / 2, cropSize, cropSize,
+                0, 0, PHOTO, PHOTO);
+
+            // Transparencia genuina: sin unión gris/blanca a la altura del gradiente.
+            const gradient = ctx.createLinearGradient(0, PHOTO - 128, 0, PHOTO);
+            gradient.addColorStop(0, 'rgba(20,20,20,0)');
+            gradient.addColorStop(0.6, 'rgba(20,20,20,0.46)');
+            gradient.addColorStop(1, 'rgba(20,20,20,1)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, PHOTO - 128, W, 128);
+
+            // Nombre: mantiene el estilo original y ajusta el tamaño si es demasiado largo.
+            let titleSize = 24;
+            while (titleSize > 13 && shareTextWidth(ctx, c.model, titleSize, 900) > W - 2 * X) titleSize -= 1;
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.75)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetY = 2;
+            shareText(ctx, c.model, X, 302, titleSize, 900, '#FFFFFF');
+            ctx.restore();
+
+            // Línea marca/fabricante, con la misma fuente y baseline.
+            const brand = String(getBrandName(c.brandId) || '');
+            const manufacturer = String(getMfgName(c.manufacturerId) || '');
+            shareText(ctx, brand, X, 339, 11, 800, '#F5C000');
+            let tx = X + shareTextWidth(ctx, brand, 11, 800);
+            if (brand && manufacturer) {
+                shareText(ctx, ' • ', tx, 339, 11, 700, '#F5C000');
+                tx += shareTextWidth(ctx, ' • ', 11, 700);
+            }
+            shareText(ctx, manufacturer, tx, 339, 11, 800, '#9CA3AF');
+
+            // Serie: todos los textos centrados sobre una misma línea de base.
+            if (hasSeries) {
+                let sx = X;
+                if (c.serie) {
+                    shareText(ctx, c.serie, sx, 359, 10, 700, '#9CA3AF');
+                    sx += shareTextWidth(ctx, c.serie, 10, 700);
+                }
+                if (c.serie && c.noserie) {
+                    shareText(ctx, '  •  ', sx, 359, 10, 700, '#5B6472');
+                    sx += shareTextWidth(ctx, '  •  ', 10, 700);
+                }
+                if (c.noserie) shareText(ctx, `#${c.noserie}`, sx, 359, 10, 700, '#9CA3AF');
+            }
+
+            // Etiquetas dibujadas individualmente para alinear íconos, círculos y letras.
+            labelParts.forEach(t => {
+                const cy = t.y + tagH / 2;
+                if (t.type === 'scale') {
+                    shareRect(ctx, t.x, t.y, t.w, tagH, '#141414', '#303030', 4);
+                    shareScaleIcon(ctx, t.x + 8, t.y + 5);
+                    shareText(ctx, t.text, t.x + 23, cy + .3, 10, 700, '#D1D5DB');
+                } else if (t.type === 'line') {
+                    const premium = t.text.toLowerCase() === 'premium';
+                    const palette = {
+                        main: ['#4B5563', '#FFFFFF'],
+                        premium: ['#F5C000', '#000000'],
+                        custom: ['#DC2626', '#FFFFFF'],
+                        exotic: ['#9333EA', '#FFFFFF']
+                    };
+                    const [bg, fg] = palette[t.text.toLowerCase()] || ['#292929', '#FFFFFF'];
+                    shareRect(ctx, t.x, t.y, t.w, tagH, bg, premium ? '#DDAA00' : '#4B5563', 4);
+                    shareText(ctx, t.text.toUpperCase(), t.x + t.w / 2, cy + .3, 10, 800, fg, 'center');
+                } else if (t.type === 'color') {
+                    shareRect(ctx, t.x, t.y, t.w, tagH, '#000000', '#333333', 4);
+                    ctx.beginPath();
+                    ctx.arc(t.x + 12, cy, 4.5, 0, Math.PI * 2);
+                    ctx.fillStyle = /^#[\da-fA-F]{3,8}$/.test(c.colorHex || '') ? c.colorHex : '#FFFFFF';
+                    ctx.fill();
+                    ctx.strokeStyle = '#A1A1AA'; ctx.lineWidth = 0.5; ctx.stroke();
+                    shareText(ctx, t.text, t.x + 22, cy + .3, 10, 500, '#D1D5DB');
+                } else if (t.type === 'year') {
+                    shareRect(ctx, t.x, t.y, t.w, tagH, '#000000', '#333333', 4);
+                    shareCalendarIcon(ctx, t.x + 8, t.y + 4);
+                    shareText(ctx, t.text, t.x + 22, cy + .3, 10, 500, '#D1D5DB');
+                }
+            });
+
+            // Separador y pie de tarjeta. Se conservan las proporciones originales.
+            ctx.fillStyle = '#303030';
+            ctx.fillRect(X, dividerY, W - X * 2, 0.7);
+
+            // Logo: utilizar el recurso de la app si es posible; si no, un símbolo plano.
+            let drawnLogo = false;
+            const logo = document.querySelector('#share-card-element img[src="assets/icon.png"]');
+            if (logo && logo.complete && logo.naturalWidth) {
+                try { ctx.save(); ctx.globalAlpha = 0.75; ctx.drawImage(logo, X + 2, footerY + 2, 16, 16); ctx.restore(); drawnLogo = true; }
+                catch (_) { ctx.restore(); }
+            }
+            if (!drawnLogo) shareText(ctx, 'D', X + 3, footerY + 11, 13, 900, '#F5C000');
+
+            ctx.save();
+            ctx.font = '700 9px Outfit, sans-serif';
+            ctx.fillStyle = '#6B7280';
+            ctx.textBaseline = 'middle';
+            const footerText = 'DRIVOWEB GARAGE';
+            let footerX = X + 22;
+            for (const ch of footerText) {
+                ctx.fillText(ch, footerX, footerY + 11);
+                footerX += ctx.measureText(ch).width + 1.0;
+            }
+            ctx.restore();
+
+            const firstName = (userProfile.name || 'Usuario').trim().split(/\s+/)[0] || 'Usuario';
+            const user = '@' + firstName;
+            const userWidth = Math.min(110, Math.max(62, shareTextWidth(ctx, user, 10, 500) + 16));
+            const userX = W - X - userWidth;
+            shareRect(ctx, userX, footerY, userWidth, 22, '#252525', '#444444', 6);
+            shareText(ctx, user, userX + userWidth / 2, footerY + 11, 10, 500, '#A1A1AA', 'center');
+
+            ctx.restore();
+            shareRoundedPath(ctx, 0.5, 0.5, W - 1, H - 1, 12);
+            ctx.lineWidth = 0.8; ctx.strokeStyle = '#292929'; ctx.stroke();
+
+            return new Promise((resolve, reject) => {
+                try {
+                    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('No se pudo crear la imagen PNG.')), 'image/png');
+                } catch (err) {
+                    reject(new Error('No se pudo usar la fotografía en Canvas. Verifica el permiso CORS del servidor de imágenes. ' + err.message));
+                }
+            });
+        }
+
+        function refreshSharePreview() {
+            const version = ++sharePreviewVersion;
+            sharePreviewBlob = null;
+            const preview = document.getElementById('share-rendered-preview');
+            preview.style.display = 'none';
+            document.getElementById('share-card-element').style.display = 'flex';
+            setShareButtonsReady(false);
+            setSharePreviewStatus('Preparando imagen...');
+
+            // Se serializan las capturas para evitar imágenes mezcladas al cambiar rápido de foto.
+            const task = shareRenderQueue.then(async () => {
+                if (version !== sharePreviewVersion) return null;
+                const blob = await generateShareImageBlob();
+                if (version !== sharePreviewVersion) return null;
+
+                const url = URL.createObjectURL(blob);
+                try {
+                    await new Promise((resolve, reject) => {
+                        preview.onload = resolve;
+                        preview.onerror = () => reject(new Error('No se pudo mostrar el PNG.'));
+                        preview.src = url;
+                    });
+                } catch (err) {
+                    URL.revokeObjectURL(url);
+                    throw err;
+                }
+                if (version !== sharePreviewVersion) {
+                    URL.revokeObjectURL(url);
+                    return null;
+                }
+
+                if (sharePreviewUrl) URL.revokeObjectURL(sharePreviewUrl);
+                sharePreviewUrl = url;
+                sharePreviewBlob = blob;
+                document.getElementById('share-card-element').style.display = 'none';
+                preview.style.display = 'block';
+                setSharePreviewStatus('');
+                setShareButtonsReady(true);
+                return blob;
+            });
+            // No bloquear futuras capturas si una imagen externa falló.
+            shareRenderQueue = task.catch(() => null);
+            sharePreviewPromise = task.catch(error => {
+                if (version === sharePreviewVersion) {
+                    console.error('Error generando vista previa:', error);
+                    setSharePreviewStatus('No se pudo preparar la imagen: ' + error.message);
+                }
+                return null;
+            });
+            return sharePreviewPromise;
+        }
+
+        async function getExactSharePreviewBlob() {
+            if (sharePreviewPromise) await sharePreviewPromise;
+            if (!sharePreviewBlob) throw new Error('La vista previa no está disponible.');
+            return sharePreviewBlob;
+        }
+
+        // Función para descargar en PC
+        async function downloadShareCard() {
+            const c = db.cars.find(x => x.id === currentShareCarId);
+            const btn = document.querySelector('#share-modal .ph-download-simple').parentElement;
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i> Guardando...`;
+            btn.disabled = true;
+
+            try {
+                const blob = await getExactSharePreviewBlob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const cleanName = (c.model || 'auto').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                a.download = `drivoweb_${cleanName}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 60000);
+            } catch (e) {
+                console.error("Error al exportar:", e);
+                alert("No se pudo descargar la imagen: " + e.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Función para enviar directo a WhatsApp, Instagram, etc (Móviles nativos)
+        async function shareCardNative() {
+            const c = db.cars.find(x => x.id === currentShareCarId);
+            const btn = document.getElementById('btn-native-share');
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i> Preparando...`;
+            btn.disabled = true;
+
+            try {
+                const blob = await getExactSharePreviewBlob();
+                const cleanName = (c.model || 'auto').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                const file = new File([blob], `drivoweb_${cleanName}.png`, { type: 'image/png' });
+
+                await navigator.share({
+                    title: `Mi colección: ${c.model}`,
+                    text: `¡Checa este ${c.model} de mi garaje! 🚗🔥`,
+                    files: [file]
+                });
+            } catch (e) {
+                if (e.name !== 'AbortError') { // AbortError significa que el usuario canceló el diálogo de compartir
+                    console.error("Error al compartir:", e);
+                    alert("No se pudo compartir la imagen en esta plataforma.");
+                }
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         }
 
