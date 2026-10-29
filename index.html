@@ -481,23 +481,36 @@
         <!-- HEADER -->
         <header
             class="p-4 md:p-6 border-b border-dark-border bg-dark-bg/90 backdrop-blur z-30 sticky top-0 flex flex-col gap-4 md:flex-row md:items-center">
-            <!-- Perfil a la izquierda en móvil, Search a la derecha o abajo -->
-            <div class="flex items-center justify-between w-full md:w-auto md:ml-auto md:order-2">
-                <div class="flex items-center gap-3 min-w-0">
-                    <div class="profile-avatar" aria-hidden="true">
+
+            <!-- Contenedor derecho: Badge de red + Perfil + Ajustes -->
+            <div class="flex items-center justify-between w-full md:w-auto md:ml-auto md:order-2 gap-2 sm:gap-4">
+
+                <!-- Badge de Red (Movido al Appbar) -->
+                <div id="network-badge"
+                    class="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-300 text-[10px] sm:text-xs font-semibold transition-colors duration-300 shrink-0">
+                    <span id="network-dot"
+                        class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span id="network-text-desktop" class="hidden sm:inline">Sistema en línea</span>
+                    <span id="network-text-mobile" class="sm:hidden">En línea</span>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <div class="profile-avatar shrink-0 w-9 h-9 sm:w-11 sm:h-11 text-sm sm:text-base"
+                        aria-hidden="true">
                         <span id="navbar-user-initials">U</span>
                         <img id="navbar-user-avatar" alt="" hidden class="rounded-full object-cover">
                     </div>
-                    <div class="min-w-0">
-                        <span class="block text-xs text-gray-500">Mi perfil</span>
+                    <div class="min-w-0 hidden sm:block">
+                        <span class="block text-[10px] sm:text-xs text-gray-500">Mi perfil</span>
                         <span id="navbar-user-name"
-                            class="block max-w-[110px] lg:max-w-[180px] truncate text-sm font-semibold text-white">Usuario</span>
+                            class="block max-w-[90px] lg:max-w-[150px] truncate text-xs sm:text-sm font-semibold text-white">Usuario</span>
                     </div>
                 </div>
+
                 <button type="button" onclick="openSettings()" id="settings-button"
                     aria-label="Abrir ajustes de usuario" title="Ajustes"
-                    class="w-11 h-11 shrink-0 rounded-xl border border-dark-border bg-dark-panel text-gray-400 hover:text-banqueta hover:border-banqueta transition-colors flex items-center justify-center ml-2">
-                    <i class="ph-bold ph-gear-six text-2xl" aria-hidden="true"></i>
+                    class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 rounded-lg sm:rounded-xl border border-dark-border bg-dark-panel text-gray-400 hover:text-banqueta hover:border-banqueta transition-colors flex items-center justify-center">
+                    <i class="ph-bold ph-gear-six text-lg sm:text-2xl" aria-hidden="true"></i>
                 </button>
             </div>
 
@@ -549,50 +562,34 @@
         <div class="flex-1 overflow-y-auto custom-scroll px-4 py-4 md:px-10 md:py-8">
             <!-- Inicio Rediseñado -->
             <section id="section-home" class="section-view active fade-in space-y-6 md:space-y-10">
-                <!-- Welcome Card Premium -->
-                <div
-                    class="glass-panel p-4 sm:p-10 rounded-2xl sm:rounded-[2rem] relative overflow-hidden group border-dark-border/50 shadow-2xl bg-[#0d0d0d]">
-                    <!-- Elementos decorativos de fondo -->
-                    <div
-                        class="absolute -right-20 -top-20 w-96 h-96 bg-banqueta/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-banqueta/20 transition-all duration-700">
-                    </div>
-                    <div
-                        class="absolute right-10 top-1/2 -translate-y-1/2 opacity-5 pointer-events-none hidden md:block group-hover:scale-110 group-hover:opacity-10 transition-all duration-700">
-                        <i class="ph-fill ph-garage text-[250px] text-banqueta"></i>
+
+                <!-- Slider de Agregados Recientemente -->
+                <div>
+                    <div class="flex justify-between items-center mb-4 px-1">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2"><i
+                                class="ph-bold ph-clock-counter-clockwise text-banqueta"></i> Recientemente Agregados
+                        </h3>
+                        <button onclick="switchTab('cars')"
+                            class="text-sm text-banqueta hover:text-white transition-colors font-semibold">Ver
+                            todos</button>
                     </div>
 
-                    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
-                        <div>
-                            <div id="network-badge"
-                                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 text-xs font-semibold mb-2 sm:mb-4 transition-colors duration-300">
-                                <span id="network-dot" class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                <span id="network-text-desktop" class="hidden sm:inline">Sistema en línea</span>
-                                <span id="network-text-mobile" class="sm:hidden">En línea</span>
-                            </div>
-                            <h1 class="text-2xl sm:text-5xl font-black mb-1 sm:mb-3 text-white tracking-tight">
-                                Bienvenido, <span id="home-greeting-name" class="text-banqueta">Usuario</span></h1>
-                            <p class="hidden sm:block text-gray-400 max-w-xl text-sm sm:text-lg mb-8 leading-relaxed">Tu
-                                garaje digital definitivo. Administra tus autos, analiza tus colecciones y mantén todo
-                                organizado con velocidad y estilo.</p>
-
-                            <!-- Accesos rápidos mejorados -->
-                            <div class="flex gap-2 sm:gap-3 flex-wrap mt-2 sm:mt-0">
-                                <button onclick="openCarModal(false)"
-                                    class="btn-primary text-black font-bold px-4 py-2 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl flex items-center gap-1.5 sm:gap-2 transition shadow-lg shadow-banqueta/20 text-xs sm:text-base hover:scale-105">
-                                    <i class="ph-bold ph-plus text-base sm:text-lg"></i> Añadir Auto
-                                </button>
-                                <button onclick="switchTab('collections')"
-                                    class="bg-[#1A1A1A] border border-dark-border text-white font-semibold px-4 py-2 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl flex items-center gap-1.5 sm:gap-2 hover:bg-[#222] transition text-xs sm:text-base shadow-lg hover:scale-105">
-                                    <i class="ph-fill ph-books text-gray-400 text-base sm:text-lg"></i> Ver Colecciones
-                                </button>
-                            </div>
-                        </div>
+                    <!-- Contenedor del Slider (Sin Scrollbar y Arrastrable) -->
+                    <div id="recent-cars-slider"
+                        class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory pr-4 cursor-grab select-none"
+                        style="-ms-overflow-style: none; scrollbar-width: none;">
+                        <style>
+                            #recent-cars-slider::-webkit-scrollbar {
+                                display: none;
+                            }
+                        </style>
+                        <!-- Las cards horizontales se inyectan aquí -->
                     </div>
                 </div>
 
                 <!-- Sección de Estadísticas -->
                 <div>
-                    <h3 class="text-xl font-bold text-white mb-5 flex items-center gap-2"><i
+                    <h3 class="text-xl font-bold text-white mb-5 flex items-center gap-2 px-1"><i
                             class="ph-bold ph-chart-bar text-banqueta"></i> Resumen del Garaje</h3>
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6" id="home-stats"></div>
                     <!-- Contenedor dedicado para evitar duplicados -->
@@ -1053,17 +1050,20 @@
     <div id="car-modal"
         class="modal fixed inset-0 z-50 items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm">
         <div
-            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-3xl slide-up shadow-2xl max-h-[95vh] flex flex-col">
-            <div class="flex justify-between items-center p-4 border-b border-dark-border shrink-0">
+            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-6xl slide-up shadow-2xl max-h-[95vh] flex flex-col">
+
+            <div class="flex justify-between items-center p-4 md:px-6 border-b border-dark-border shrink-0">
                 <div class="flex items-center gap-3">
                     <h3 class="text-xl font-bold" id="car-modal-title">Añadir Auto</h3>
                 </div>
-                <button onclick="closeModal('car-modal')" class="text-gray-400 hover:text-white"><i
+                <button onclick="closeModal('car-modal')" class="text-gray-400 hover:text-white transition-colors"><i
                         class="ph-bold ph-x text-xl"></i></button>
             </div>
 
-            <div class="overflow-y-auto p-4 flex-1 custom-scroll pb-32">
-                <form id="car-form" onsubmit="saveCar(event)" class="space-y-4">
+            <!-- Contenedor principal adaptable -->
+            <div class="overflow-y-auto p-4 md:p-6 flex-1 custom-scroll">
+                <form id="car-form" onsubmit="saveCar(event)"
+                    class="flex flex-col md:grid md:grid-cols-12 gap-6 md:gap-8 h-full">
                     <input type="hidden" id="car-id">
                     <input type="hidden" id="car-is-wishlist" value="false">
                     <input type="hidden" id="car-cover-old">
@@ -1071,191 +1071,242 @@
                     <input type="hidden" id="car-ext2-old">
                     <input type="hidden" id="car-ext3-old">
                     <input type="hidden" id="car-ext4-old">
+                    <input type="hidden" id="car-rating" value="0"> <!-- Mantenido oculto para no romper lógica JS -->
 
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Modelo del Auto</label>
-                        <input type="text" id="car-model" required
-                            class="w-full input-style rounded-xl px-4 py-2.5 text-lg font-bold"
-                            placeholder="Ej. Skyline GT-R R34">
-                    </div>
+                    <!-- COLUMNA IZQUIERDA: Datos del Auto -->
+                    <div class="md:col-span-7 lg:col-span-8 flex flex-col gap-4 md:pr-2">
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm text-gray-400 mb-1">Marca</label>
-                            <div class="custom-select-wrapper" id="wrap-car-brand">
-                                <input type="hidden" id="car-brand" required>
-                                <div class="relative">
-                                    <input type="text" id="search-car-brand" autocomplete="off"
-                                        class="custom-select-trigger input-style w-full text-left rounded-xl px-4 py-2.5 pr-10 font-bold"
-                                        placeholder="Escribe para buscar..." onfocus="openSelect('wrap-car-brand')"
-                                        oninput="filterSelect('wrap-car-brand', this.value)"
-                                        onkeydown="handleSelectKeydown(event, 'wrap-car-brand', 'car-brand')">
-                                    <i
-                                        class="ph-bold ph-caret-down text-gray-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                            <label class="block text-sm text-gray-400 mb-1">Modelo del Auto</label>
+                            <input type="text" id="car-model" required
+                                class="w-full input-style rounded-xl px-4 py-2.5 text-lg font-bold"
+                                placeholder="Ej. Skyline GT-R R34">
+                        </div>
+
+                        <!-- Fila de 3 columnas para clasificaciones -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Marca</label>
+                                <div class="custom-select-wrapper" id="wrap-car-brand">
+                                    <input type="hidden" id="car-brand" required>
+                                    <div class="relative">
+                                        <input type="text" id="search-car-brand" autocomplete="off"
+                                            class="custom-select-trigger input-style w-full text-left rounded-xl px-4 py-2 pr-10 font-bold"
+                                            placeholder="Buscar marca..." onfocus="openSelect('wrap-car-brand')"
+                                            oninput="filterSelect('wrap-car-brand', this.value)"
+                                            onkeydown="handleSelectKeydown(event, 'wrap-car-brand', 'car-brand')">
+                                        <i
+                                            class="ph-bold ph-caret-down text-gray-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                                    </div>
+                                    <div class="custom-select-options custom-scroll" id="opts-car-brand"></div>
                                 </div>
-                                <div class="custom-select-options custom-scroll" id="opts-car-brand"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Fabricante</label>
+                                <div class="custom-select-wrapper" id="wrap-car-manufacturer">
+                                    <input type="hidden" id="car-manufacturer" required>
+                                    <div class="relative">
+                                        <input type="text" id="search-car-manufacturer" autocomplete="off"
+                                            class="custom-select-trigger input-style w-full text-left rounded-xl px-4 py-2 pr-10 font-bold"
+                                            placeholder="Buscar fabricante..."
+                                            onfocus="openSelect('wrap-car-manufacturer')"
+                                            oninput="filterSelect('wrap-car-manufacturer', this.value)"
+                                            onkeydown="handleSelectKeydown(event, 'wrap-car-manufacturer', 'car-manufacturer')">
+                                        <i
+                                            class="ph-bold ph-caret-down text-gray-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                                    </div>
+                                    <div class="custom-select-options custom-scroll" id="opts-car-manufacturer"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Colección (Opcional)</label>
+                                <div class="custom-select-wrapper" id="wrap-car-collection">
+                                    <input type="hidden" id="car-collection">
+                                    <div class="relative">
+                                        <input type="text" id="search-car-collection" autocomplete="off"
+                                            class="custom-select-trigger input-style w-full text-left rounded-xl px-4 py-2 pr-10 font-bold"
+                                            placeholder="Buscar colección..."
+                                            onfocus="openSelect('wrap-car-collection')"
+                                            oninput="filterSelect('wrap-car-collection', this.value)"
+                                            onkeydown="handleSelectKeydown(event, 'wrap-car-collection', 'car-collection')">
+                                        <i
+                                            class="ph-bold ph-caret-down text-gray-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                                    </div>
+                                    <div class="custom-select-options custom-scroll" id="opts-car-collection"></div>
+                                </div>
                             </div>
                         </div>
 
+                        <!-- Selector de Color Minimalista -->
                         <div>
-                            <label class="block text-sm text-gray-400 mb-1">Fabricante</label>
-                            <div class="custom-select-wrapper" id="wrap-car-manufacturer">
-                                <input type="hidden" id="car-manufacturer" required>
-                                <div class="relative">
-                                    <input type="text" id="search-car-manufacturer" autocomplete="off"
-                                        class="custom-select-trigger input-style w-full text-left rounded-xl px-4 py-2.5 pr-10 font-bold"
-                                        placeholder="Escribe para buscar..."
-                                        onfocus="openSelect('wrap-car-manufacturer')"
-                                        oninput="filterSelect('wrap-car-manufacturer', this.value)"
-                                        onkeydown="handleSelectKeydown(event, 'wrap-car-manufacturer', 'car-manufacturer')">
-                                    <i
-                                        class="ph-bold ph-caret-down text-gray-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-                                </div>
-                                <div class="custom-select-options custom-scroll" id="opts-car-manufacturer"></div>
-                            </div>
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <div class="flex justify-between mb-1">
-                                <label class="block text-sm text-gray-400">Color</label>
-                                <button type="button" onclick="openModal('custom-color-modal')"
-                                    class="text-xs text-banqueta hover:underline">Añadir personalizado</button>
-                            </div>
+                            <label class="block text-sm text-gray-400 mb-1">Color</label>
                             <input type="hidden" id="car-color-hex" required>
                             <input type="hidden" id="car-color-name" required>
-                            <div class="bg-[#0A0A0A] border border-[#333] p-3 rounded-xl">
-                                <div class="flex flex-wrap gap-2" id="color-grid"></div>
-                                <p class="text-sm text-gray-300 mt-2 text-center" id="selected-color-label">Ningún color
-                                    seleccionado</p>
-                            </div>
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-sm text-gray-400 mb-1">Colección (Opcional)</label>
-                            <div class="custom-select-wrapper" id="wrap-car-collection">
-                                <input type="hidden" id="car-collection">
-                                <div class="relative">
-                                    <input type="text" id="search-car-collection" autocomplete="off"
-                                        class="custom-select-trigger input-style w-full text-left rounded-xl px-4 py-2.5 pr-10 font-bold"
-                                        placeholder="Escribe para buscar..." onfocus="openSelect('wrap-car-collection')"
-                                        oninput="filterSelect('wrap-car-collection', this.value)"
-                                        onkeydown="handleSelectKeydown(event, 'wrap-car-collection', 'car-collection')">
-                                    <i
-                                        class="ph-bold ph-caret-down text-gray-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                            <button type="button" onclick="openModal('color-picker-modal')"
+                                class="w-full input-style rounded-xl px-4 py-2.5 text-left font-bold flex items-center justify-between transition-colors hover:border-banqueta group">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-5 h-5 rounded-full border border-white/20 block shadow-inner"
+                                        id="color-indicator-swatch"
+                                        style="background-color: transparent; display: none;"></span>
+                                    <span id="selected-color-label"
+                                        class="text-gray-400 font-normal group-hover:text-white transition-colors">Seleccionar
+                                        color...</span>
                                 </div>
-                                <div class="custom-select-options custom-scroll" id="opts-car-collection"></div>
+                                <i
+                                    class="ph-bold ph-palette text-gray-500 group-hover:text-banqueta transition-colors text-lg"></i>
+                            </button>
+                        </div>
+
+                        <div class="border-t border-dark-border pt-4 mt-auto">
+                            <h4 class="text-white font-bold mb-3 flex items-center gap-2 text-sm"><i
+                                    class="ph-bold ph-list-dashes"></i> Detalles Opcionales</h4>
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Serie</label>
+                                    <input type="text" id="car-serie"
+                                        class="w-full input-style rounded-lg px-3 py-2 text-sm"
+                                        placeholder="Ej. HW J-Imports">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Línea</label>
+                                    <!-- Dropdown Predictivo para Línea -->
+                                    <div class="custom-select-wrapper" id="wrap-car-linea">
+                                        <input type="hidden" id="car-linea">
+                                        <div class="relative">
+                                            <input type="text" id="search-car-linea" autocomplete="off"
+                                                class="custom-select-trigger input-style w-full text-left rounded-lg px-3 py-2 pr-8 text-sm"
+                                                placeholder="Buscar..." onfocus="openSelect('wrap-car-linea')"
+                                                oninput="filterSelect('wrap-car-linea', this.value)"
+                                                onkeydown="handleSelectKeydown(event, 'wrap-car-linea', 'car-linea')">
+                                            <i
+                                                class="ph-bold ph-caret-down text-gray-500 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                                        </div>
+                                        <div class="custom-select-options custom-scroll" id="opts-car-linea">
+                                            <button type="button" class="custom-select-option" data-label="main"
+                                                data-value="Main"
+                                                onclick="selectOption('car-linea', 'wrap-car-linea', 'Main', 'Main')">Main</button>
+                                            <button type="button" class="custom-select-option" data-label="premium"
+                                                data-value="Premium"
+                                                onclick="selectOption('car-linea', 'wrap-car-linea', 'Premium', 'Premium')">Premium</button>
+                                            <button type="button" class="custom-select-option" data-label="custom"
+                                                data-value="Custom"
+                                                onclick="selectOption('car-linea', 'wrap-car-linea', 'Custom', 'Custom')">Custom</button>
+                                            <button type="button" class="custom-select-option" data-label="exotic"
+                                                data-value="Exotic"
+                                                onclick="selectOption('car-linea', 'wrap-car-linea', 'Exotic', 'Exotic')">Exotic</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Costo ($)</label>
+                                    <input type="number" step="0.01" id="car-costo"
+                                        class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="0.00">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">No. Modelo</label>
+                                    <input type="text" id="car-nomodelo"
+                                        class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. HNK45">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Año de Fab.</label>
+                                    <input type="number" id="car-anio"
+                                        class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. 2023">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">No. Serie</label>
+                                    <input type="text" id="car-noserie"
+                                        class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. 1/5">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Tipo</label>
+                                    <input type="text" id="car-tipo"
+                                        class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. JDM">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Escala</label>
+                                    <input type="text" id="car-escala" value="1:64"
+                                        class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. 1:64">
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="border-t border-dark-border pt-4 mt-4">
-                        <h4 class="text-white font-bold mb-3 flex items-center gap-2"><i
-                                class="ph-bold ph-list-dashes"></i> Detalles Opcionales</h4>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Serie</label>
-                                <input type="text" id="car-serie"
-                                    class="w-full input-style rounded-lg px-3 py-2 text-sm"
-                                    placeholder="Ej. HW J-Imports">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Línea</label>
-                                <select id="car-linea"
-                                    class="w-full input-style rounded-lg px-3 py-2 text-sm appearance-none bg-dark-panel">
-                                    <option value="">Selecciona...</option>
-                                    <option value="Main">Main</option>
-                                    <option value="Premium">Premium</option>
-                                    <option value="Custom">Custom</option>
-                                    <option value="Exotic">Exotic</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Costo ($)</label>
-                                <input type="number" step="0.01" id="car-costo"
-                                    class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="0.00">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">No. Modelo</label>
-                                <input type="text" id="car-nomodelo"
-                                    class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. HNK45">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Año de Fabricación</label>
-                                <input type="number" id="car-anio"
-                                    class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. 2023">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">No. Serie</label>
-                                <input type="text" id="car-noserie"
-                                    class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. 1/5">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Tipo</label>
-                                <input type="text" id="car-tipo" class="w-full input-style rounded-lg px-3 py-2 text-sm"
-                                    placeholder="Ej. JDM, Muscle">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Escala</label>
-                                <input type="text" id="car-escala" value="1:64"
-                                    class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="Ej. 1:64">
-                            </div>
-                        </div>
+                    <!-- COLUMNA DERECHA: Galería de Imágenes (1:1 Cuadradas) -->
+                    <div
+                        class="md:col-span-5 lg:col-span-4 flex flex-col border-t md:border-t-0 md:border-l border-dark-border pt-6 md:pt-0 md:pl-6 md:pr-1">
+                        <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i
+                                class="ph-bold ph-image text-banqueta"></i> Galería de Imágenes</h4>
 
-                        <div class="mt-4 flex items-center gap-3">
-                            <label class="block text-sm text-gray-400">Puntuación:</label>
-                            <input type="hidden" id="car-rating" value="0">
-                            <div class="flex text-2xl gap-1" id="star-rating-container">
-                                <i class="ph-star rating-star cursor-pointer" data-value="1"></i>
-                                <i class="ph-star rating-star cursor-pointer" data-value="2"></i>
-                                <i class="ph-star rating-star cursor-pointer" data-value="3"></i>
-                                <i class="ph-star rating-star cursor-pointer" data-value="4"></i>
-                                <i class="ph-star rating-star cursor-pointer" data-value="5"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="border-t border-dark-border pt-4 mt-4">
-                        <label class="block text-base font-semibold mb-2">Galería de Imágenes</label>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 h-[408px] md:h-[200px]">
-                            <div class="md:col-span-2 h-full">
+                        <div class="flex flex-col gap-3 w-full max-w-[320px] mx-auto md:max-w-none">
+                            <!-- Portada Principal -->
+                            <div class="w-full aspect-square relative">
                                 <input type="file" id="car-cover" accept="image/*" class="hidden-file-input"
                                     onchange="previewUI(this, 'preview-car-cover')">
-                                <label for="car-cover" class="upload-area w-full h-full rounded-xl relative group"
+                                <label for="car-cover"
+                                    class="upload-area w-full h-full rounded-2xl relative group flex flex-col items-center justify-center border-2 border-dashed border-dark-border hover:border-banqueta bg-black cursor-pointer transition-all overflow-hidden"
                                     id="preview-car-cover">
                                     <i
-                                        class="ph-fill ph-camera-plus text-3xl text-banqueta mb-1 group-hover:scale-110 transition-transform"></i>
-                                    <span class="text-sm font-bold text-white">Portada</span>
-                                    <img src="" class="preview rounded-xl">
+                                        class="ph-fill ph-camera-plus text-4xl text-gray-500 mb-2 group-hover:scale-110 group-hover:text-banqueta transition-all"></i>
+                                    <span
+                                        class="text-sm font-bold text-gray-400 group-hover:text-white transition-colors">Portada
+                                        Principal</span>
+                                    <span class="text-[10px] text-gray-600 mt-1 uppercase tracking-wider font-bold">1:1
+                                        Cuadrada</span>
+                                    <img src="" class="preview absolute inset-0 w-full h-full object-cover z-10 hidden">
                                 </label>
                             </div>
-                            <div class="grid grid-cols-2 grid-rows-2 gap-2 h-full">
-                                <div class="relative h-full w-full">
+
+                            <!-- Extras (Cuadrículas pequeñas) -->
+                            <div class="grid grid-cols-4 gap-2 md:gap-3">
+                                <div class="aspect-square relative">
                                     <input type="file" id="car-ext1" accept="image/*" class="hidden-file-input"
                                         onchange="previewUI(this, 'prev-ext1')">
-                                    <label for="car-ext1" class="upload-area w-full h-full rounded-lg relative"
-                                        id="prev-ext1"><i class="ph-bold ph-plus text-gray-500"></i><img src=""
-                                            class="preview rounded-lg"></label>
+                                    <label for="car-ext1"
+                                        class="upload-area w-full h-full rounded-xl relative flex items-center justify-center border-2 border-dashed border-dark-border hover:border-banqueta bg-black cursor-pointer transition-all overflow-hidden group"
+                                        id="prev-ext1">
+                                        <i
+                                            class="ph-bold ph-plus text-gray-600 group-hover:text-banqueta text-xl transition-colors"></i>
+                                        <img src=""
+                                            class="preview absolute inset-0 w-full h-full object-cover z-10 hidden">
+                                    </label>
                                 </div>
-                                <div class="relative h-full w-full">
+                                <div class="aspect-square relative">
                                     <input type="file" id="car-ext2" accept="image/*" class="hidden-file-input"
                                         onchange="previewUI(this, 'prev-ext2')">
-                                    <label for="car-ext2" class="upload-area w-full h-full rounded-lg relative"
-                                        id="prev-ext2"><i class="ph-bold ph-plus text-gray-500"></i><img src=""
-                                            class="preview rounded-lg"></label>
+                                    <label for="car-ext2"
+                                        class="upload-area w-full h-full rounded-xl relative flex items-center justify-center border-2 border-dashed border-dark-border hover:border-banqueta bg-black cursor-pointer transition-all overflow-hidden group"
+                                        id="prev-ext2">
+                                        <i
+                                            class="ph-bold ph-plus text-gray-600 group-hover:text-banqueta text-xl transition-colors"></i>
+                                        <img src=""
+                                            class="preview absolute inset-0 w-full h-full object-cover z-10 hidden">
+                                    </label>
                                 </div>
-                                <div class="relative h-full w-full">
+                                <div class="aspect-square relative">
                                     <input type="file" id="car-ext3" accept="image/*" class="hidden-file-input"
                                         onchange="previewUI(this, 'prev-ext3')">
-                                    <label for="car-ext3" class="upload-area w-full h-full rounded-lg relative"
-                                        id="prev-ext3"><i class="ph-bold ph-plus text-gray-500"></i><img src=""
-                                            class="preview rounded-lg"></label>
+                                    <label for="car-ext3"
+                                        class="upload-area w-full h-full rounded-xl relative flex items-center justify-center border-2 border-dashed border-dark-border hover:border-banqueta bg-black cursor-pointer transition-all overflow-hidden group"
+                                        id="prev-ext3">
+                                        <i
+                                            class="ph-bold ph-plus text-gray-600 group-hover:text-banqueta text-xl transition-colors"></i>
+                                        <img src=""
+                                            class="preview absolute inset-0 w-full h-full object-cover z-10 hidden">
+                                    </label>
                                 </div>
-                                <div class="relative h-full w-full">
+                                <div class="aspect-square relative">
                                     <input type="file" id="car-ext4" accept="image/*" class="hidden-file-input"
                                         onchange="previewUI(this, 'prev-ext4')">
-                                    <label for="car-ext4" class="upload-area w-full h-full rounded-lg relative"
-                                        id="prev-ext4"><i class="ph-bold ph-plus text-gray-500"></i><img src=""
-                                            class="preview rounded-lg"></label>
+                                    <label for="car-ext4"
+                                        class="upload-area w-full h-full rounded-xl relative flex items-center justify-center border-2 border-dashed border-dark-border hover:border-banqueta bg-black cursor-pointer transition-all overflow-hidden group"
+                                        id="prev-ext4">
+                                        <i
+                                            class="ph-bold ph-plus text-gray-600 group-hover:text-banqueta text-xl transition-colors"></i>
+                                        <img src=""
+                                            class="preview absolute inset-0 w-full h-full object-cover z-10 hidden">
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -1263,15 +1314,55 @@
                 </form>
             </div>
 
-            <div class="flex justify-end gap-3 p-4 border-t border-dark-border bg-dark-panel shrink-0">
+            <div
+                class="flex justify-end gap-3 p-4 md:px-6 border-t border-dark-border bg-dark-panel shrink-0 rounded-b-2xl">
                 <button type="button" onclick="closeModal('car-modal')"
-                    class="px-5 py-2 rounded-xl hover:bg-white/10 transition-colors">Cancelar</button>
+                    class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:text-white hover:bg-white/10 transition-colors">Cancelar</button>
                 <button type="button" id="car-save-visible-btn"
                     onclick="document.getElementById('car-submit-btn').click()"
-                    class="btn-primary px-6 py-2 rounded-xl font-bold flex items-center gap-2">
-                    <i class="ph-bold ph-floppy-disk"></i> Guardar
+                    class="btn-primary px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-banqueta/20">
+                    <i class="ph-bold ph-floppy-disk text-lg"></i> Guardar Auto
                 </button>
                 <button type="submit" form="car-form" id="car-submit-btn" class="hidden"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Selector de Color -->
+    <div id="color-picker-modal"
+        class="modal fixed inset-0 z-[60] items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div
+            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-md slide-up flex flex-col max-h-[85vh] shadow-2xl overflow-hidden">
+            <div class="flex justify-between items-center p-5 md:p-6 border-b border-dark-border shrink-0 bg-[#0d0d0d]">
+                <div>
+                    <h3 class="text-xl font-bold flex items-center gap-2 text-white"><i
+                            class="ph-bold ph-palette text-banqueta"></i> Seleccionar Color</h3>
+                    <p class="text-xs text-gray-400 mt-1">Elige un color para identificar tu auto</p>
+                </div>
+                <button type="button" onclick="closeModal('color-picker-modal')"
+                    class="text-gray-400 hover:text-white transition-colors bg-white/5 p-2 rounded-full hover:bg-white/10"><i
+                        class="ph-bold ph-x text-lg"></i></button>
+            </div>
+
+            <div class="overflow-y-auto custom-scroll p-5 md:p-6 flex-1 bg-[#141414]">
+                <div class="flex justify-between items-center mb-4 bg-dark-bg p-3 rounded-xl border border-dark-border">
+                    <span class="text-sm font-semibold text-gray-300"><i class="ph-fill ph-swatches"></i> Paleta
+                        guardada</span>
+                    <button type="button" onclick="openModal('custom-color-modal')"
+                        class="text-xs font-bold bg-banqueta/10 text-banqueta border border-banqueta/30 px-3 py-1.5 rounded-lg hover:bg-banqueta/20 transition-colors">
+                        + Añadir nuevo
+                    </button>
+                </div>
+
+                <!-- El grid ahora tiene más gap para acomodar los tooltips -->
+                <div class="flex flex-wrap gap-4" id="color-grid"></div>
+            </div>
+
+            <div class="border-t border-dark-border p-5 md:p-6 bg-[#0d0d0d] shrink-0">
+                <button type="button" onclick="closeModal('color-picker-modal')"
+                    class="btn-primary w-full py-3 rounded-xl font-bold text-sm shadow-lg shadow-banqueta/20">
+                    Confirmar Selección
+                </button>
             </div>
         </div>
     </div>
@@ -1847,7 +1938,7 @@
                 document.getElementById('car-cover-old').value = '';
                 document.getElementById('car-escala').value = '1:64';
 
-                ['wrap-car-brand', 'wrap-car-manufacturer', 'wrap-car-collection'].forEach(id => {
+                ['wrap-car-brand', 'wrap-car-manufacturer', 'wrap-car-collection', 'wrap-car-linea'].forEach(id => {
                     const w = document.getElementById(id);
                     if (w) {
                         const hiddenInput = w.querySelector('input[type="hidden"]');
@@ -1868,16 +1959,17 @@
                         }
                     }
                 });
+
+                // Reiniciar el botón de color
                 document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
                 document.getElementById('car-color-hex').value = '';
                 document.getElementById('car-color-name').value = '';
-                document.getElementById('selected-color-label').innerText = 'Ningún color seleccionado';
+                document.getElementById('selected-color-label').innerText = 'Seleccionar color...';
+                document.getElementById('selected-color-label').classList.remove('text-white');
+                document.getElementById('selected-color-label').classList.add('text-gray-400', 'font-normal');
+                document.getElementById('color-indicator-swatch').style.display = 'none';
 
                 document.getElementById('car-rating').value = 0;
-                document.querySelectorAll('.rating-star').forEach(s => {
-                    s.classList.remove('ph-fill', 'active', 'hover');
-                    s.classList.add('ph-star');
-                });
             }
 
             function openCarModal(isWishlist) {
@@ -1924,11 +2016,10 @@
                 if (data.tipo) document.getElementById('car-tipo').value = data.tipo;
                 if (data.escala) document.getElementById('car-escala').value = data.escala;
 
-                // Select estático de Línea
+                // Select Predictivo de Línea
                 if (data.linea) {
-                    const lineaSelect = document.getElementById('car-linea');
-                    const opt = Array.from(lineaSelect.options).find(o => o.value.toLowerCase() === String(data.linea).toLowerCase());
-                    if (opt) lineaSelect.value = opt.value;
+                    const foundLinea = ['Main', 'Premium', 'Custom', 'Exotic'].find(l => l.toLowerCase() === String(data.linea).toLowerCase());
+                    if (foundLinea) selectOption('car-linea', 'wrap-car-linea', foundLinea, foundLinea);
                 }
 
                 // Validar Custom Selects (Marcas, Fabricantes, Colecciones)
@@ -1992,7 +2083,9 @@
                 selectColor(c.colorHex, c.colorName);
 
                 document.getElementById('car-serie').value = c.serie || '';
-                document.getElementById('car-linea').value = c.linea || '';
+                if (c.linea) {
+                    selectOption('car-linea', 'wrap-car-linea', c.linea, c.linea);
+                }
                 document.getElementById('car-costo').value = c.costo || '';
                 document.getElementById('car-nomodelo').value = c.nomodelo || '';
                 document.getElementById('car-anio').value = c.anio || '';
@@ -2337,9 +2430,20 @@
             function renderColorGrid() {
                 const grid = document.getElementById('color-grid');
                 if (!grid) return;
-                grid.innerHTML = db.colors.map(c =>
-                    `<div onclick="selectColor('${c.hex}', '${c.name}', this)" class="color-swatch" style="background-color: ${c.hex};" title="${c.name}"></div>`
-                ).join('');
+
+                grid.innerHTML = db.colors.map(c => `
+                    <div class="relative group cursor-pointer">
+                        <div onclick="selectColor('${c.hex}', '${c.name}', this)" 
+                             class="color-swatch w-10 h-10 rounded-full border-2 border-transparent transition-all shadow-md relative z-10" 
+                             style="background-color: ${c.hex};">
+                        </div>
+                        
+                        <!-- Tooltip CSS interactivo -->
+                        <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1.5 bg-[#222] text-gray-200 text-[11px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap border border-white/10 shadow-xl z-50 transform scale-95 group-hover:scale-100">
+                            ${c.name}
+                        </span>
+                    </div>
+                `).join('');
             }
 
             function selectColor(hex, name, el) {
@@ -2349,9 +2453,20 @@
                     const match = Array.from(document.querySelectorAll('.color-swatch')).find(s => s.style.backgroundColor.replace(/\s/g, '').toLowerCase() === hex.toLowerCase() || s.style.backgroundColor === hex);
                     if (match) match.classList.add('selected');
                 }
+
+                // Actualiza los campos ocultos
                 document.getElementById('car-color-hex').value = hex;
                 document.getElementById('car-color-name').value = name;
-                document.getElementById('selected-color-label').innerHTML = `Seleccionado: <span class="font-bold text-white">${name}</span>`;
+
+                // Actualiza visualmente el botón del modal principal
+                const label = document.getElementById('selected-color-label');
+                label.innerText = name;
+                label.classList.remove('text-gray-400', 'font-normal');
+                label.classList.add('text-white', 'font-bold');
+
+                const swatch = document.getElementById('color-indicator-swatch');
+                swatch.style.backgroundColor = hex;
+                swatch.style.display = 'block';
             }
 
             function addCustomColor() {
@@ -2976,6 +3091,123 @@
                 const normalCars = db.cars.filter(c => !c.isWishlist);
                 const totalValue = db.cars.reduce((sum, car) => sum + (parseFloat(car.costo) || 0), 0);
 
+                // 1. Renderizar Slider de Autos Recientes
+                const recentCarsContainer = document.getElementById('recent-cars-slider');
+                if (recentCarsContainer) {
+                    // Obtener los 10 últimos autos
+                    const recentCars = [...normalCars].sort((a, b) => b.createdAt - a.createdAt).slice(0, 10);
+
+                    if (recentCars.length === 0) {
+                        recentCarsContainer.innerHTML = `<p class="text-gray-500 text-sm italic px-2">Aún no hay autos en tu garaje.</p>`;
+                    } else {
+                        recentCarsContainer.innerHTML = recentCars.map(c => {
+                            // Configuración de Imágenes (Efecto Hover para mostrar segunda foto)
+                            let secondImageHtml = '';
+                            let mainImgClass = 'opacity-100 transition-opacity duration-300';
+                            if (c.extras && c.extras.length > 0) {
+                                secondImageHtml = `<img data-src="${c.extras[0]}" class="lazy-image fade-image w-full h-full object-cover absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-10">`;
+                                mainImgClass = 'opacity-100 transition-opacity duration-300 group-hover:opacity-0';
+                            }
+
+                            // Configuración Estrellas Rating
+                            let starsHtml = '';
+                            if (c.rating && c.rating > 0) {
+                                starsHtml = `<div class="flex items-center text-banqueta text-[10px] sm:text-[11px] drop-shadow-sm shrink-0">`;
+                                for (let i = 0; i < c.rating; i++) starsHtml += `<i class="ph-fill ph-star"></i>`;
+                                starsHtml += `</div>`;
+                            }
+
+                            // Configuración Color de Línea (Main, Premium, etc)
+                            let lineClass = 'bg-white/10 text-white border-white/20';
+                            if (c.linea === 'Main') lineClass = 'bg-gray-600 text-white border-gray-500';
+                            if (c.linea === 'Premium') lineClass = 'bg-gradient-to-r from-[#ffd700] to-[#c5a000] text-black font-black border-[#DDAA00] shadow-sm';
+                            if (c.linea === 'Custom') lineClass = 'bg-[#dc2626] text-white border-[#b91c1c]';
+                            if (c.linea === 'Exotic') lineClass = 'bg-[#9333ea] text-white border-[#7e22ce]';
+
+                            return `
+                            <div class="snap-start shrink-0 w-[340px] sm:w-[420px] bg-dark-panel border border-dark-border rounded-2xl p-3 sm:p-4 flex gap-3 sm:gap-4 cursor-pointer hover:border-banqueta hover:bg-[#1a1a1a] transition-all group shadow-lg" onclick="viewCar('${c.id}')">
+                                
+                                <!-- Imagen (Ahora más grande 128x128) -->
+                                <div class="w-28 h-28 sm:w-32 sm:h-32 shrink-0 rounded-xl overflow-hidden bg-black relative border border-white/5 shadow-inner">
+                                    <img data-src="${c.cover}" class="lazy-image fade-image w-full h-full object-cover relative z-20 ${mainImgClass}">
+                                    ${secondImageHtml}
+                                    ${c.isFavorite ? `<div class="absolute top-1.5 right-1.5 bg-black/60 p-1 sm:p-1.5 rounded-full backdrop-blur-sm border border-white/10 z-30"><i class="ph-fill ph-heart text-red-500 text-[10px] sm:text-xs"></i></div>` : ''}
+                                </div>
+                                
+                                <!-- Información Ampliada -->
+                                <div class="flex flex-col flex-1 min-w-0">
+                                    
+                                    <div class="flex justify-between items-start mb-0.5">
+                                        <span class="text-[10px] sm:text-xs text-banqueta font-bold uppercase tracking-wider truncate mr-2">${getBrandName(c.brandId)}</span>
+                                        ${starsHtml}
+                                    </div>
+                                    
+                                    <h4 class="text-sm sm:text-[17px] font-bold text-white truncate leading-tight mb-0.5" title="${c.model}">${c.model}</h4>
+                                    
+                                    <p class="text-[10px] sm:text-xs text-gray-400 truncate flex items-center gap-1 mb-2"><i class="ph-fill ph-factory"></i> ${getMfgName(c.manufacturerId)}</p>
+
+                                    <!-- Grid Specs -->
+                                    <div class="grid grid-cols-2 gap-1.5 sm:gap-2 mt-auto">
+                                        <div class="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-gray-300 bg-black/40 px-1.5 sm:px-2 py-1 rounded-md border border-dark-border w-full truncate">
+                                            <span class="w-2.5 h-2.5 rounded-full border border-white/20 shrink-0 shadow-sm" style="background-color: ${c.colorHex || '#555'}"></span>
+                                            <span class="truncate">${c.colorName || 'Color'}</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-gray-300 bg-black/40 px-1.5 sm:px-2 py-1 rounded-md border border-dark-border w-full truncate">
+                                            <i class="ph-bold ph-arrows-out-line-horizontal text-gray-500 shrink-0"></i>
+                                            <span class="truncate font-semibold">${c.escala || '1:64'}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Footer (Año, Línea, Precio) -->
+                                    <div class="flex items-center gap-1.5 sm:gap-2 mt-1.5 sm:mt-2">
+                                        ${c.anio ? `<span class="bg-white/5 border border-white/10 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] text-gray-300 font-semibold flex items-center gap-1 shrink-0"><i class="ph-bold ph-calendar-blank text-gray-500"></i> ${c.anio}</span>` : ''}
+                                        ${c.linea ? `<span class="${lineClass} border px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] uppercase font-bold truncate shrink-0">${c.linea}</span>` : ''}
+                                        ${c.costo ? `<span class="ml-auto text-[11px] sm:text-xs text-green-400 font-bold bg-green-500/10 px-1.5 sm:px-2 py-0.5 rounded shrink-0">$${c.costo}</span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            `;
+                        }).join('');
+
+                        // --- Lógica Drag to Scroll (Arrastrar) ---
+                        if (!recentCarsContainer.dataset.dragAttached) {
+                            recentCarsContainer.dataset.dragAttached = 'true';
+                            let isDown = false;
+                            let startX;
+                            let scrollLeft;
+
+                            recentCarsContainer.addEventListener('mousedown', (e) => {
+                                isDown = true;
+                                recentCarsContainer.style.cursor = 'grabbing';
+                                recentCarsContainer.style.scrollSnapType = 'none'; // Pausar "snap" al arrastrar libremente
+                                startX = e.pageX - recentCarsContainer.offsetLeft;
+                                scrollLeft = recentCarsContainer.scrollLeft;
+                            });
+
+                            recentCarsContainer.addEventListener('mouseleave', () => {
+                                isDown = false;
+                                recentCarsContainer.style.cursor = 'grab';
+                                recentCarsContainer.style.scrollSnapType = 'x mandatory';
+                            });
+
+                            recentCarsContainer.addEventListener('mouseup', () => {
+                                isDown = false;
+                                recentCarsContainer.style.cursor = 'grab';
+                                recentCarsContainer.style.scrollSnapType = 'x mandatory';
+                            });
+
+                            recentCarsContainer.addEventListener('mousemove', (e) => {
+                                if (!isDown) return;
+                                e.preventDefault();
+                                const x = e.pageX - recentCarsContainer.offsetLeft;
+                                const walk = (x - startX) * 2; // Multiplicador de velocidad
+                                recentCarsContainer.scrollLeft = scrollLeft - walk;
+                            });
+                        }
+                    }
+                }
+
+                // 2. Renderizar Estadísticas Globales
                 document.getElementById('home-stats').innerHTML = `
                 <!-- Autos -->
                 <div onclick="switchTab('cars')" class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group glow-hover bg-[#111] cursor-pointer">
