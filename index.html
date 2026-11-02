@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DrivoWeb - Mi Garaje</title>
-    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="icon" type="image/png"
+        href="https://pub-1a91b676516340c2a507f6d4524bb817.r2.dev/drivoweb/assets/icon.ico">
 
     <script src="./r2db.js"></script>
 
@@ -104,6 +105,15 @@
 
         .custom-scroll::-webkit-scrollbar {
             width: 4px;
+        }
+
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
 
         /* EFECTO FADE PARA IMAGENES LAZY LOAD */
@@ -423,7 +433,8 @@
     <aside
         class="fixed bottom-4 left-4 right-4 h-16 md:bottom-auto md:left-auto md:right-auto md:h-screen md:relative w-[calc(100%-2rem)] md:w-64 glass-panel rounded-t-2xl rounded-b-[2.2rem] md:rounded-none border border-white/10 md:border-dark-border md:border-t-0 md:border-r flex flex-row md:flex-col z-50 md:z-40 transition-all duration-300 bg-black/65 md:bg-[#141414] backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.6)] md:shadow-none custom-ios-glass">
         <div class="hidden md:flex p-6 items-center justify-start border-b border-dark-border h-[89px]">
-            <img src="assets/logotipe.png" alt="DrivoWeb" class="w-auto h-10 max-w-full object-contain shrink-0">
+            <img src="https://pub-1a91b676516340c2a507f6d4524bb817.r2.dev/drivoweb/assets/logotipe.png" alt="DrivoWeb"
+                class="w-auto h-10 max-w-full object-contain shrink-0">
         </div>
 
         <nav
@@ -494,24 +505,30 @@
                     <span id="network-text-mobile" class="sm:hidden">En línea</span>
                 </div>
 
+                <!-- NUEVO: Agrupador de perfil y botón para mantenerlos juntos a la derecha -->
                 <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <div class="profile-avatar shrink-0 w-9 h-9 sm:w-11 sm:h-11 text-sm sm:text-base"
-                        aria-hidden="true">
-                        <span id="navbar-user-initials">U</span>
-                        <img id="navbar-user-avatar" alt="" hidden class="rounded-full object-cover">
-                    </div>
-                    <div class="min-w-0 hidden sm:block">
-                        <span class="block text-[10px] sm:text-xs text-gray-500">Mi perfil</span>
-                        <span id="navbar-user-name"
-                            class="block max-w-[90px] lg:max-w-[150px] truncate text-xs sm:text-sm font-semibold text-white">Usuario</span>
-                    </div>
-                </div>
 
-                <button type="button" onclick="openSettings()" id="settings-button"
-                    aria-label="Abrir ajustes de usuario" title="Ajustes"
-                    class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 rounded-lg sm:rounded-xl border border-dark-border bg-dark-panel text-gray-400 hover:text-banqueta hover:border-banqueta transition-colors flex items-center justify-center">
-                    <i class="ph-bold ph-gear-six text-lg sm:text-2xl" aria-hidden="true"></i>
-                </button>
+                    <div class="flex items-center gap-2 sm:gap-3 min-w-0 text-right">
+                        <!-- El texto del perfil sin la clase hidden sm:block -->
+                        <div class="min-w-0">
+                            <span class="block text-[10px] sm:text-xs text-gray-500 leading-tight">Mi perfil</span>
+                            <span id="navbar-user-name"
+                                class="block max-w-[80px] lg:max-w-[150px] truncate text-xs sm:text-sm font-semibold text-white leading-tight">Usuario</span>
+                        </div>
+                        <div class="profile-avatar shrink-0 w-9 h-9 sm:w-11 sm:h-11 text-sm sm:text-base"
+                            aria-hidden="true">
+                            <span id="navbar-user-initials">U</span>
+                            <img id="navbar-user-avatar" alt="" hidden class="rounded-full object-cover">
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="openSettings()" id="settings-button"
+                        aria-label="Abrir ajustes de usuario" title="Ajustes"
+                        class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 rounded-lg sm:rounded-xl border border-dark-border bg-dark-panel text-gray-400 hover:text-banqueta hover:border-banqueta transition-colors flex items-center justify-center ml-1">
+                        <i class="ph-bold ph-gear-six text-lg sm:text-2xl" aria-hidden="true"></i>
+                    </button>
+
+                </div>
             </div>
 
             <!-- Search Bar & Sort -->
@@ -520,7 +537,7 @@
                     <i
                         class="ph-bold ph-magnifying-glass absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg sm:text-xl"></i>
                     <input type="text" id="global-search" placeholder="Buscar modelo o marca..."
-                        onkeyup="renderActiveView()"
+                        onkeyup="handleGlobalSearch()"
                         class="w-full input-style rounded-xl sm:rounded-2xl py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 shadow-sm text-sm sm:text-base">
                 </div>
 
@@ -561,39 +578,50 @@
         <!-- CONTENT -->
         <div class="flex-1 overflow-y-auto custom-scroll px-4 py-4 md:px-10 md:py-8">
             <!-- Inicio Rediseñado -->
-            <section id="section-home" class="section-view active fade-in space-y-6 md:space-y-10">
+            <section id="section-home" class="section-view active fade-in">
 
-                <!-- Slider de Agregados Recientemente -->
-                <div>
-                    <div class="flex justify-between items-center mb-4 px-1">
-                        <h3 class="text-xl font-bold text-white flex items-center gap-2"><i
-                                class="ph-bold ph-clock-counter-clockwise text-banqueta"></i> Recientemente Agregados
-                        </h3>
-                        <button onclick="switchTab('cars')"
-                            class="text-sm text-banqueta hover:text-white transition-colors font-semibold">Ver
-                            todos</button>
+                <!-- Contenedor por defecto de Inicio -->
+                <div id="home-default-content" class="space-y-1 md:space-y-1">
+                    <!-- Slider de Agregados Recientemente -->
+                    <div>
+                        <div class="flex justify-between items-center mb-4 px-1">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2"><i
+                                    class="ph-bold ph-clock-counter-clockwise text-banqueta"></i> Recientes
+                            </h3>
+                            <button onclick="switchTab('cars')"
+                                class="text-sm text-banqueta hover:text-white transition-colors font-semibold">Ver
+                                todos</button>
+                        </div>
+
+                        <!-- Contenedor del Slider (Sin Scrollbar y Arrastrable) -->
+                        <div id="recent-cars-slider"
+                            class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory pr-4 cursor-grab select-none"
+                            style="-ms-overflow-style: none; scrollbar-width: none;">
+                            <style>
+                                #recent-cars-slider::-webkit-scrollbar {
+                                    display: none;
+                                }
+                            </style>
+                            <!-- Las cards horizontales se inyectan aquí -->
+                        </div>
                     </div>
 
-                    <!-- Contenedor del Slider (Sin Scrollbar y Arrastrable) -->
-                    <div id="recent-cars-slider"
-                        class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory pr-4 cursor-grab select-none"
-                        style="-ms-overflow-style: none; scrollbar-width: none;">
-                        <style>
-                            #recent-cars-slider::-webkit-scrollbar {
-                                display: none;
-                            }
-                        </style>
-                        <!-- Las cards horizontales se inyectan aquí -->
+                    <!-- Sección de Estadísticas -->
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-5 flex items-center gap-2 px-1"><i
+                                class="ph-bold ph-chart-bar text-banqueta"></i> Resumen del Garaje</h3>
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6" id="home-stats"></div>
+                        <!-- Contenedor dedicado para evitar duplicados -->
+                        <div id="home-value-breakdown"></div>
                     </div>
-                </div>
+                </div> <!-- Cierre de home-default-content -->
 
-                <!-- Sección de Estadísticas -->
-                <div>
-                    <h3 class="text-xl font-bold text-white mb-5 flex items-center gap-2 px-1"><i
-                            class="ph-bold ph-chart-bar text-banqueta"></i> Resumen del Garaje</h3>
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6" id="home-stats"></div>
-                    <!-- Contenedor dedicado para evitar duplicados -->
-                    <div id="home-value-breakdown"></div>
+                <!-- Resultados de búsqueda dinámicos en Inicio -->
+                <div id="home-search-results" class="hidden flex-col gap-4 mt-2">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2 mb-2">
+                        <i class="ph-bold ph-magnifying-glass text-banqueta"></i> Resultados de Búsqueda
+                    </h3>
+                    <div id="home-search-grid" class="grid gap-3 sm:gap-4 auto-rows-fr"></div>
                 </div>
             </section>
 
@@ -601,16 +629,25 @@
             <section id="section-cars" class="section-view fade-in space-y-4 md:space-y-6">
                 <!-- Envolvemos el filtro y el título en un solo div para evitar el gap de space-y -->
                 <div>
-                    <div id="cars-filter-header" class="hidden"></div>
-                    <div class="view-color-filter flex gap-2 overflow-x-auto custom-scroll pb-2 mb-3 empty:hidden">
+                    <div class="view-color-filter flex gap-2 overflow-x-auto hide-scroll pb-2 mb-3 empty:hidden">
                     </div>
                     <div class="flex justify-between items-center gap-2 sm:gap-4">
-                        <h2 class="text-2xl sm:text-3xl font-bold">Mis Autos</h2>
-                        <button onclick="openCarModal(false)"
-                            class="fixed md:static bottom-24 right-4 md:bottom-auto md:right-auto z-40 w-14 h-14 md:w-auto md:h-auto md:px-5 md:py-2.5 rounded-full md:rounded-xl btn-primary flex items-center justify-center gap-2 shadow-2xl md:shadow-lg shrink-0">
-                            <i class="ph-bold ph-plus text-2xl md:text-base"></i> <span
-                                class="hidden md:inline font-bold">Añadir Auto</span>
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <div id="cars-filter-header" class="hidden"></div>
+                            <h2 class="text-2xl sm:text-3xl font-bold">Mis Autos</h2>
+                        </div>
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <button type="button" onclick="toggleViewMode()"
+                                class="view-toggle-btn w-10 h-10 md:w-11 md:h-11 flex items-center justify-center bg-dark-panel border border-dark-border rounded-xl text-gray-400 hover:text-banqueta hover:border-banqueta transition-all cursor-pointer shrink-0"
+                                title="Cambiar Vista">
+                                <i class="ph-bold ph-list text-xl pointer-events-none"></i>
+                            </button>
+                            <button onclick="openCarModal(false)"
+                                class="fixed md:static bottom-24 right-4 md:bottom-auto md:right-auto z-40 w-14 h-14 md:w-auto md:h-auto md:px-5 md:py-2.5 rounded-full md:rounded-xl btn-primary flex items-center justify-center gap-2 shadow-2xl md:shadow-lg shrink-0">
+                                <i class="ph-bold ph-plus text-2xl md:text-base"></i> <span
+                                    class="hidden md:inline font-bold">Añadir Auto</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-5 md:gap-6 auto-rows-fr"
@@ -620,9 +657,16 @@
             <!-- Favoritos -->
             <section id="section-favorites" class="section-view fade-in space-y-4 md:space-y-6">
                 <div>
-                    <div class="view-color-filter flex gap-2 overflow-x-auto custom-scroll pb-2 mb-3 empty:hidden">
+                    <div class="view-color-filter flex gap-2 overflow-x-auto hide-scroll pb-2 mb-3 empty:hidden">
                     </div>
-                    <h2 class="text-2xl sm:text-3xl font-bold">Favoritos</h2>
+                    <div class="flex justify-between items-center gap-2 sm:gap-4">
+                        <h2 class="text-2xl sm:text-3xl font-bold">Favoritos</h2>
+                        <button type="button" onclick="toggleViewMode()"
+                            class="view-toggle-btn w-10 h-10 md:w-11 md:h-11 flex items-center justify-center bg-dark-panel border border-dark-border rounded-xl text-gray-400 hover:text-banqueta hover:border-banqueta transition-all cursor-pointer shrink-0"
+                            title="Cambiar Vista">
+                            <i class="ph-bold ph-list text-xl pointer-events-none"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-5 md:gap-6 auto-rows-fr"
                     id="favorites-grid"></div>
@@ -632,16 +676,25 @@
             <section id="section-wishlist" class="section-view fade-in space-y-4 md:space-y-6">
                 <!-- Envolvemos el filtro y el título en un solo div -->
                 <div>
-                    <div id="wishlist-filter-header" class="hidden"></div>
-                    <div class="view-color-filter flex gap-2 overflow-x-auto custom-scroll pb-2 mb-3 empty:hidden">
+                    <div class="view-color-filter flex gap-2 overflow-x-auto hide-scroll pb-2 mb-3 empty:hidden">
                     </div>
                     <div class="flex justify-between items-center gap-2 sm:gap-4">
-                        <h2 class="text-2xl sm:text-3xl font-bold">Wishlist</h2>
-                        <button onclick="openCarModal(true)"
-                            class="fixed md:static bottom-24 right-4 md:bottom-auto md:right-auto z-40 w-14 h-14 md:w-auto md:h-auto md:px-5 md:py-2.5 rounded-full md:rounded-xl bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center gap-2 shadow-2xl md:shadow-lg transition-colors shrink-0">
-                            <i class="ph-bold ph-plus text-2xl md:text-base"></i> <span
-                                class="hidden md:inline font-bold">Desear Auto</span>
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <div id="wishlist-filter-header" class="hidden"></div>
+                            <h2 class="text-2xl sm:text-3xl font-bold">Wishlist</h2>
+                        </div>
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <button type="button" onclick="toggleViewMode()"
+                                class="view-toggle-btn w-10 h-10 md:w-11 md:h-11 flex items-center justify-center bg-dark-panel border border-dark-border rounded-xl text-gray-400 hover:text-banqueta hover:border-banqueta transition-all cursor-pointer shrink-0"
+                                title="Cambiar Vista">
+                                <i class="ph-bold ph-list text-xl pointer-events-none"></i>
+                            </button>
+                            <button onclick="openCarModal(true)"
+                                class="fixed md:static bottom-24 right-4 md:bottom-auto md:right-auto z-40 w-14 h-14 md:w-auto md:h-auto md:px-5 md:py-2.5 rounded-full md:rounded-xl bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center gap-2 shadow-2xl md:shadow-lg transition-colors shrink-0">
+                                <i class="ph-bold ph-plus text-2xl md:text-base"></i> <span
+                                    class="hidden md:inline font-bold">Añadir Auto</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-5 md:gap-6 auto-rows-fr"
@@ -867,14 +920,67 @@
                     </div>
 
                     <!-- Tab Acerca de -->
-                    <div id="tab-sett-about"
-                        class="sett-tab flex-1 flex-col hidden items-center justify-center text-center py-10">
-                        <img src="assets/icon.png" alt="Logo" class="w-24 h-24 mb-6 opacity-80 drop-shadow-xl"
+                    <div id="tab-sett-about" class="sett-tab flex-1 flex-col hidden items-center py-6 px-2">
+                        <img src="https://pub-1a91b676516340c2a507f6d4524bb817.r2.dev/drivoweb/assets/icon.ico"
+                            alt="Logo" class="w-20 h-20 mb-4 opacity-90 drop-shadow-[0_0_15px_rgba(245,192,0,0.4)]"
                             onerror="this.style.display='none'">
-                        <h4 class="font-black text-white text-3xl mb-1">DrivoWeb</h4>
-                        <p class="text-sm text-banqueta font-bold mb-5 tracking-widest uppercase">Versión 1.1</p>
-                        <p class="text-sm text-gray-400 max-w-xs mx-auto leading-relaxed">Tu garaje digital definitivo.
-                            Administra, filtra y exporta toda tu colección automotriz al máximo.</p>
+                        <h4 class="font-black text-white text-3xl mb-1 tracking-tight">DrivoWeb</h4>
+                        <p class="text-xs text-banqueta font-bold mb-6 tracking-widest uppercase">Versión 1.1</p>
+
+                        <div
+                            class="w-full max-w-md bg-black/40 border border-white/5 rounded-2xl p-5 text-left space-y-4 shadow-inner">
+                            <h5
+                                class="text-sm font-bold text-gray-300 uppercase tracking-wider mb-2 border-b border-white/10 pb-2">
+                                Funciones Principales</h5>
+
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/20">
+                                    <i class="ph-bold ph-car"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-white">Gestión Avanzada</p>
+                                    <p class="text-xs text-gray-400">Clasifica por marca, fabricante, línea, escala y
+                                        colección con campos predictivos.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-green-500/10 text-green-400 flex items-center justify-center shrink-0 border border-green-500/20">
+                                    <i class="ph-bold ph-share-network"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-white">Tarjetas Compartibles</p>
+                                    <p class="text-xs text-gray-400">Genera renderizados elegantes de tus modelos para
+                                        exportar en PNG o redes sociales.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0 border border-purple-500/20">
+                                    <i class="ph-bold ph-sparkle"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-white">Importación IA & Cloud</p>
+                                    <p class="text-xs text-gray-400">Pega specs de Gemini, respalda en ZIP o sincroniza
+                                        con Cloud R2 Storage.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-banqueta/10 text-banqueta flex items-center justify-center shrink-0 border border-banqueta/20">
+                                    <i class="ph-bold ph-palette"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-white">Filtros Inteligentes</p>
+                                    <p class="text-xs text-gray-400">Filtra por la paleta de color dinámica generada
+                                        según tu garaje o búsquedas en vivo.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <p id="profile-error" class="text-sm text-red-400 mt-4" role="alert"></p>
@@ -1633,6 +1739,7 @@
             let currentFilter = null;
             let globalColorFilter = '';
             let currentSort = localStorage.getItem('drivowebSort') || 'newest';
+            let isListView = localStorage.getItem('drivowebViewMode') === 'list';
             let cropperInstance = null;
             let currentCropTarget = null;
             let currentCropPreview = null;
@@ -1718,6 +1825,10 @@
 
                 // Cargar el nombre correcto del filtro
                 initGlobalSortUI();
+
+                document.querySelectorAll('.view-toggle-btn i').forEach(icon => {
+                    icon.className = isListView ? 'ph-bold ph-grid-four text-xl pointer-events-none' : 'ph-bold ph-list text-xl pointer-events-none';
+                });
 
                 updateCustomSelects();
                 renderColorGrid();
@@ -1869,8 +1980,20 @@
                 applyLazyLoading();
             }
 
+            function handleGlobalSearch() {
+                renderActiveView();
+            }
             function getSearchQuery() {
                 return document.getElementById('global-search').value.toLowerCase();
+            }
+
+            function toggleViewMode() {
+                isListView = !isListView;
+                localStorage.setItem('drivowebViewMode', isListView ? 'list' : 'grid');
+                document.querySelectorAll('.view-toggle-btn i').forEach(icon => {
+                    icon.className = isListView ? 'ph-bold ph-grid-four text-xl pointer-events-none' : 'ph-bold ph-list text-xl pointer-events-none';
+                });
+                renderActiveView();
             }
 
             function toggleSortMenu() {
@@ -3088,6 +3211,50 @@
             const getMfgName = (id) => { const m = db.manufacturers.find(x => x.id === id); return m ? m.name : 'Desconocido'; }
 
             function renderHome() {
+                const q = getSearchQuery();
+                const defaultContent = document.getElementById('home-default-content');
+                const searchResults = document.getElementById('home-search-results');
+                const searchGrid = document.getElementById('home-search-grid');
+
+                // Si hay texto en el buscador, mostramos resultados aquí mismo
+                if (q) {
+                    if (defaultContent) defaultContent.classList.add('hidden');
+                    if (searchResults) searchResults.classList.remove('hidden');
+
+                    // Buscar en TODOS los autos (Garaje + Wishlist)
+                    let filtered = db.cars.filter(c =>
+                        c.model.toLowerCase().includes(q) ||
+                        (c.colorName && c.colorName.toLowerCase().includes(q)) ||
+                        (c.nomodelo && c.nomodelo.toLowerCase().includes(q)) ||
+                        getMfgName(c.manufacturerId).toLowerCase().includes(q) ||
+                        getBrandName(c.brandId).toLowerCase().includes(q)
+                    );
+
+                    if (globalColorFilter) {
+                        filtered = filtered.filter(c => c.colorHex.toLowerCase() === globalColorFilter.toLowerCase());
+                    }
+
+                    // Ordenar
+                    filtered.sort((a, b) => b.createdAt - a.createdAt);
+
+                    if (filtered.length === 0) {
+                        searchGrid.innerHTML = `<div class="col-span-full py-16 text-center"><i class="ph-bold ph-magnifying-glass text-5xl text-gray-800 mb-3"></i><p class="text-gray-400">No se encontraron resultados para "${q}".</p></div>`;
+                    } else {
+                        // Usamos grid-cols-1 para celular y lg:grid-cols-3 para PC
+                        const targetGrid = typeof searchGrid !== 'undefined' && searchGrid ? searchGrid : grid;
+                        targetGrid.className = isListView
+                            ? "grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 auto-rows-fr"
+                            : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-5 md:gap-6 auto-rows-fr";
+                        searchGrid.innerHTML = filtered.map(c => createCarCard(c)).join('');
+                    }
+                    applyLazyLoading();
+                    return; // Terminamos aquí si estamos buscando
+                }
+
+                // Modo Normal (Ocultar búsqueda)
+                if (defaultContent) defaultContent.classList.remove('hidden');
+                if (searchResults) searchResults.classList.add('hidden');
+
                 const normalCars = db.cars.filter(c => !c.isWishlist);
                 const totalValue = db.cars.reduce((sum, car) => sum + (parseFloat(car.costo) || 0), 0);
 
@@ -3538,46 +3705,95 @@
                 }
 
                 let lineClass = '';
-                if (c.linea === 'Main') lineClass = 'bg-gray-600/95 text-white border border-gray-500';
-                else if (c.linea === 'Premium') lineClass = 'bg-gradient-to-br from-[#ffd700] to-[#c5a000]/80 text-black border border-[#e6c200] shadow-[0_0_10px_rgba(255,215,0,0.4)]';
-                else if (c.linea === 'Custom') lineClass = 'bg-[#dc2626]/90 text-white border border-[#b91c1c]';
-                else if (c.linea === 'Exotic') lineClass = 'bg-[#9333ea]/90 text-white border border-[#7e22ce] shadow-[0_0_10px_rgba(147,51,234,0.4)]';
+                if (c.linea === 'Main') lineClass = 'bg-gray-600/95 text-white border-gray-500';
+                else if (c.linea === 'Premium') lineClass = 'bg-gradient-to-br from-[#ffd700] to-[#c5a000]/80 text-black border-[#e6c200] shadow-[0_0_10px_rgba(255,215,0,0.4)]';
+                else if (c.linea === 'Custom') lineClass = 'bg-[#dc2626]/90 text-white border-[#b91c1c]';
+                else if (c.linea === 'Exotic') lineClass = 'bg-[#9333ea]/90 text-white border-[#7e22ce] shadow-[0_0_10px_rgba(147,51,234,0.4)]';
 
-                const lineaHtml = c.linea ? `<div class="absolute bottom-2 right-2 text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded uppercase backdrop-blur-sm z-30 font-geist ${lineClass}">${c.linea}</div>` : '';
-
-                // LÓGICA NUEVA: Conteo de imágenes y preparación de la segunda imagen
                 let totalImages = 1;
                 let secondImageHtml = '';
-
                 if (c.extras && c.extras.length > 0) {
                     totalImages += c.extras.length;
-                    // Si existe al menos una imagen extra, la colocamos detrás y la mostramos al hacer hover
-                    secondImageHtml = `<img data-src="${c.extras[0]}" class="lazy-image fade-image w-full h-full object-cover absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-90 z-10">`;
+                    secondImageHtml = `<img data-src="${c.extras[0]}" class="lazy-image fade-image w-full h-full object-cover absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-10">`;
+                }
+                const mainImgClass = c.extras && c.extras.length > 0
+                    ? 'opacity-100 transition-opacity duration-300 group-hover:opacity-0'
+                    : 'opacity-100 transition-opacity duration-300';
+
+                // Etiqueta visual para distinguir si es Wishlist en resultados globales
+                const wishlistBadge = c.isWishlist ? `<div class="absolute top-2 left-2 z-30 bg-blue-500 text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded shadow flex items-center gap-1 border border-blue-400"><i class="ph-bold ph-star"></i> Deseado</div>` : '';
+
+                if (isListView) {
+                    // ==========================================
+                    // NUEVO DISEÑO LISTA: 1:1, SEPARADO Y REDONDEADO
+                    // ==========================================
+                    return `
+                    <div class="uniform-card glow-hover rounded-2xl relative cursor-pointer bg-dark-panel border border-dark-border hover:border-banqueta transition-all overflow-hidden shadow-sm h-full" onclick="viewCar('${c.id}')">
+                        <!-- El padding (p-2 sm:p-3) separa la imagen de los bordes exteriores -->
+                        <div class="flex flex-row p-2 sm:p-3 items-center h-full gap-3 sm:gap-4 bg-gradient-to-r from-[#141414] to-[#0d0d0d]">
+                            
+                            <!-- Lado Izquierdo: Imagen 1:1 Cuadrada, Separada y con Esquinas Redondeadas -->
+                            <div class="w-24 h-24 sm:w-28 sm:h-28 relative shrink-0 bg-black rounded-xl overflow-hidden border border-white/5 group shadow-inner">
+                                <img data-src="${c.cover}" class="lazy-image fade-image w-full h-full object-cover relative z-20 ${mainImgClass}">
+                                ${secondImageHtml}
+                                ${wishlistBadge || `<div class="absolute top-1 left-1 z-30 bg-black/70 backdrop-blur-sm text-white text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded shadow flex items-center gap-1 border border-white/10"><i class="ph-fill ph-factory text-gray-300"></i> <span class="font-geist truncate max-w-[40px] sm:max-w-[55px]">${getMfgName(c.manufacturerId)}</span></div>`}
+                                <button onclick="toggleFavorite('${c.id}', event)" class="absolute bottom-1 right-1 z-30 w-6 h-6 sm:w-7 sm:h-7 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center backdrop-blur transition-all border border-white/10">
+                                    <i class="${c.isFavorite ? 'ph-fill text-red-500' : 'ph-bold text-white'} ph-heart text-xs drop-shadow"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Lado Derecho: Información -->
+                            <div class="flex-1 flex flex-col min-w-0 justify-between h-full py-0.5">
+                                <div class="flex justify-between items-start gap-2">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="font-geist text-[9px] sm:text-[10px] text-banqueta font-bold uppercase tracking-wider truncate mb-0.5">${getBrandName(c.brandId)}</p>
+                                        <h3 class="font-bold text-sm sm:text-base text-white truncate line-clamp-1 leading-tight">${c.model}</h3>
+                                        <p class="text-[9px] sm:text-[10px] text-gray-400 mt-1 truncate flex items-center gap-1"><i class="ph-bold ph-barcode"></i> ${c.serie ? c.serie : 'S/N'} ${c.noserie ? '• #' + c.noserie : ''}</p>
+                                    </div>
+                                    <div class="flex flex-col items-end gap-1.5 shrink-0">
+                                        ${starsHtml}
+                                        ${c.linea ? `<span class="text-[8px] sm:text-[9px] border px-1.5 py-0.5 rounded uppercase font-bold font-geist ${lineClass}">${c.linea}</span>` : ''}
+                                    </div>
+                                </div>
+                                
+                                <!-- Footer de la tarjeta en Lista -->
+                                <div class="flex items-center justify-between mt-auto pt-2 border-t border-dark-border/50">
+                                    <div class="flex items-center gap-1.5 sm:gap-2">
+                                        <div class="bg-black/50 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded border border-white/5 flex items-center gap-1">
+                                            <span class="w-2 h-2 rounded-full border border-white/20 block" style="background-color: ${c.colorHex || '#555'}"></span>
+                                            <span class="font-geist truncate max-w-[45px] sm:max-w-[60px]">${c.colorName || 'Color'}</span>
+                                        </div>
+                                        ${c.anio ? `<div class="hidden xl:flex bg-black/50 text-gray-300 text-[9px] px-1.5 py-0.5 rounded border border-white/5 items-center gap-1"><i class="ph-bold ph-calendar-blank"></i> ${c.anio}</div>` : ''}
+                                    </div>
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <span class="text-gray-400 text-[9px] sm:text-[10px] flex items-center gap-1" title="Fotos disponibles"><i class="ph-bold ph-camera"></i> <span class="font-geist">${totalImages}</span></span>
+                                        <span class="text-gray-400 text-[9px] sm:text-[10px] flex items-center gap-1" title="Escala"><i class="ph-bold ph-arrows-out-line-horizontal"></i> <span class="font-geist">${c.escala || '1:64'}</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
                 }
 
-                // Si hay segunda imagen, ocultamos la portada en hover. Además eliminamos el zoom (scale-110).
-                const mainImgClass = c.extras && c.extras.length > 0
-                    ? 'opacity-90 transition-opacity duration-300 group-hover:opacity-0'
-                    : 'opacity-90 transition-opacity duration-300';
+                // ==========================================
+                // DISEÑO CUADRÍCULA (GRID VIEW) ORIGINAL
+                // ==========================================
+                const lineaHtml = c.linea ? `<div class="absolute bottom-2 right-2 text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded uppercase backdrop-blur-sm z-30 font-geist border ${lineClass}">${c.linea}</div>` : '';
 
                 return `
                 <div class="uniform-card glow-hover rounded-2xl relative cursor-pointer" onclick="viewCar('${c.id}')">
                     <div class="group glass-panel rounded-2xl overflow-hidden flex flex-col h-full bg-[#0d0d0d]">
                         <div class="aspect-square w-full relative bg-[#0d0d0d] shrink-0 p-[2px]">
                             <div class="w-full h-full relative overflow-hidden rounded-xl bg-black">
-                                
-                                <!-- IMÁGENES: Portada y Segunda imagen -->
                                 <img data-src="${c.cover}" class="lazy-image fade-image w-full h-full object-cover relative z-20 ${mainImgClass}">
                                 ${secondImageHtml}
-
-                                <div class="absolute top-2 left-2 z-30 bg-black/70 backdrop-blur-sm text-white text-[9px] sm:text-[11px] font-bold px-1.5 py-1 sm:px-2 rounded shadow flex items-center gap-1 border border-white/10">
-                                    <i class="ph-fill ph-factory text-gray-300"></i> <span class="font-geist truncate max-w-[60px] sm:max-w-[100px]">${getMfgName(c.manufacturerId)}</span>
-                                </div>
-
+                                
+                                ${wishlistBadge || `<div class="absolute top-2 left-2 z-30 bg-black/70 backdrop-blur-sm text-white text-[9px] sm:text-[11px] font-bold px-1.5 py-1 sm:px-2 rounded shadow flex items-center gap-1 border border-white/10"><i class="ph-fill ph-factory text-gray-300"></i> <span class="font-geist truncate max-w-[60px] sm:max-w-[100px]">${getMfgName(c.manufacturerId)}</span></div>`}
+                                
                                 <button onclick="toggleFavorite('${c.id}', event)" class="absolute top-2 right-2 z-30 w-6 h-6 sm:w-7 sm:h-7 bg-black/50 hover:bg-black/80 rounded-full flex items-center justify-center backdrop-blur transition-all border border-white/10">
                                     <i class="${c.isFavorite ? 'ph-fill text-red-500' : 'ph-bold text-white'} ph-heart text-xs sm:text-sm drop-shadow"></i>
                                 </button>
-
+                                
                                 <div class="absolute bottom-2 left-2 flex flex-col gap-1 sm:gap-1.5 items-start z-30">
                                     <div class="bg-black/70 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded border border-white/10 flex items-center gap-1 shadow">
                                         <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full border border-white/30 block" style="background-color: ${c.colorHex || '#555'}"></span>
@@ -3585,24 +3801,16 @@
                                     </div>
                                     ${starsHtml}
                                 </div>
-                                
                                 ${lineaHtml}
                             </div>
                         </div>
                         <div class="p-2 sm:p-3 flex flex-col flex-grow bg-gradient-to-b from-transparent to-[#111]">
                             <h3 class="font-bold text-[13px] sm:text-[15px] text-white mb-1 sm:mb-2 line-clamp-1">${c.model}</h3>
-                            
                             <div class="flex justify-between items-center mt-auto">
                                 <p class="font-geist text-[10px] sm:text-xs text-banqueta font-semibold truncate pr-1 sm:pr-2">${getBrandName(c.brandId)}</p>
-                                
-                                <!-- ICONOS SUTILES: Cantidad de fotos y Escala -->
                                 <div class="flex items-center gap-2 shrink-0">
-                                    <span class="text-gray-400 text-[9px] sm:text-[11px] font-normal flex items-center gap-1" title="Imágenes disponibles">
-                                        <i class="ph-bold ph-camera"></i> <span class="font-geist">${totalImages}</span>
-                                    </span>
-                                    <span class="text-gray-400 text-[9px] sm:text-[11px] font-normal flex items-center gap-1" title="Escala">
-                                        <i class="ph-bold ph-arrows-out-line-horizontal"></i> <span class="font-geist">${c.escala || '1:64'}</span>
-                                    </span>
+                                    <span class="text-gray-400 text-[9px] sm:text-[11px] font-normal flex items-center gap-1" title="Imágenes disponibles"><i class="ph-bold ph-camera"></i> <span class="font-geist">${totalImages}</span></span>
+                                    <span class="text-gray-400 text-[9px] sm:text-[11px] font-normal flex items-center gap-1" title="Escala"><i class="ph-bold ph-arrows-out-line-horizontal"></i> <span class="font-geist">${c.escala || '1:64'}</span></span>
                                 </div>
                             </div>
                         </div>
@@ -3661,8 +3869,8 @@
 
                     filterHeader.innerHTML = `
                     <button onclick="switchTab('${returnTab}')"
-                        class="mb-6 px-4 py-2 bg-dark-panel border border-dark-border rounded-xl text-banqueta hover:text-white hover:bg-dark-hover flex items-center gap-2 text-sm font-bold transition-all shadow-md w-fit">
-                        <i class="ph-bold ph-arrow-left text-lg"></i> Regresar a ${currentFilter.name || (currentFilter.type === 'brand' ? 'Marcas' : currentFilter.type === 'manufacturer' ? 'Fabricantes' : 'Colecciones')}
+                        class="h-10 md:h-11 px-3 md:px-4 bg-dark-panel border border-dark-border rounded-xl text-gray-400 hover:text-banqueta hover:border-banqueta transition-all flex items-center gap-2 text-sm font-bold shadow-sm shrink-0">
+                        <i class="ph-bold ph-arrow-left text-lg md:text-xl"></i> Regresar
                     </button>
                 `;
                     filterHeader.classList.remove('hidden');
@@ -3675,6 +3883,9 @@
                     grid.innerHTML = `<div class="col-span-full py-16 text-center"><i class="ph-fill ${isWishlist ? 'ph-star' : 'ph-car'} text-5xl text-gray-800 mb-3"></i><p class="text-gray-400">No hay autos aquí.</p></div>`;
                     return;
                 }
+                grid.className = isListView
+                    ? "grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 auto-rows-fr"
+                    : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-5 md:gap-6 auto-rows-fr";
                 grid.innerHTML = filtered.map(c => createCarCard(c)).join('');
             }
 
@@ -3704,6 +3915,9 @@
                     grid.innerHTML = `<div class="col-span-full py-16 text-center"><i class="ph-fill ph-heart-break text-5xl text-gray-800 mb-3"></i><p class="text-gray-400">No tienes autos favoritos.</p></div>`;
                     return;
                 }
+                grid.className = isListView
+                    ? "grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 auto-rows-fr"
+                    : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-5 md:gap-6 auto-rows-fr";
                 grid.innerHTML = filtered.map(c => createCarCard(c)).join('');
             }
 
