@@ -494,29 +494,28 @@
             class="p-4 md:p-6 border-b border-dark-border bg-dark-bg/90 backdrop-blur z-30 sticky top-0 flex flex-col gap-4 md:flex-row md:items-center">
 
             <!-- Contenedor derecho: Badge de red + Perfil + Ajustes -->
-            <div class="flex items-center justify-between w-full md:w-auto md:ml-auto md:order-2 gap-2 sm:gap-4">
+            <div
+                class="flex items-center justify-between w-full md:w-auto md:ml-auto md:order-2 gap-2 sm:gap-4 h-[42px]">
 
                 <!-- Badge de Red (Movido al Appbar) -->
                 <div id="network-badge"
-                    class="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-300 text-[10px] sm:text-xs font-semibold transition-colors duration-300 shrink-0">
-                    <span id="network-dot"
-                        class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    class="h-full inline-flex items-center justify-center gap-2 px-3 rounded-xl bg-white/5 border border-white/10 text-gray-300 text-xs font-semibold transition-colors duration-300 shrink-0 shadow-sm">
+                    <span id="network-dot" class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                     <span id="network-text-desktop" class="hidden sm:inline">Sistema en línea</span>
                     <span id="network-text-mobile" class="sm:hidden">En línea</span>
                 </div>
 
-                <!-- NUEVO: Agrupador de perfil y botón para mantenerlos juntos a la derecha -->
-                <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                <!-- Agrupador de perfil y botón para mantenerlos juntos a la derecha -->
+                <div class="flex items-center gap-2 sm:gap-3 min-w-0 h-full">
 
-                    <div class="flex items-center gap-2 sm:gap-3 min-w-0 text-right">
-                        <!-- El texto del perfil sin la clase hidden sm:block -->
-                        <div class="min-w-0">
-                            <span class="block text-[10px] sm:text-xs text-gray-500 leading-tight">Mi perfil</span>
+                    <div class="flex items-center gap-2 sm:gap-3 min-w-0 text-right h-full">
+                        <div class="min-w-0 flex flex-col justify-center">
+                            <span class="block text-[10px] sm:text-xs text-gray-500 leading-none mb-0.5">Mi
+                                perfil</span>
                             <span id="navbar-user-name"
-                                class="block max-w-[80px] lg:max-w-[150px] truncate text-xs sm:text-sm font-semibold text-white leading-tight">Usuario</span>
+                                class="block max-w-[80px] lg:max-w-[150px] truncate text-xs sm:text-sm font-semibold text-white leading-none">Usuario</span>
                         </div>
-                        <div class="profile-avatar shrink-0 w-9 h-9 sm:w-11 sm:h-11 text-sm sm:text-base"
-                            aria-hidden="true">
+                        <div class="profile-avatar shrink-0 w-[42px] h-[42px] text-base" aria-hidden="true">
                             <span id="navbar-user-initials">U</span>
                             <img id="navbar-user-avatar" alt="" hidden class="rounded-full object-cover">
                         </div>
@@ -524,51 +523,119 @@
 
                     <button type="button" onclick="openSettings()" id="settings-button"
                         aria-label="Abrir ajustes de usuario" title="Ajustes"
-                        class="w-9 h-9 sm:w-11 sm:h-11 shrink-0 rounded-lg sm:rounded-xl border border-dark-border bg-dark-panel text-gray-400 hover:text-banqueta hover:border-banqueta transition-colors flex items-center justify-center ml-1">
-                        <i class="ph-bold ph-gear-six text-lg sm:text-2xl" aria-hidden="true"></i>
+                        class="w-[42px] h-[42px] shrink-0 rounded-xl border border-dark-border bg-dark-panel text-gray-400 hover:text-banqueta hover:border-banqueta transition-colors flex items-center justify-center ml-1">
+                        <i class="ph-bold ph-gear-six text-xl" aria-hidden="true"></i>
                     </button>
 
                 </div>
             </div>
 
-            <!-- Search Bar & Sort -->
-            <div class="relative flex-1 min-w-0 w-full max-w-2xl order-2 md:order-1 flex gap-2">
-                <div class="relative flex-1 min-w-0">
-                    <i
-                        class="ph-bold ph-magnifying-glass absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg sm:text-xl"></i>
-                    <input type="text" id="global-search" placeholder="Buscar modelo o marca..."
-                        onkeyup="handleGlobalSearch()"
-                        class="w-full input-style rounded-xl sm:rounded-2xl py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 shadow-sm text-sm sm:text-base">
+            <!-- Search Bar & Advanced Filters -->
+            <div
+                class="relative flex-1 min-w-0 w-full max-w-3xl order-2 md:order-1 flex flex-wrap sm:flex-nowrap gap-2 items-center">
+
+                <!-- Input Principal de Búsqueda (Con Dropdown Custom Interno) -->
+                <div
+                    class="relative flex-1 min-w-[200px] flex h-[42px] bg-dark-panel border border-dark-border rounded-xl focus-within:border-banqueta focus-within:shadow-[0_0_0_1px_rgba(245,192,0,0.5)] transition-all">
+
+                    <!-- Custom Dropdown de Campo -->
+                    <div class="relative h-full shrink-0" id="field-dropdown-wrapper">
+                        <input type="hidden" id="search-field" value="all" onchange="renderActiveView()">
+                        <button type="button" onclick="toggleFilterMenu('field-menu')"
+                            class="h-full flex items-center gap-2 px-3 bg-dark-bg border-r border-dark-border text-gray-300 hover:text-banqueta transition-all cursor-pointer font-sans min-w-[80px] sm:min-w-[90px] justify-between rounded-l-xl">
+                            <span id="field-display"
+                                class="font-semibold text-xs sm:text-sm pointer-events-none">Todo</span>
+                            <i class="ph-bold ph-caret-down text-gray-500 pointer-events-none text-xs"></i>
+                        </button>
+
+                        <div id="field-menu"
+                            class="hidden absolute left-0 top-[calc(100%+0.5rem)] w-36 bg-[#18181b] border border-[#3f3f46] rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.5)] z-[60] overflow-hidden py-1">
+                            <button type="button" onclick="selectSearchField('all', 'Todo')"
+                                class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">Todo</button>
+                            <button type="button" onclick="selectSearchField('model', 'Modelo')"
+                                class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">Modelo</button>
+                            <button type="button" onclick="selectSearchField('brand', 'Marca')"
+                                class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">Marca</button>
+                            <button type="button" onclick="selectSearchField('serie', 'Serie')"
+                                class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">Serie</button>
+                            <button type="button" onclick="selectSearchField('nomodelo', 'No. Modelo')"
+                                class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">No.
+                                Modelo</button>
+                        </div>
+                    </div>
+
+                    <div class="relative flex-1 h-full">
+                        <i
+                            class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-base sm:text-lg"></i>
+                        <input type="text" id="global-search" placeholder="Buscar..." onkeyup="handleGlobalSearch()"
+                            class="w-full h-full bg-transparent border-none py-2.5 pl-9 sm:pl-10 pr-4 text-white text-xs sm:text-sm focus:outline-none font-sans">
+                    </div>
+                </div>
+
+                <!-- Filtros Simultáneos: Tipo y Año (Dropdowns Custom) -->
+                <div class="flex gap-1.5 shrink-0 h-[42px]">
+
+                    <!-- Dropdown Tipo -->
+                    <div class="relative h-full" id="type-dropdown-wrapper">
+                        <input type="hidden" id="filter-type" value="" onchange="renderActiveView()">
+                        <button type="button" onclick="toggleFilterMenu('type-menu')"
+                            class="h-full flex items-center gap-2 px-3 bg-dark-panel border border-dark-border rounded-xl text-gray-300 hover:text-banqueta hover:border-banqueta transition-all cursor-pointer font-sans min-w-[110px] justify-between">
+                            <span id="type-display"
+                                class="font-semibold text-xs sm:text-sm pointer-events-none truncate">Tipo: Todos</span>
+                            <i class="ph-bold ph-caret-down text-gray-500 pointer-events-none"></i>
+                        </button>
+
+                        <div id="type-menu"
+                            class="hidden absolute left-0 top-[calc(100%+0.5rem)] w-48 bg-[#18181b] border border-[#3f3f46] rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.5)] z-[60] overflow-hidden py-1 max-h-64 overflow-y-auto custom-scroll">
+                            <!-- Inyectado por JS -->
+                        </div>
+                    </div>
+
+                    <!-- Dropdown Año -->
+                    <div class="relative h-full" id="year-dropdown-wrapper">
+                        <input type="hidden" id="filter-year" value="" onchange="renderActiveView()">
+                        <button type="button" onclick="toggleFilterMenu('year-menu')"
+                            class="h-full flex items-center gap-2 px-3 bg-dark-panel border border-dark-border rounded-xl text-gray-300 hover:text-banqueta hover:border-banqueta transition-all cursor-pointer font-sans min-w-[105px] justify-between">
+                            <span id="year-display"
+                                class="font-semibold text-xs sm:text-sm pointer-events-none truncate">Año: Todos</span>
+                            <i class="ph-bold ph-caret-down text-gray-500 pointer-events-none"></i>
+                        </button>
+
+                        <div id="year-menu"
+                            class="hidden absolute left-0 top-[calc(100%+0.5rem)] w-36 bg-[#18181b] border border-[#3f3f46] rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.5)] z-[60] overflow-hidden py-1 max-h-64 overflow-y-auto custom-scroll">
+                            <!-- Inyectado por JS -->
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Custom Dropdown Sort -->
-                <div class="relative shrink-0" id="sort-dropdown-wrapper">
+                <div class="relative shrink-0 h-[42px]" id="sort-dropdown-wrapper">
                     <button type="button" onclick="toggleSortMenu()"
-                        class="h-full flex items-center gap-2 px-3 sm:px-4 bg-dark-panel border border-dark-border rounded-xl sm:rounded-2xl text-gray-400 hover:text-banqueta hover:border-banqueta transition-all cursor-pointer">
-                        <i class="ph-bold ph-faders text-lg sm:text-xl pointer-events-none"></i>
+                        class="h-full flex items-center gap-2 px-3 sm:px-4 bg-dark-panel border border-dark-border rounded-xl text-gray-400 hover:text-banqueta hover:border-banqueta transition-all cursor-pointer font-sans">
+                        <i class="ph-bold ph-faders text-base sm:text-lg pointer-events-none"></i>
                         <span id="sort-display"
-                            class="hidden sm:inline font-semibold text-sm pointer-events-none">Recientes</span>
+                            class="hidden sm:inline font-semibold text-xs sm:text-sm pointer-events-none">Recientes</span>
                     </button>
 
                     <div id="sort-menu"
                         class="hidden absolute right-0 top-[calc(100%+0.5rem)] w-48 bg-[#18181b] border border-[#3f3f46] rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.5)] z-[60] overflow-hidden py-1">
                         <button type="button" onclick="selectGlobalSort('newest', 'Recientes')"
-                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors">Más
+                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">Más
                             Recientes</button>
                         <button type="button" onclick="selectGlobalSort('oldest', 'Antiguos')"
-                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors">Más
+                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">Más
                             Antiguos</button>
                         <button type="button" onclick="selectGlobalSort('az', 'A - Z')"
-                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors">Modelo:
+                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">Modelo:
                             A - Z</button>
                         <button type="button" onclick="selectGlobalSort('za', 'Z - A')"
-                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors">Modelo:
+                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">Modelo:
                             Z - A</button>
                         <button type="button" onclick="selectGlobalSort('brand', 'Marca')"
-                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors">Por
+                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">Por
                             Marca</button>
                         <button type="button" onclick="selectGlobalSort('mfg', 'Fabricante')"
-                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors">Por
+                            class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">Por
                             Fabricante</button>
                     </div>
                 </div>
@@ -997,6 +1064,71 @@
         </div>
     </div>
 
+    <!-- Modal: Mover Auto al Garaje (Precio Real) -->
+    <div id="move-to-garage-modal"
+        class="modal fixed inset-0 z-[75] items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-sm slide-up shadow-2xl p-6">
+            <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                <i class="ph-bold ph-car-profile text-green-400"></i> Mover al Garaje
+            </h3>
+            <p class="text-xs text-gray-400 mb-4 leading-relaxed">
+                Ingresa el costo real de compra. Este valor se sumará al <span class="text-banqueta font-semibold">Valor
+                    Estimado</span> de tu garaje y quedará registrado como el más reciente.
+            </p>
+            <input type="hidden" id="move-car-id">
+            <div class="mb-4">
+                <label class="block text-xs text-gray-400 mb-1">Precio Real ($)</label>
+                <input type="number" step="0.01" id="move-real-cost"
+                    class="w-full input-style rounded-xl px-4 py-2.5 text-base font-bold" placeholder="0.00" autofocus>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeModal('move-to-garage-modal')"
+                    class="px-4 py-2 rounded-xl text-sm font-semibold hover:bg-white/10 text-gray-300">Cancelar</button>
+                <button type="button" onclick="confirmMoveToGarage()"
+                    class="btn-primary px-5 py-2 rounded-xl text-sm font-bold shadow-lg shadow-banqueta/20">Confirmar y
+                    Mover</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Vincular a Pack/Set -->
+    <div id="pack-link-modal"
+        class="modal fixed inset-0 z-[70] items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div
+            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-lg slide-up shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
+            <div class="p-4 border-b border-dark-border flex justify-between items-center shrink-0 bg-[#0d0d0d]">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="ph-bold ph-link text-blue-400"></i> Vincular Autos
+                </h3>
+                <button type="button" onclick="closeModal('pack-link-modal')" class="text-gray-400 hover:text-white"><i
+                        class="ph-bold ph-x text-lg"></i></button>
+            </div>
+
+            <div class="p-4 bg-[#111] shrink-0 border-b border-dark-border">
+                <p class="text-xs text-gray-400 mb-3">Busca y selecciona los autos (por Modelo, No. Modelo o Fabricante)
+                    que pertenecen al mismo set, pack o serie que estás agregando.</p>
+                <div class="relative">
+                    <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                    <input type="text" id="pack-search-input" onkeyup="filterPackCars(this.value)"
+                        class="w-full input-style rounded-xl px-4 py-2 pl-9 text-sm"
+                        placeholder="Buscar para vincular...">
+                </div>
+            </div>
+
+            <div id="pack-cars-selector"
+                class="flex-1 overflow-y-auto custom-scroll p-4 flex flex-col gap-2 bg-[#141414]">
+                <!-- Lista inyectada por JS -->
+            </div>
+
+            <div class="p-4 border-t border-dark-border bg-[#0d0d0d] flex justify-end gap-3 shrink-0">
+                <button type="button" onclick="closeModal('pack-link-modal')"
+                    class="btn-primary w-full py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-banqueta/20">
+                    Hecho
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Marca -->
     <div id="brand-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
         <div class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-md slide-up shadow-2xl">
@@ -1245,24 +1377,41 @@
                             </div>
                         </div>
 
-                        <!-- Selector de Color Minimalista -->
-                        <div>
-                            <label class="block text-sm text-gray-400 mb-1">Color</label>
-                            <input type="hidden" id="car-color-hex" required>
-                            <input type="hidden" id="car-color-name" required>
-                            <button type="button" onclick="openModal('color-picker-modal')"
-                                class="w-full input-style rounded-xl px-4 py-2.5 text-left font-bold flex items-center justify-between transition-colors hover:border-banqueta group">
-                                <div class="flex items-center gap-3">
-                                    <span class="w-5 h-5 rounded-full border border-white/20 block shadow-inner"
-                                        id="color-indicator-swatch"
-                                        style="background-color: transparent; display: none;"></span>
-                                    <span id="selected-color-label"
-                                        class="text-gray-400 font-normal group-hover:text-white transition-colors">Seleccionar
-                                        color...</span>
-                                </div>
-                                <i
-                                    class="ph-bold ph-palette text-gray-500 group-hover:text-banqueta transition-colors text-lg"></i>
-                            </button>
+                        <!-- Fila de Color y Vinculación (2 Columnas asimétricas) -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <!-- Selector de Color Minimalista (Ocupa 2/3) -->
+                            <div class="col-span-2">
+                                <label class="block text-sm text-gray-400 mb-1">Color</label>
+                                <input type="hidden" id="car-color-hex" required>
+                                <input type="hidden" id="car-color-name" required>
+                                <button type="button" onclick="openModal('color-picker-modal')"
+                                    class="w-full input-style rounded-xl px-4 py-2.5 text-left font-bold flex items-center justify-between transition-colors hover:border-banqueta group">
+                                    <div class="flex items-center gap-2 sm:gap-3 truncate">
+                                        <span class="w-5 h-5 rounded-full border border-white/20 shrink-0 shadow-inner"
+                                            id="color-indicator-swatch"
+                                            style="background-color: transparent; display: none;"></span>
+                                        <span id="selected-color-label"
+                                            class="text-gray-400 font-normal group-hover:text-white transition-colors truncate">Color...</span>
+                                    </div>
+                                    <i
+                                        class="ph-bold ph-palette text-gray-500 group-hover:text-banqueta transition-colors text-lg shrink-0"></i>
+                                </button>
+                            </div>
+
+                            <!-- Botón de Vinculación (Ocupa 1/3) -->
+                            <div class="col-span-1">
+                                <label class="block text-sm text-gray-400 mb-1">Vincular</label>
+                                <button type="button" onclick="openPackModal()"
+                                    class="w-full input-style rounded-xl px-3 py-2.5 text-center font-bold flex items-center justify-center gap-2 transition-colors hover:border-blue-400 group relative">
+                                    <i
+                                        class="ph-bold ph-link text-gray-500 group-hover:text-blue-400 transition-colors text-lg"></i>
+                                    <span
+                                        class="text-gray-400 font-normal group-hover:text-white transition-colors text-sm truncate">Pack
+                                        / Set</span>
+                                    <span id="linked-summary-badge"
+                                        class="absolute -top-2 -right-2 bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow hidden">0</span>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="border-t border-dark-border pt-4 mt-auto">
@@ -1306,7 +1455,8 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-gray-400 mb-1">Costo ($)</label>
+                                    <label class="block text-xs text-gray-400 mb-1" id="car-costo-label">Costo
+                                        ($)</label>
                                     <input type="number" step="0.01" id="car-costo"
                                         class="w-full input-style rounded-lg px-3 py-2 text-sm" placeholder="0.00">
                                 </div>
@@ -1337,6 +1487,7 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
                     <!-- COLUMNA DERECHA: Galería de Imágenes (1:1 Cuadradas) -->
@@ -1477,7 +1628,7 @@
     <div id="car-view-modal"
         class="modal fixed inset-0 z-[60] items-center justify-center p-2 sm:p-4 bg-black/90 backdrop-blur-md font-poppins">
         <div
-            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto custom-scroll flex flex-col md:flex-row slide-up shadow-2xl relative">
+            class="bg-dark-panel border border-dark-border rounded-2xl w-full max-w-5xl max-h-[95vh] overflow-y-auto custom-scroll flex flex-col md:flex-row slide-up shadow-2xl relative">
             <button onclick="closeModal('car-view-modal')"
                 class="absolute top-4 right-4 z-10 w-8 h-8 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-all border border-white/10"><i
                     class="ph-bold ph-x"></i></button>
@@ -1501,9 +1652,11 @@
 
                 <div class="grid grid-cols-2 gap-x-4 gap-y-6 mb-6 flex-grow content-start" id="view-car-stats"></div>
 
+                <!-- CONTENEDOR PARA AUTOS VINCULADOS -->
+                <div id="linked-cars-slider-container"></div>
+
                 <!-- BARRA DE CONTROLES INFERIOR (SOLO ICONOS Y TOOLTIPS) -->
                 <div class="mt-auto pt-4 border-t border-dark-border/50 flex items-center justify-between gap-2">
-
                     <!-- Acción Destructiva (Izquierda) -->
                     <button id="btn-delete-car"
                         class="group relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl font-medium flex items-center justify-center text-gray-400 hover:text-red-500 bg-transparent hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all shrink-0">
@@ -1605,6 +1758,21 @@
                         <i class="ph-bold ph-check"></i> Aplicar Recorte
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Modal: Visor de Imagen con Zoom -->
+        <div id="image-viewer-modal"
+            class="modal fixed inset-0 z-[120] items-center justify-center bg-black/95 backdrop-blur-xl">
+            <button onclick="closeModal('image-viewer-modal')"
+                class="absolute top-4 right-4 z-[130] w-10 h-10 bg-white/10 text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-all border border-white/20">
+                <i class="ph-bold ph-x text-xl"></i>
+            </button>
+            <div class="w-full h-full flex items-center justify-center p-2 relative overflow-hidden"
+                id="zoom-container">
+                <img id="viewer-full-image"
+                    class="max-w-full max-h-full object-contain select-none cursor-grab transition-transform duration-200 ease-out"
+                    draggable="false">
             </div>
         </div>
 
@@ -1732,6 +1900,122 @@
         </div>
 
         <script>
+
+            // Parser de series tipo "1/5", "3/5", "1/1"
+            function parseTotalFromNoSerie(noserie) {
+                if (!noserie || typeof noserie !== 'string') return null;
+                const match = noserie.trim().match(/(\d+)\s*\/\s*(\d+)/);
+                return match ? parseInt(match[2], 10) : null;
+            }
+
+            let selectedPackCarIds = new Set();
+
+            function openPackModal() {
+                // Siempre limpia la búsqueda al abrir
+                document.getElementById('pack-search-input').value = '';
+                filterPackCars('');
+                openModal('pack-link-modal');
+            }
+
+            function initPackCarSelector(currentCarId) {
+                selectedPackCarIds.clear();
+                const current = db.cars.find(c => c.id === currentCarId);
+                if (current && current.packId) {
+                    db.cars.filter(c => c.packId === current.packId && c.id !== currentCarId).forEach(c => selectedPackCarIds.add(c.id));
+                }
+                updateLinkedBadge();
+            }
+
+            function updateLinkedBadge() {
+                const badge = document.getElementById('linked-summary-badge');
+                if (!badge) return;
+                if (selectedPackCarIds.size > 0) {
+                    badge.textContent = selectedPackCarIds.size;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+
+            function filterPackCars(query) {
+                const container = document.getElementById('pack-cars-selector');
+                if (!container) return;
+                const currentId = document.getElementById('car-id').value;
+                const q = (query || '').toLowerCase().trim();
+
+                let availableCars = db.cars.filter(c => c.id !== currentId);
+
+                // Si la búsqueda está vacía, mostramos los últimos 10 (además de los que ya están seleccionados)
+                if (!q) {
+                    const recent10 = [...availableCars].sort((a, b) => b.createdAt - a.createdAt).slice(0, 10);
+                    availableCars = availableCars.filter(c => selectedPackCarIds.has(c.id) || recent10.find(r => r.id === c.id));
+                } else {
+                    availableCars = availableCars.filter(c =>
+                        c.model.toLowerCase().includes(q) ||
+                        (c.nomodelo && c.nomodelo.toLowerCase().includes(q)) ||
+                        getMfgName(c.manufacturerId).toLowerCase().includes(q)
+                    );
+                }
+
+                if (availableCars.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-gray-500 p-2 italic text-center">No hay autos coincidentes.</p>';
+                    return;
+                }
+
+                container.innerHTML = availableCars.map(c => {
+                    const isChecked = selectedPackCarIds.has(c.id);
+                    return `
+                    <label class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-colors ${isChecked ? 'bg-banqueta/10 border border-banqueta/30' : 'border border-dark-border bg-dark-bg'}">
+                        <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="togglePackCarSelection('${c.id}')" class="w-5 h-5 accent-banqueta rounded cursor-pointer">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-lg bg-black overflow-hidden shrink-0 border border-white/10 shadow-inner">
+                            <img src="${c.cover}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="min-w-0 flex-1 flex flex-col justify-center">
+                            <span class="text-banqueta text-[10px] font-bold uppercase tracking-wider mb-0.5 truncate">${getBrandName(c.brandId)}</span>
+                            <span class="text-white text-sm sm:text-base font-bold truncate block leading-tight">${c.model}</span>
+                            <span class="text-gray-400 text-[10px] sm:text-xs mt-1 block truncate"><i class="ph-bold ph-barcode"></i> ${c.nomodelo || 'S/N'} ${c.noserie ? '• #' + c.noserie : ''}</span>
+                        </div>
+                    </label>`;
+                }).join('');
+
+                updateLinkedBadge();
+            }
+
+            function togglePackCarSelection(id) {
+                if (selectedPackCarIds.has(id)) selectedPackCarIds.delete(id);
+                else selectedPackCarIds.add(id);
+                updateLinkedBadge();
+                filterPackCars(document.getElementById('pack-search-input')?.value || '');
+            }
+
+            function syncCarPackLinkage(savedCarId) {
+                const targetIds = Array.from(selectedPackCarIds);
+                if (targetIds.length === 0) return;
+
+                // Si alguno de los autos seleccionados o el actual ya tiene un packId, usamos ese
+                const currentCar = db.cars.find(c => c.id === savedCarId);
+                let packId = currentCar?.packId;
+
+                if (!packId) {
+                    for (const id of targetIds) {
+                        const other = db.cars.find(c => c.id === id);
+                        if (other && other.packId) {
+                            packId = other.packId;
+                            break;
+                        }
+                    }
+                }
+                if (!packId) packId = genId();
+
+                // Asociamos todos bidireccionalmente en un solo paso
+                const allGroupIds = new Set([savedCarId, ...targetIds]);
+                db.cars.forEach(c => {
+                    if (allGroupIds.has(c.id)) {
+                        c.packId = packId;
+                    }
+                });
+            }
+
             let db = { cars: [], brands: [], manufacturers: [], collections: [], colors: [], lastUpdated: 0 };
             let appSettings = { compress: true }; // Ajustes de App locales
 
@@ -1831,6 +2115,7 @@
                 });
 
                 updateCustomSelects();
+                populateDynamicFilterDropdowns();
                 renderColorGrid();
                 renderGlobalColorFilter();
                 initRating();
@@ -2031,6 +2316,65 @@
                 document.getElementById(id).classList.add('active');
             }
 
+            // --- VISOR DE IMÁGENES CON ZOOM ---
+            let zoomLevel = 1;
+            let isDraggingImg = false;
+            let startX, startY, imgX = 0, imgY = 0;
+
+            function openImageViewer(src) {
+                if (!src || src.endsWith('null') || src === '') return;
+                const img = document.getElementById('viewer-full-image');
+                img.src = src;
+                zoomLevel = 1; imgX = 0; imgY = 0;
+                updateImageTransform(img);
+                openModal('image-viewer-modal');
+            }
+
+            function updateImageTransform(img) {
+                img.style.transform = `translate(${imgX}px, ${imgY}px) scale(${zoomLevel})`;
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const img = document.getElementById('viewer-full-image');
+                const container = document.getElementById('zoom-container');
+                if (!img || !container) return;
+
+                // Zoom con Scroll (Rueda del ratón)
+                container.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    zoomLevel += e.deltaY * -0.005;
+                    zoomLevel = Math.min(Math.max(1, zoomLevel), 5); // Limita el zoom entre 1x y 5x
+                    if (zoomLevel === 1) { imgX = 0; imgY = 0; } // Resetea posición si vuelve al tamaño normal
+                    updateImageTransform(img);
+                });
+
+                // Arrastrar (Pan)
+                img.addEventListener('mousedown', e => {
+                    if (zoomLevel > 1) {
+                        isDraggingImg = true;
+                        img.style.cursor = 'grabbing';
+                        img.style.transition = 'none'; // Quita animación para drag fluido
+                        startX = e.clientX - imgX;
+                        startY = e.clientY - imgY;
+                    }
+                });
+
+                window.addEventListener('mouseup', () => {
+                    isDraggingImg = false;
+                    img.style.cursor = 'grab';
+                    img.style.transition = 'transform 0.2s ease-out';
+                });
+
+                window.addEventListener('mousemove', e => {
+                    if (isDraggingImg && zoomLevel > 1) {
+                        e.preventDefault();
+                        imgX = e.clientX - startX;
+                        imgY = e.clientY - startY;
+                        updateImageTransform(img);
+                    }
+                });
+            });
+
             function closeModal(id) {
                 const savingForm = document.getElementById(id.replace('-modal', '-form'));
                 if (savingForm && savingForm.dataset.saving === 'true') return;
@@ -2093,12 +2437,16 @@
                 document.getElementById('color-indicator-swatch').style.display = 'none';
 
                 document.getElementById('car-rating').value = 0;
+                initPackCarSelector('');
             }
 
             function openCarModal(isWishlist) {
                 resetCarForm();
                 document.getElementById('car-is-wishlist').value = isWishlist ? "true" : "false";
                 document.getElementById('car-modal-title').innerText = isWishlist ? "Añadir a Wishlist" : "Añadir Auto";
+                const costoLbl = document.getElementById('car-costo-label');
+                if (costoLbl) costoLbl.innerText = isWishlist ? "Precio Aprox. ($)" : "Costo ($)";
+                initPackCarSelector(''); // String vacío al crear un auto nuevo
                 openModal('car-modal');
             }
 
@@ -2436,11 +2784,16 @@
                 if (!e.target.closest('.custom-select-wrapper')) {
                     closeCustomSelects();
                 }
-                if (!e.target.closest('#sort-dropdown-wrapper')) {
-                    const sortMenu = document.getElementById('sort-menu');
-                    if (sortMenu && !sortMenu.classList.contains('hidden')) {
-                        sortMenu.classList.add('hidden');
-                    }
+                // Cerrar todos los menus custom (Ordenar, Tipo, Año, Campo)
+                if (!e.target.closest('#sort-dropdown-wrapper') &&
+                    !e.target.closest('#type-dropdown-wrapper') &&
+                    !e.target.closest('#year-dropdown-wrapper') &&
+                    !e.target.closest('#field-dropdown-wrapper')) {
+
+                    ['sort-menu', 'type-menu', 'year-menu', 'field-menu'].forEach(id => {
+                        const m = document.getElementById(id);
+                        if (m && !m.classList.contains('hidden')) m.classList.add('hidden');
+                    });
                 }
             });
 
@@ -3141,13 +3494,18 @@
                     }
                 }
 
+                const isW = value('car-is-wishlist') === 'true';
+                const rawCost = value('car-costo');
                 const record = {
                     id, model: value('car-model'), colorHex: value('car-color-hex'), colorName: value('car-color-name'),
                     brandId: value('car-brand'), manufacturerId: value('car-manufacturer'), collectionId: value('car-collection'),
-                    isWishlist: value('car-is-wishlist') === 'true', isFavorite: existingId ? db.cars.find(c => c.id === id).isFavorite : false,
-                    serie: value('car-serie'), linea: value('car-linea'), costo: value('car-costo'),
+                    isWishlist: isW, isFavorite: existingId ? db.cars.find(c => c.id === id).isFavorite : false,
+                    serie: value('car-serie'), linea: value('car-linea'),
+                    costo: isW ? '' : rawCost,
+                    costoAprox: isW ? rawCost : (existingId && db.cars.find(c => c.id === id)?.costoAprox || ''),
                     nomodelo: noModelo, anio: value('car-anio'), noserie: value('car-noserie'),
                     tipo: value('car-tipo'), escala: value('car-escala') || '1:64', rating: value('car-rating'),
+                    packId: existingId ? (db.cars.find(c => c.id === id)?.packId || '') : '',
                     dateAdded: existingId ? db.cars.find(c => c.id === id).dateAdded : new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
                     createdAt: existingId ? db.cars.find(c => c.id === id).createdAt : Date.now()
                 };
@@ -3184,6 +3542,9 @@
                         if (existingId) persistDatabase({ ...db, cars: db.cars.map(c => c.id === id ? record : c) });
                         else persistDatabase({ ...db, cars: [...db.cars, record] });
 
+                        syncCarPackLinkage(record.id);
+                        persistDatabase(db);
+
                     } catch (error) { await cleanupFailedUploads(attempted); throw error; }
                     renderActiveView();
                 }, 'car-form');
@@ -3216,23 +3577,13 @@
                 const searchResults = document.getElementById('home-search-results');
                 const searchGrid = document.getElementById('home-search-grid');
 
-                // Si hay texto en el buscador, mostramos resultados aquí mismo
-                if (q) {
+                const hasActiveFilter = q || document.getElementById('filter-type')?.value || document.getElementById('filter-year')?.value;
+
+                if (hasActiveFilter) {
                     if (defaultContent) defaultContent.classList.add('hidden');
                     if (searchResults) searchResults.classList.remove('hidden');
 
-                    // Buscar en TODOS los autos (Garaje + Wishlist)
-                    let filtered = db.cars.filter(c =>
-                        c.model.toLowerCase().includes(q) ||
-                        (c.colorName && c.colorName.toLowerCase().includes(q)) ||
-                        (c.nomodelo && c.nomodelo.toLowerCase().includes(q)) ||
-                        getMfgName(c.manufacturerId).toLowerCase().includes(q) ||
-                        getBrandName(c.brandId).toLowerCase().includes(q)
-                    );
-
-                    if (globalColorFilter) {
-                        filtered = filtered.filter(c => c.colorHex.toLowerCase() === globalColorFilter.toLowerCase());
-                    }
+                    let filtered = applySearchAndAttributeFilters(db.cars);
 
                     // Ordenar
                     filtered.sort((a, b) => b.createdAt - a.createdAt);
@@ -3583,7 +3934,145 @@
                 if (!c) return;
 
                 document.getElementById('view-car-model').textContent = c.model;
-                document.getElementById('view-car-brand').innerHTML = `<i class="ph-fill ph-tag text-lg"></i> <span class="font-geist">${getBrandName(c.brandId)}</span> &nbsp;&nbsp;|&nbsp;&nbsp; <i class="ph-fill ph-factory text-lg text-gray-400"></i> <span class="text-gray-300 font-geist">${getMfgName(c.manufacturerId)}</span>`;
+
+                // Analizar Serie / Pack y generar un Banner elegante
+                let linkedSliderHtml = '';
+                const totalInSeries = parseTotalFromNoSerie(c.noserie);
+
+                let packCars = c.packId ? db.cars.filter(car => car.packId === c.packId) : [];
+                // Siempre incluir el auto actual
+                packCars = packCars.filter(car => car.id !== c.id);
+                packCars.unshift(c);
+
+                const garageCars = packCars.filter(car => !car.isWishlist);
+                let targetTotal = totalInSeries || packCars.length;
+                if (targetTotal < packCars.length) targetTotal = packCars.length;
+
+                let progressPercent = Math.round((garageCars.length / targetTotal) * 100) || 0;
+                if (progressPercent > 100) progressPercent = 100;
+
+                const isComplete = garageCars.length >= targetTotal;
+
+                const strokeColor = isComplete ? '#10B981' : '#3B82F6';
+                const bgBadgeColor = isComplete ? 'bg-green-500/10 border-green-500/30' : 'bg-blue-500/10 border-blue-500/30';
+                const textBadgeColor = isComplete ? 'text-green-400' : 'text-blue-400';
+                const badgeText = isComplete ? 'Completado' : 'En progreso';
+
+                // Texto de la serie
+                let serieText = c.serie || 'Edición Especial';
+                if (!c.serie && c.packId) serieText = 'Pack / Set';
+                else if (!c.serie && !c.packId) serieText = 'Unidad Individual';
+
+                // HTML del banner de progreso (Márgenes ajustados)
+                linkedSliderHtml = `
+                <div class="mt-4 mb-4">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-3">
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            <div>
+                                <p class="text-gray-400 text-[10px] sm:text-xs">Serie: <span class="text-white font-bold">${serieText}</span></p>
+                            </div>
+                            <div class="h-6 w-px bg-white/10"></div>
+                            <div>
+                                <p class="text-white font-bold text-xs sm:text-sm">${progressPercent}% completado</p>
+                                <p class="text-gray-500 text-[9px] sm:text-[10px]">${garageCars.length}/${targetTotal} piezas</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-1.5 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full border ${bgBadgeColor} shadow-sm">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 transform -rotate-90 drop-shadow-md" viewBox="0 0 36 36">
+                                <!-- Círculo más grueso: stroke-width = 4.5 y stroke-linecap="round" -->
+                                <path class="text-gray-700/50" stroke-width="4.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path stroke="${strokeColor}" stroke-linecap="round" stroke-width="4.5" stroke-dasharray="${progressPercent}, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <span class="${textBadgeColor} text-[10px] sm:text-xs font-bold">${badgeText}</span>
+                        </div>
+                    </div>`;
+
+                // Generar el Slider de Autos Vinculados Horizontal
+                linkedSliderHtml += `
+                    <div class="relative group" id="linked-slider-wrapper">
+                        <!-- Flecha Izquierda -->
+                        <button onclick="document.getElementById('linked-scroll-container').scrollBy({left: -280, behavior: 'smooth'})" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 bg-black/80 hover:bg-black text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity border border-white/10 -ml-3 hidden md:flex shadow-lg">
+                            <i class="ph-bold ph-caret-left"></i>
+                        </button>
+
+                        <div id="linked-scroll-container" class="flex gap-3 sm:gap-4 overflow-x-auto hide-scroll pb-2 snap-x snap-mandatory scroll-smooth">
+                            ${packCars.map(pCar => {
+                    const isCurrent = pCar.id === c.id;
+                    const cardBorder = isCurrent ? 'border-banqueta' : 'border-white/5 hover:border-gray-500';
+
+                    return `
+                                <div onclick="viewCar('${pCar.id}')" class="snap-start shrink-0 w-[280px] sm:w-[400px] bg-[#141414] border ${cardBorder} rounded-2xl p-2.5 cursor-pointer transition-all flex gap-3 sm:gap-4 items-center relative overflow-hidden">
+                                    
+                                    <!-- Imagen -->
+                                    <div class="w-16 h-16 sm:w-28 sm:h-28 bg-black rounded-xl overflow-hidden shrink-0 shadow-inner">
+                                        <img src="${pCar.cover}" class="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity">
+                                    </div>
+                                    
+                                    <!-- Info -->
+                                    <div class="flex-1 min-w-0 flex flex-col justify-center">
+                                        <p class="text-white font-bold text-sm sm:text-base truncate leading-tight mb-0.5">${pCar.model}</p>
+                                        <p class="text-banqueta font-bold text-[10px] sm:text-[11px] truncate mb-1">${pCar.nomodelo || 'S/N'}</p>
+                                        <p class="text-gray-400 text-[9px] sm:text-[10px] truncate flex items-center gap-2">
+                                            <span><i class="ph-bold ph-calendar-blank"></i> ${pCar.anio || '-'}</span>
+                                            <span><i class="ph-bold ph-car-profile"></i> ${pCar.tipo || '-'}</span>
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Status Colección (Sólo Deseado, sin badge verde para normales) -->
+                                    ${pCar.isWishlist ? `<div class="absolute top-1.5 right-1.5 bg-blue-500/10 border border-blue-500/30 px-1.5 py-0.5 rounded text-[7px] sm:text-[8px] text-blue-400 font-bold flex items-center gap-1 shadow-sm"><i class="ph-bold ph-star"></i> Deseado</div>` : ''}
+                                </div>`;
+                }).join('')}
+                        </div>
+
+                        <!-- Flecha Derecha -->
+                        <button onclick="document.getElementById('linked-scroll-container').scrollBy({left: 280, behavior: 'smooth'})" class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 bg-black/80 hover:bg-black text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity border border-white/10 -mr-3 hidden md:flex shadow-lg">
+                            <i class="ph-bold ph-caret-right"></i>
+                        </button>
+                    </div>
+                </div>`;
+
+                // Ajustamos el tamaño del título general del auto a uno más discreto
+                document.getElementById('view-car-model').className = "text-xl sm:text-2xl font-bold text-white mb-1 leading-tight";
+
+                // Aplicamos fuente Poppins a Marca y Fabricante y QUITAMOS mayúsculas
+                document.getElementById('view-car-brand').className = "text-banqueta font-bold text-[11px] sm:text-xs flex items-center gap-2 font-poppins";
+                document.getElementById('view-car-brand').innerHTML = `<i class="ph-fill ph-tag text-sm"></i> <span>${getBrandName(c.brandId)}</span> <span class="text-gray-600 px-1">|</span> <i class="ph-fill ph-factory text-sm text-gray-500"></i> <span class="text-gray-400">${getMfgName(c.manufacturerId)}</span>`;
+
+                document.getElementById('linked-cars-slider-container').innerHTML = linkedSliderHtml;
+
+                // Inicializar Drag to Scroll para el slider de vinculados
+                const linkedContainer = document.getElementById('linked-scroll-container');
+                if (linkedContainer) {
+                    let isDown = false;
+                    let startX;
+                    let scrollLeft;
+
+                    linkedContainer.addEventListener('mousedown', (e) => {
+                        isDown = true;
+                        linkedContainer.classList.add('cursor-grabbing');
+                        linkedContainer.classList.remove('snap-x', 'snap-mandatory');
+                        startX = e.pageX - linkedContainer.offsetLeft;
+                        scrollLeft = linkedContainer.scrollLeft;
+                    });
+                    linkedContainer.addEventListener('mouseleave', () => {
+                        isDown = false;
+                        linkedContainer.classList.remove('cursor-grabbing');
+                        linkedContainer.classList.add('snap-x', 'snap-mandatory');
+                    });
+                    linkedContainer.addEventListener('mouseup', () => {
+                        isDown = false;
+                        linkedContainer.classList.remove('cursor-grabbing');
+                        linkedContainer.classList.add('snap-x', 'snap-mandatory');
+                    });
+                    linkedContainer.addEventListener('mousemove', (e) => {
+                        if (!isDown) return;
+                        e.preventDefault();
+                        const x = e.pageX - linkedContainer.offsetLeft;
+                        const walk = (x - startX) * 2;
+                        linkedContainer.scrollLeft = scrollLeft - walk;
+                    });
+                }
 
                 let tags = '';
                 if (c.isFavorite) tags += `<span class="bg-red-500/20 text-red-500 border border-red-500/30 px-2 py-1 rounded text-xs font-bold flex items-center gap-1"><i class="ph-fill ph-heart"></i> Favorito</span>`;
@@ -3600,7 +4089,7 @@
                 document.getElementById('view-car-tags').innerHTML = tags;
 
                 const st = document.getElementById('view-car-stats');
-                st.className = "grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6 flex-grow content-start";
+                st.className = "grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-3 content-start";
                 st.innerHTML = '';
 
                 const getIconForStat = (lbl) => {
@@ -3620,36 +4109,35 @@
                 const addStat = (lbl, val) => {
                     if (val) {
                         st.innerHTML += `
-                    <div class="bg-[#111] border border-dark-border rounded-xl p-3 flex flex-col justify-center relative overflow-hidden group hover:border-white/10 transition-colors shadow-sm">
+                    <div class="bg-[#111] border border-dark-border rounded-lg p-2 sm:p-2.5 flex flex-col justify-center relative overflow-hidden group hover:border-white/10 transition-colors shadow-sm">
                         <div class="absolute -right-2 -bottom-3 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
-                            <i class="ph-fill ${getIconForStat(lbl)} text-[60px]"></i>
+                            <i class="ph-fill ${getIconForStat(lbl)} text-[50px]"></i>
                         </div>
-                        <div class="flex items-center gap-1.5 mb-1 z-10">
-                            <i class="ph-bold ${getIconForStat(lbl)} text-gray-500 text-[10px]"></i>
-                            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">${lbl}</p>
+                        <div class="flex items-center gap-1 mb-0.5 z-10">
+                            <i class="ph-bold ${getIconForStat(lbl)} text-gray-500 text-[9px] sm:text-[10px]"></i>
+                            <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase tracking-widest font-semibold">${lbl}</p>
                         </div>
-                        <p class="text-sm text-white font-bold z-10 truncate" title="${val.replace ? val.replace(/"/g, '&quot;') : val}">${val}</p>
+                        <p class="text-xs sm:text-sm text-white font-bold z-10 truncate" title="${val.replace ? val.replace(/"/g, '&quot;') : val}">${val}</p>
                     </div>`;
                     }
                 };
 
                 addStat('Colección', db.collections.find(x => x.id === c.collectionId)?.name);
-                addStat('Serie', c.serie);
                 addStat('Costo', c.costo ? `$${c.costo}` : '');
                 addStat('No. Modelo', c.nomodelo);
                 addStat('Año', c.anio);
                 addStat('No. Serie', c.noserie);
                 addStat('Tipo', c.tipo);
-                if (c.rating > 0) {
-                    let s = ''; for (let i = 0; i < c.rating; i++) s += '<i class="ph-fill ph-star"></i>';
-                    addStat('Puntuación', `<span class="text-banqueta flex gap-0.5 text-base mt-0.5 drop-shadow">${s}</span>`);
-                }
 
                 const mainImg = document.getElementById('view-car-main-img');
                 // Quitamos el src y le asignamos el loadCachedImage
                 mainImg.src = '';
                 mainImg.classList.remove('loaded');
                 loadCachedImage(mainImg, c.cover);
+
+                const mainImgDiv = document.getElementById('view-car-main-img').parentElement;
+                mainImgDiv.onclick = () => openImageViewer(document.getElementById('view-car-main-img').src);
+                mainImgDiv.classList.add('cursor-zoom-in');
 
                 let thumbs = `<div onclick="loadCachedImage(document.getElementById('view-car-main-img'), '${c.cover}')" class="aspect-square bg-dark-bg border border-dark-border rounded cursor-pointer hover:border-banqueta overflow-hidden opacity-90 hover:opacity-100 transition-all"><img data-src="${c.cover}" class="lazy-image fade-image w-full h-full object-cover"></div>`;
                 if (c.extras) {
@@ -3683,17 +4171,28 @@
                 applyLazyLoading(); // Para los thumbnails
             }
 
-            // NUEVA FUNCIÓN: Mover de Wishlist a Mis Autos
             function moveToGarage(id) {
                 const car = db.cars.find(c => c.id === id);
-                if (car) {
-                    if (confirm(`¿Estás seguro de mover el "${car.model}" a tu Garaje?`)) {
-                        car.isWishlist = false; // Lo saca de deseados
-                        car.dateAdded = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }); // Actualiza la fecha a hoy
-                        saveData();
-                        renderActiveView(); // Refresca la vista actual
-                    }
-                }
+                if (!car) return;
+                document.getElementById('move-car-id').value = id;
+                document.getElementById('move-real-cost').value = car.costoAprox || car.costo || '';
+                openModal('move-to-garage-modal');
+            }
+
+            function confirmMoveToGarage() {
+                const id = document.getElementById('move-car-id').value;
+                const car = db.cars.find(c => c.id === id);
+                if (!car) return;
+
+                const realCost = document.getElementById('move-real-cost').value.trim();
+                car.isWishlist = false;
+                car.costo = realCost;
+                car.createdAt = Date.now();
+                car.dateAdded = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                saveData();
+                closeModal('move-to-garage-modal');
+                renderActiveView();
             }
 
             function createCarCard(c) {
@@ -3818,8 +4317,100 @@
                 </div>`;
             }
 
-            function filterCars(isWishlist) {
+            // Funciones de UI para los nuevos Dropdowns
+            function toggleFilterMenu(menuId) {
+                // Cierra todos los demas primero
+                const menus = ['sort-menu', 'type-menu', 'year-menu', 'field-menu'];
+                menus.forEach(id => {
+                    if (id !== menuId) {
+                        const m = document.getElementById(id);
+                        if (m) m.classList.add('hidden');
+                    }
+                });
+
+                const menu = document.getElementById(menuId);
+                if (menu) menu.classList.toggle('hidden');
+            }
+
+            function selectFilterOption(hiddenInputId, displayId, value, label) {
+                const input = document.getElementById(hiddenInputId);
+                const display = document.getElementById(displayId);
+                if (input) {
+                    input.value = value;
+                    // Trigger manual del evento change para que renderActiveView se ejecute
+                    input.dispatchEvent(new Event('change'));
+                }
+                if (display) display.textContent = label;
+
+                // Ocultar menu
+                const menuId = hiddenInputId.replace('filter-', '').replace('search-', '') + '-menu';
+                const menu = document.getElementById(menuId);
+                if (menu) menu.classList.add('hidden');
+            }
+
+            function selectSearchField(value, label) {
+                selectFilterOption('search-field', 'field-display', value, label);
+            }
+
+            function populateDynamicFilterDropdowns() {
+                const typeMenu = document.getElementById('type-menu');
+                const yearMenu = document.getElementById('year-menu');
+                if (!typeMenu || !yearMenu) return;
+
+                const types = Array.from(new Set(db.cars.map(c => c.tipo?.trim()).filter(Boolean))).sort();
+                const years = Array.from(new Set(db.cars.map(c => c.anio?.toString().trim()).filter(Boolean))).sort((a, b) => b.localeCompare(a));
+
+                // Construir botones HTML para Tipo
+                let typeHtml = `<button type="button" onclick="selectFilterOption('filter-type', 'type-display', '', 'Tipo: Todos')" class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans border-b border-dark-border">Todos</button>`;
+                typeHtml += types.map(t => `<button type="button" onclick="selectFilterOption('filter-type', 'type-display', '${t}', '${t}')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">${t}</button>`).join('');
+                typeMenu.innerHTML = typeHtml;
+
+                // Construir botones HTML para Año
+                let yearHtml = `<button type="button" onclick="selectFilterOption('filter-year', 'year-display', '', 'Año: Todos')" class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans border-b border-dark-border">Todos</button>`;
+                yearHtml += years.map(y => `<button type="button" onclick="selectFilterOption('filter-year', 'year-display', '${y}', '${y}')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-banqueta transition-colors font-sans">${y}</button>`).join('');
+                yearMenu.innerHTML = yearHtml;
+            }
+
+            function applySearchAndAttributeFilters(list) {
                 const q = getSearchQuery();
+                const field = document.getElementById('search-field')?.value || 'all';
+                const selectedType = document.getElementById('filter-type')?.value || '';
+                const selectedYear = document.getElementById('filter-year')?.value || '';
+
+                let result = list;
+
+                if (q) {
+                    result = result.filter(c => {
+                        if (field === 'model') return c.model?.toLowerCase().includes(q);
+                        if (field === 'brand') return getBrandName(c.brandId).toLowerCase().includes(q);
+                        if (field === 'serie') return c.serie?.toLowerCase().includes(q);
+                        if (field === 'nomodelo') return c.nomodelo?.toLowerCase().includes(q);
+                        // Modo "all"
+                        return c.model?.toLowerCase().includes(q) ||
+                            (c.colorName && c.colorName.toLowerCase().includes(q)) ||
+                            (c.nomodelo && c.nomodelo.toLowerCase().includes(q)) ||
+                            (c.serie && c.serie.toLowerCase().includes(q)) ||
+                            getMfgName(c.manufacturerId).toLowerCase().includes(q) ||
+                            getBrandName(c.brandId).toLowerCase().includes(q);
+                    });
+                }
+
+                if (selectedType) {
+                    result = result.filter(c => c.tipo && c.tipo.toLowerCase() === selectedType.toLowerCase());
+                }
+
+                if (selectedYear) {
+                    result = result.filter(c => c.anio && c.anio.toString() === selectedYear);
+                }
+
+                if (globalColorFilter) {
+                    result = result.filter(c => c.colorHex && c.colorHex.toLowerCase() === globalColorFilter.toLowerCase());
+                }
+
+                return result;
+            }
+
+            function filterCars(isWishlist) {
                 let filtered = db.cars.filter(c => !!c.isWishlist === isWishlist);
 
                 if (currentFilter && !isWishlist) {
@@ -3828,19 +4419,7 @@
                     if (currentFilter.type === 'collection') filtered = filtered.filter(c => c.collectionId === currentFilter.id);
                 }
 
-                if (q) {
-                    filtered = filtered.filter(c =>
-                        c.model.toLowerCase().includes(q) ||
-                        (c.colorName && c.colorName.toLowerCase().includes(q)) ||
-                        (c.nomodelo && c.nomodelo.toLowerCase().includes(q)) ||
-                        getMfgName(c.manufacturerId).toLowerCase().includes(q) ||
-                        getBrandName(c.brandId).toLowerCase().includes(q)
-                    );
-                }
-
-                if (globalColorFilter) {
-                    filtered = filtered.filter(c => c.colorHex.toLowerCase() === globalColorFilter.toLowerCase());
-                }
+                filtered = applySearchAndAttributeFilters(filtered);
 
                 // Aplicar Ordenamiento Personalizado
                 filtered.sort((a, b) => {
