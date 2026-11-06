@@ -507,10 +507,17 @@
                 <i class="ph-fill ph-factory text-2xl group-hover:scale-110 transition-transform"></i> <span
                     class="block text-sm leading-none">Fabricantes</span>
             </button>
+
+
             <button onclick="switchTab('collections')" id="nav-collections"
                 class="nav-btn hidden md:flex items-center justify-start gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
                 <i class="ph-fill ph-books text-2xl group-hover:scale-110 transition-transform"></i> <span
                     class="block text-sm leading-none">Colecciones</span>
+            </button>
+            <button onclick="switchTab('series')" id="nav-series"
+                class="nav-btn hidden md:flex items-center justify-start gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 text-gray-400 hover:bg-dark-hover hover:text-white bg-transparent group">
+                <i class="ph-fill ph-cards text-2xl group-hover:scale-110 transition-transform"></i> <span
+                    class="block text-sm leading-none">Series / Packs</span>
             </button>
         </nav>
     </aside>
@@ -837,6 +844,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr" id="collections-grid">
                 </div>
             </section>
+
+            <!-- Nueva Sección: Series y Packs -->
+            <section id="section-series" class="section-view fade-in space-y-4 md:space-y-6">
+                <div class="flex justify-between items-center gap-2 sm:gap-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold">Series y Packs</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-fr" id="series-grid">
+                </div>
+            </section>
         </div>
     </main>
 
@@ -873,6 +889,22 @@
             </div>
             <button onclick="closeModal('mobile-more-modal')"
                 class="w-[calc(100%-2.5rem)] mx-5 py-3 rounded-xl bg-white/10 text-white font-bold mb-4">Cerrar</button>
+
+            <button onclick="switchTab('collections'); closeModal('mobile-more-modal')"
+                class="bg-dark-bg border border-dark-border rounded-2xl p-4 flex items-center gap-4 text-white hover:border-banqueta transition-colors">
+                <div class="w-10 h-10 rounded-xl bg-banqueta/10 text-banqueta flex items-center justify-center"><i
+                        class="ph-fill ph-books text-2xl"></i></div>
+                <span class="font-bold text-lg">Colecciones</span>
+                <i class="ph-bold ph-caret-right ml-auto text-gray-500"></i>
+            </button>
+            <!-- BOTÓN MÓVIL SERIES -->
+            <button onclick="switchTab('series'); closeModal('mobile-more-modal')"
+                class="bg-dark-bg border border-dark-border rounded-2xl p-4 flex items-center gap-4 text-white hover:border-banqueta transition-colors">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center"><i
+                        class="ph-fill ph-cards text-2xl"></i></div>
+                <span class="font-bold text-lg">Series / Packs</span>
+                <i class="ph-bold ph-caret-right ml-auto text-gray-500"></i>
+            </button>
         </div>
     </div>
 
@@ -1942,7 +1974,7 @@
             });
 
             // --- LÓGICA DE AUTENTICACIÓN ESTRICTA ---
-            const ALLOWED_EMAIL = "eduardo.lpz.salinas@gmail.com";
+            const ALLOWED_EMAIL = "eduard.lpz.salinas@gmail.com";
 
             function loginWithGoogle() {
                 const provider = new firebase.auth.GoogleAuthProvider();
@@ -2320,7 +2352,7 @@
                 // Resaltar botón "Más" (móvil) si estamos en vistas secundarias
                 const moreBtn = document.getElementById('nav-more');
                 if (moreBtn) {
-                    if (['brands', 'manufacturers', 'collections'].includes(tabId)) {
+                    if (['brands', 'manufacturers', 'collections', 'series'].includes(tabId)) {
                         moreBtn.classList.remove(...inactiveClasses);
                         moreBtn.classList.add(...activeClasses);
                     } else {
@@ -2348,6 +2380,7 @@
                 if (activeTabId === 'brands') renderBrands();
                 if (activeTabId === 'manufacturers') renderManufacturers();
                 if (activeTabId === 'collections') renderCollections();
+                if (activeTabId === 'series') renderSeries();
 
                 applyLazyLoading();
             }
@@ -4016,6 +4049,153 @@
                 </div>`}).join('');
             }
 
+            function renderSeries() {
+                const grid = document.getElementById('series-grid');
+                const q = getSearchQuery();
+
+                // 1. Agrupar todos los autos que pertenezcan a un Pack
+                const packs = {};
+                db.cars.forEach(c => {
+                    if (c.packId) {
+                        if (!packs[c.packId]) packs[c.packId] = [];
+                        packs[c.packId].push(c);
+                    }
+                });
+
+                // 2. Procesar cada Pack para extraer su info
+                let seriesList = Object.keys(packs).map(packId => {
+                    let cars = packs[packId];
+                    const garageCars = cars.filter(c => !c.isWishlist);
+
+                    // Ordenar visualmente por numeración para las miniaturas
+                    cars.sort((a, b) => {
+                        const numA = parseInt(String(a.noserie || '999').split('/')[0]) || 999;
+                        const numB = parseInt(String(b.noserie || '999').split('/')[0]) || 999;
+                        return numA - numB;
+                    });
+
+                    // El nombre será la "serie" registrada en el primer auto, o genérico
+                    const seriesName = cars.find(c => c.serie)?.serie || 'Serie / Set Personalizado';
+
+                    let targetTotal = cars.reduce((max, c) => {
+                        const total = parseTotalFromNoSerie(c.noserie);
+                        return total && total > max ? total : max;
+                    }, 0);
+                    if (targetTotal < cars.length) targetTotal = cars.length;
+
+                    return { id: packId, name: seriesName, cars, garageCount: garageCars.length, targetTotal };
+                });
+
+                if (q) {
+                    seriesList = seriesList.filter(s => s.name.toLowerCase().includes(q) || s.cars.some(c => c.model.toLowerCase().includes(q)));
+                }
+
+                if (seriesList.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full py-16 text-center"><i class="ph-fill ph-cards text-5xl text-gray-800 mb-3"></i><p class="text-gray-400">Aún no hay autos vinculados en Packs o Series.</p></div>';
+                    return;
+                }
+
+                // 3. Dibujar la cuadrícula con el nuevo diseño
+                grid.innerHTML = seriesList.map(s => {
+                    const progressPercent = s.targetTotal > 0 ? Math.round((s.garageCount / s.targetTotal) * 100) : 100;
+                    const isComplete = s.garageCount >= s.targetTotal && s.targetTotal > 0;
+
+                    // Lógica de estados dinámica: 0 autos = Deseada, >0 = En progreso, Completa = Completa
+                    let badgeHtml = '';
+                    let gradientBarClass = '';
+                    let glowClass = '';
+
+                    if (s.garageCount === 0) {
+                        badgeHtml = '<span class="text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-lg border shadow-sm flex items-center gap-1.5 text-blue-400 bg-blue-500/10 border-blue-500/30"><i class="ph-bold ph-star"></i> Deseada</span>';
+                        gradientBarClass = 'from-blue-600/50 to-blue-400/50';
+                        glowClass = 'bg-blue-500/5 group-hover:bg-blue-500/10';
+                    } else if (isComplete) {
+                        badgeHtml = '<span class="text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-lg border shadow-sm flex items-center gap-1.5 text-green-400 bg-green-500/10 border-green-500/30"><i class="ph-bold ph-trophy"></i> Completa</span>';
+                        gradientBarClass = 'from-green-600 to-green-400';
+                        glowClass = 'bg-green-500/10 group-hover:bg-green-500/20';
+                    } else {
+                        badgeHtml = '<span class="text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-lg border shadow-sm flex items-center gap-1.5 text-blue-400 bg-blue-500/10 border-blue-500/30"><i class="ph-bold ph-target"></i> En progreso</span>';
+                        gradientBarClass = 'from-blue-600 to-blue-400';
+                        glowClass = 'bg-blue-500/10 group-hover:bg-blue-500/20';
+                    }
+
+                    // THUMBNAILS MEJORADOS
+                    const thumbnailsHtml = s.cars.slice(0, 6).map(c => {
+                        if (c.isWishlist) {
+                            // DISEÑO: DESEADO (FALTA) - Con rounded-b-[10px] y control z-index
+                            return `
+                            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl border-2 border-dashed border-blue-500/50 bg-[#0a0a0a] shadow-md shrink-0 relative overflow-hidden group/thumb z-10 hover:z-20 hover:scale-110 transition-transform">
+                                <img data-src="${c.cover}" class="lazy-image fade-image w-full h-full object-cover opacity-50 grayscale group-hover/thumb:grayscale-0 transition-all duration-300">
+                                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <i class="ph-bold ph-lock-key text-blue-400/50 text-xl group-hover/thumb:opacity-0 transition-opacity"></i>
+                                </div>
+                                <div class="absolute bottom-0 left-0 right-0 bg-blue-600/90 backdrop-blur-sm text-white text-[7px] sm:text-[8px] font-black text-center py-0.5 tracking-widest rounded-b-[10px]">FALTA</div>
+                                <div class="absolute top-0 right-0 bg-black/80 text-[8px] px-1.5 py-0.5 font-bold text-gray-300 rounded-bl-lg border-b border-l border-white/10">${c.noserie ? c.noserie.split('/')[0] : '-'}</div>
+                            </div>`;
+                        } else {
+                            // DISEÑO: EN GARAJE (CONSEGUIDO) - Con control z-index
+                            return `
+                            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl border-2 border-dark-panel hover:border-banqueta bg-black shadow-lg shrink-0 relative overflow-hidden group/thumb z-10 hover:z-20 hover:scale-110 transition-transform">
+                                <img data-src="${c.cover}" class="lazy-image fade-image w-full h-full object-cover">
+                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent h-1/2"></div>
+                                <div class="absolute bottom-0.5 right-1"><i class="ph-fill ph-check-circle text-green-500 text-[10px] sm:text-xs shadow-black drop-shadow-md"></i></div>
+                                <div class="absolute top-0 left-0 bg-banqueta/90 text-black text-[7px] sm:text-[8px] px-1.5 py-0.5 font-black rounded-br-lg shadow-sm">${c.noserie ? c.noserie.split('/')[0] : '-'}</div>
+                            </div>`;
+                        }
+                    }).join('');
+
+                    const extraCount = s.cars.length > 6 ? `<div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-dashed border-gray-600 bg-[#111] flex items-center justify-center text-sm font-black text-gray-400 shadow-md z-10 hover:z-20 hover:scale-110 transition-transform shrink-0">+${s.cars.length - 6}</div>` : '';
+
+                    return `
+                    <div class="uniform-card cursor-pointer" onclick="viewCategory('pack', '${s.id}', '${s.name.replace(/'/g, "\\'")}')">
+                        <div class="glass-panel rounded-3xl flex flex-col h-full relative overflow-hidden group glow-hover bg-gradient-to-br from-[#1a1a1a] to-[#0A0A0A] border-white/5 shadow-xl">
+                            
+                            <!-- Decoración de iluminación de fondo -->
+                            <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full blur-3xl transition-all pointer-events-none ${glowClass}"></div>
+
+                            <div class="p-5 sm:p-6 relative z-10 flex flex-col h-full gap-5">
+                                
+                                <!-- ENCABEZADO -->
+                                <div class="flex justify-between items-start gap-4">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 mb-1.5">
+                                            <span class="bg-white/5 text-gray-300 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border border-white/10 shadow-sm flex items-center gap-1"><i class="ph-bold ph-cards"></i> Serie / Pack</span>
+                                        </div>
+                                        <h3 class="font-black text-xl sm:text-2xl text-white truncate font-poppins drop-shadow-md">${s.name}</h3>
+                                    </div>
+                                    <div class="shrink-0">
+                                        ${badgeHtml}
+                                    </div>
+                                </div>
+                                
+                                <!-- BARRA DE PROGRESO -->
+                                <div class="mt-2">
+                                    <div class="flex justify-between items-end mb-1.5">
+                                        <span class="text-gray-400 text-[10px] font-bold uppercase tracking-widest font-geist">Progreso</span>
+                                        <span class="text-white text-xs font-black font-geist bg-black/40 px-2 py-0.5 rounded border border-white/5">${s.garageCount} / ${s.targetTotal}</span>
+                                    </div>
+                                    <div class="w-full bg-[#111] rounded-full h-3 border border-black shadow-inner overflow-hidden relative">
+                                        <div class="bg-gradient-to-r ${gradientBarClass} h-full rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all duration-1000 relative" style="width: ${progressPercent}%">
+                                            <!-- Efecto de rayas diagonales (estilo fibra de carbono/warning) -->
+                                            <div class="absolute inset-0 bg-white/20 w-full h-full" style="background-image: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent); background-size: 1rem 1rem;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- THUMBNAILS -->
+                                <!-- Se eliminó 'overflow-hidden' de este contenedor para que el hover no se corte -->
+                                <div class="flex -space-x-3 sm:-space-x-4 py-2 mt-auto justify-start items-center">
+                                    ${thumbnailsHtml}
+                                    ${extraCount}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                applyLazyLoading();
+            }
+
             function viewCar(id) {
                 const c = db.cars.find(x => x.id === id);
                 if (!c) return;
@@ -4504,21 +4684,29 @@
                     if (currentFilter.type === 'brand') filtered = filtered.filter(c => c.brandId === currentFilter.id);
                     if (currentFilter.type === 'manufacturer') filtered = filtered.filter(c => c.manufacturerId === currentFilter.id);
                     if (currentFilter.type === 'collection') filtered = filtered.filter(c => c.collectionId === currentFilter.id);
+                    if (currentFilter.type === 'pack') filtered = filtered.filter(c => c.packId === currentFilter.id);
                 }
 
                 filtered = applySearchAndAttributeFilters(filtered);
 
-                // Aplicar Ordenamiento Personalizado
-                filtered.sort((a, b) => {
-                    if (currentSort === 'newest') return b.createdAt - a.createdAt;
-                    if (currentSort === 'oldest') return a.createdAt - b.createdAt;
-                    if (currentSort === 'az') return a.model.localeCompare(b.model);
-                    if (currentSort === 'za') return b.model.localeCompare(a.model);
-                    if (currentSort === 'brand') return getBrandName(a.brandId).localeCompare(getBrandName(b.brandId));
-                    if (currentSort === 'mfg') return getMfgName(a.manufacturerId).localeCompare(getMfgName(b.manufacturerId));
-                    return 0;
-                });
-
+                // Aplicar Ordenamiento (Si es una serie, fuerza ordenar por la numeración del auto)
+                if (currentFilter && currentFilter.type === 'pack') {
+                    filtered.sort((a, b) => {
+                        const numA = parseInt(String(a.noserie || '999').split('/')[0]) || 999;
+                        const numB = parseInt(String(b.noserie || '999').split('/')[0]) || 999;
+                        return numA - numB;
+                    });
+                } else {
+                    filtered.sort((a, b) => {
+                        if (currentSort === 'newest') return b.createdAt - a.createdAt;
+                        if (currentSort === 'oldest') return a.createdAt - b.createdAt;
+                        if (currentSort === 'az') return a.model.localeCompare(b.model);
+                        if (currentSort === 'za') return b.model.localeCompare(a.model);
+                        if (currentSort === 'brand') return getBrandName(a.brandId).localeCompare(getBrandName(b.brandId));
+                        if (currentSort === 'mfg') return getMfgName(a.manufacturerId).localeCompare(getMfgName(b.manufacturerId));
+                        return 0;
+                    });
+                }
                 return filtered;
             }
 
@@ -4532,6 +4720,7 @@
                 if (!isWishlist && currentFilter) {
                     let returnTab = currentFilter.type + 's';
                     if (currentFilter.type === 'collection') returnTab = 'collections';
+                    if (currentFilter.type === 'pack') returnTab = 'series';
 
                     filterHeader.innerHTML = `
                     <button onclick="switchTab('${returnTab}')"
